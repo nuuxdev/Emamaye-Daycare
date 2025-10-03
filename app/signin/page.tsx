@@ -11,7 +11,7 @@ export default function SignIn() {
   const router = useRouter();
   return (
     <div className="flex flex-col gap-8 w-96 mx-auto h-screen justify-center items-center">
-      <p>Log in to see the numbers</p>
+      <p>Emamaye Daycare Pro</p>
       <form
         className="flex flex-col gap-2"
         onSubmit={(e) => {
@@ -45,7 +45,7 @@ export default function SignIn() {
         >
           {flow === "signIn" ? "Sign in" : "Sign up"}
         </button>
-        <div className="flex flex-row gap-2">
+        {/* <div className="flex flex-row gap-2">
           <span>
             {flow === "signIn"
               ? "Don't have an account?"
@@ -57,11 +57,11 @@ export default function SignIn() {
           >
             {flow === "signIn" ? "Sign up instead" : "Sign in instead"}
           </span>
-        </div>
+        </div> */}
         {error && (
           <div className="bg-red-500/20 border-2 border-red-500/50 rounded-md p-2">
             <p className="text-foreground font-mono text-xs">
-              Error signing in: {error}
+              Oops!😯Error signing in!
             </p>
           </div>
         )}
