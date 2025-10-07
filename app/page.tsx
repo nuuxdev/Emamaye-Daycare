@@ -48,15 +48,17 @@ function Content() {
     useQuery(api.myFunctions.listNumbers, {
       count: 10,
     }) ?? {};
+
+  const children = useQuery(api.children.getChildren);
   const addNumber = useMutation(api.myFunctions.addNumber);
   const addChild = useMutation(api.children.addChild);
 
   const addChildHandler = async () => {
     const childId = await addChild({
-      fullName: "test two",
+      fullName: "test three",
       gender: "female",
       avatar:
-        "https://gravatar.com/avatar/87b1fab776cece52210b50dc49a8cf3a?s=400&d=robohash&r=x",
+        "https://gravatar.com/avatar/486c13f8bc3e0d30a1d7f45c0adf1bdb?s=400&d=robohash&r=x",
     });
 
     console.log(childId);
@@ -89,6 +91,15 @@ function Content() {
           ? "Click the button!"
           : (numbers?.join(", ") ?? "...")}
       </p>
+      <div className="flex gap-4">
+        {children?.map((child) => (
+          <div key={child._id}>
+            <img src={child.avatar} alt={child.fullName} className="size-16" />
+            <p>{child.fullName}</p>
+            <p>{child.gender}</p>
+          </div>
+        ))}
+      </div>
       <button
         className="bg-foreground text-background text-sm px-4 py-2 rounded-md"
         onClick={addChildHandler}
