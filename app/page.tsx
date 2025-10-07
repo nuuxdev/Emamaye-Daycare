@@ -49,6 +49,18 @@ function Content() {
       count: 10,
     }) ?? {};
   const addNumber = useMutation(api.myFunctions.addNumber);
+  const addChild = useMutation(api.children.addChild);
+
+  const addChildHandler = async () => {
+    const childId = await addChild({
+      fullName: "test two",
+      gender: "female",
+      avatar:
+        "https://gravatar.com/avatar/87b1fab776cece52210b50dc49a8cf3a?s=400&d=robohash&r=x",
+    });
+
+    console.log(childId);
+  };
 
   if (viewer === undefined || numbers === undefined) {
     return (
@@ -77,13 +89,12 @@ function Content() {
           ? "Click the button!"
           : (numbers?.join(", ") ?? "...")}
       </p>
-      {/* <p>
-        See the{" "}
-        <Link href="/server" className="underline hover:no-underline">
-          /server route
-        </Link>{" "}
-        for an example of loading data in a server component
-      </p> */}
+      <button
+        className="bg-foreground text-background text-sm px-4 py-2 rounded-md"
+        onClick={addChildHandler}
+      >
+        Add Child
+      </button>
     </div>
   );
 }

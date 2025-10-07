@@ -10,4 +10,9 @@ export default defineSchema({
   numbers: defineTable({
     value: v.number(),
   }),
+  children: defineTable({
+    fullName: v.string(),
+    gender: v.union(v.literal("male"), v.literal("female")),
+    avatar: v.string(),
+  }),
 });
