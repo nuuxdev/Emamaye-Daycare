@@ -6,7 +6,7 @@ export const addChild = mutation({
   args: {
     fullName: v.string(),
     gender: v.union(v.literal("male"), v.literal("female")),
-    avatar: v.string(),
+    avatar: v.id("_storage"),
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
@@ -14,11 +14,11 @@ export const addChild = mutation({
 
     const user = await ctx.db.get(userId);
     if (!user) throw new Error("User not found");
-
+    const avatarUrl = await ctx.storage.getUrl(args.avatar);
     const childId = await ctx.db.insert("children", {
       fullName: args.fullName,
       gender: args.gender,
-      avatar: args.avatar,
+      avatar: avatarUrl ?? "",
     });
 
     return childId;
@@ -32,6 +32,7 @@ export const getChildren = query({
     if (!userId) throw new Error("Unauthorized");
 
     const children = await ctx.db.query("children").collect();
+
     return children;
   },
 });

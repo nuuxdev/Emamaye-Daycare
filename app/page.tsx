@@ -5,6 +5,7 @@ import { api } from "../convex/_generated/api";
 // import Link from "next/link";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { useRouter } from "next/navigation";
+import { Id } from "@/convex/_generated/dataModel";
 
 export default function Home() {
   return (
@@ -52,13 +53,30 @@ function Content() {
   const children = useQuery(api.children.getChildren);
   const addNumber = useMutation(api.myFunctions.addNumber);
   const addChild = useMutation(api.children.addChild);
+  const generateUploadUrl = useMutation(api.images.generateUploadUrl);
 
-  const addChildHandler = async () => {
+  const addChildHandler = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const fullName = formData.get("fullName");
+    const gender = formData.get("gender");
+    const avatarImg = formData.get("avatar") as File;
+
+    // Step 1: Get a short-lived upload URL
+    const postUrl = await generateUploadUrl();
+    // Step 2: POST the file to the URL
+    const avatarUrl = await fetch(postUrl, {
+      method: "POST",
+      headers: { "Content-Type": avatarImg!.type },
+      body: avatarImg,
+    });
+    const { storageId } = await avatarUrl.json();
+    // Step 3: Save the newly allocated storage id to the database
+    const avatar = storageId;
     const childId = await addChild({
-      fullName: "test three",
-      gender: "female",
-      avatar:
-        "https://gravatar.com/avatar/486c13f8bc3e0d30a1d7f45c0adf1bdb?s=400&d=robohash&r=x",
+      fullName: fullName as string,
+      gender: gender as "male" | "female",
+      avatar: avatar as Id<"_storage">,
     });
 
     console.log(childId);
@@ -100,12 +118,28 @@ function Content() {
           </div>
         ))}
       </div>
-      <button
-        className="bg-foreground text-background text-sm px-4 py-2 rounded-md"
-        onClick={addChildHandler}
-      >
-        Add Child
-      </button>
+      <form onSubmit={addChildHandler}>
+        <input
+          className="border-2"
+          type="text"
+          name="fullName"
+          placeholder="full name"
+        />
+        <select name="gender" id="gender">
+          <option value="male">Male</option>
+          <option value="female">Female</option>
+        </select>
+        <input
+          className="border-2"
+          type="file"
+          name="avatar"
+          id="avatar"
+          accept="image/*"
+        />
+        <button className="border-2" type="submit">
+          Add Child
+        </button>
+      </form>
     </div>
   );
 }
