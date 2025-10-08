@@ -6,6 +6,7 @@ import { api } from "../convex/_generated/api";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { useRouter } from "next/navigation";
 import { Id } from "@/convex/_generated/dataModel";
+import { useState } from "react";
 
 export default function Home() {
   return (
@@ -44,10 +45,19 @@ function SignOutButton() {
 }
 
 function Content() {
+  const [attendanceDate, setAttendanceDate] = useState(
+    new Date().toISOString().slice(0, 10),
+  );
   const children = useQuery(api.children.getChildren);
+  const attendancesByDate = useQuery(api.attendance.getAttendanceByDate, {
+    date: attendanceDate,
+  });
   const addChild = useMutation(api.children.addChild);
   const generateUploadUrl = useMutation(api.images.generateUploadUrl);
+  const recordAttendance = useMutation(api.attendance.recordAttendance);
 
+  if (attendancesByDate === undefined || children === undefined)
+    return <div>Loading...</div>;
   const addChildHandler = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
@@ -75,11 +85,24 @@ function Content() {
     console.log(childId);
   };
 
+  const recordAttendanceHandler = async (
+    e: React.FormEvent<HTMLFormElement>,
+  ) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const attendanceRecord = formData.getAll("attendance") as Id<"children">[];
+    const date = new Date().toISOString();
+    await recordAttendance({ attendanceRecord, date });
+  };
+
   return (
     <div>
-      <div style={{ display: "grid", gap: "1rem" }}>
+      <form
+        onSubmit={recordAttendanceHandler}
+        style={{ display: "grid", gap: "1rem" }}
+      >
         <h2>Children List</h2>
-        {children?.map((child) => (
+        {children.map((child) => (
           <div key={child._id} style={{ display: "flex", gap: "1rem" }}>
             <div
               style={{
@@ -97,9 +120,18 @@ function Content() {
             </div>
             <p>{child.fullName}</p>
             <p>{child.gender}</p>
+            <input
+              type="checkbox"
+              name="attendance"
+              value={child._id}
+              defaultChecked={attendancesByDate.some(
+                (attendance) => attendance.childId === child._id,
+              )}
+            />
           </div>
         ))}
-      </div>
+        <button type="submit">Record Attendance</button>
+      </form>
       <form onSubmit={addChildHandler} style={{ display: "grid", gap: "1rem" }}>
         <h2>Add Child</h2>
         <input

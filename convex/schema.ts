@@ -15,4 +15,8 @@ export default defineSchema({
     gender: v.union(v.literal("male"), v.literal("female")),
     avatar: v.string(),
   }),
+  attendance: defineTable({
+    childId: v.id("children"),
+    date: v.string(),
+  }).index("by_date", ["date"]),
 });
