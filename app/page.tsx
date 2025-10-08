@@ -1,6 +1,6 @@
 "use client";
 
-import { useConvexAuth, useMutation, useQuery } from "convex/react";
+import { useAction, useConvexAuth, useMutation, useQuery } from "convex/react";
 import { api } from "../convex/_generated/api";
 // import Link from "next/link";
 import { useAuthActions } from "@convex-dev/auth/react";
@@ -53,7 +53,7 @@ function Content() {
     date: attendanceDate,
   });
   const addChild = useMutation(api.children.addChild);
-  const generateUploadUrl = useMutation(api.images.generateUploadUrl);
+  const uploadImage = useAction(api.images.uploadImage);
   const recordAttendance = useMutation(api.attendance.recordAttendance);
 
   if (attendancesByDate === undefined || children === undefined)
@@ -65,24 +65,17 @@ function Content() {
     const gender = formData.get("gender");
     const avatarImg = formData.get("avatar") as File;
 
-    // Step 1: Get a short-lived upload URL
-    const postUrl = await generateUploadUrl();
-    // Step 2: POST the file to the URL
-    const avatarUrl = await fetch(postUrl, {
-      method: "POST",
-      headers: { "Content-Type": avatarImg!.type },
-      body: avatarImg,
+    const avatarArrayBuffer = await avatarImg.arrayBuffer();
+
+    const storageId = await uploadImage({
+      imageArrayBuffer: avatarArrayBuffer,
     });
-    const { storageId } = await avatarUrl.json();
-    // Step 3: Save the newly allocated storage id to the database
-    const avatar = storageId;
+
     const childId = await addChild({
       fullName: fullName as string,
       gender: gender as "male" | "female",
-      avatar: avatar as Id<"_storage">,
+      avatar: storageId as Id<"_storage">,
     });
-
-    console.log(childId);
   };
 
   const recordAttendanceHandler = async (
@@ -155,9 +148,9 @@ function Content() {
         />
         <fieldset>
           <legend>Gender</legend>
-          <input type="radio" name="gender" id="male" />
+          <input type="radio" name="gender" id="male" value="male" />
           <label htmlFor="male">Male</label>
-          <input type="radio" name="gender" id="female" />
+          <input type="radio" name="gender" id="female" value="female" />
           <label htmlFor="female">Female</label>
         </fieldset>
         <input
