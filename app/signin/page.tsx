@@ -10,10 +10,12 @@ export default function SignIn() {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   return (
-    <div className="flex flex-col gap-8 w-96 mx-auto h-screen justify-center items-center">
-      <p>Emamaye Daycare Pro</p>
+    <main>
+      <h1>
+        Emamaye Daycare <span style={{ color: "hotpink" }}>Pro</span>
+      </h1>
       <form
-        className="flex flex-col gap-2"
+        style={{ display: "grid", gap: "1rem" }}
         onSubmit={(e) => {
           e.preventDefault();
           const formData = new FormData(e.target as HTMLFormElement);
@@ -27,22 +29,9 @@ export default function SignIn() {
             });
         }}
       >
-        <input
-          className="bg-background text-foreground rounded-md p-2 border-2 border-slate-200 dark:border-slate-800"
-          type="email"
-          name="email"
-          placeholder="Email"
-        />
-        <input
-          className="bg-background text-foreground rounded-md p-2 border-2 border-slate-200 dark:border-slate-800"
-          type="password"
-          name="password"
-          placeholder="Password"
-        />
-        <button
-          className="bg-foreground text-background rounded-md"
-          type="submit"
-        >
+        <input type="email" name="email" placeholder="Email" />
+        <input type="password" name="password" placeholder="Password" />
+        <button type="submit">
           {flow === "signIn" ? "Sign in" : "Sign up"}
         </button>
         {/* <div className="flex flex-row gap-2">
@@ -66,6 +55,6 @@ export default function SignIn() {
           </div>
         )}
       </form>
-    </div>
+    </main>
   );
 }
