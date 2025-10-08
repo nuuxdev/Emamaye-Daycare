@@ -71,7 +71,7 @@ function Content() {
       imageArrayBuffer: avatarArrayBuffer,
     });
 
-    const childId = await addChild({
+    await addChild({
       fullName: fullName as string,
       gender: gender as "male" | "female",
       avatar: storageId as Id<"_storage">,
