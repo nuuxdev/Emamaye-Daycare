@@ -10,10 +10,11 @@ export default function SignIn() {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   return (
-    <main>
+    <main className="center">
       <h1>
-        Emamaye Daycare <span style={{ color: "hotpink" }}>Pro</span>
+        Emamaye daycare <span>Pro</span>
       </h1>
+      <p className="subheader">the least I can do for emamaye</p>
       <form
         style={{ display: "grid", gap: "1rem" }}
         onSubmit={(e) => {
@@ -31,21 +32,18 @@ export default function SignIn() {
       >
         <input type="email" name="email" placeholder="Email" />
         <input type="password" name="password" placeholder="Password" />
-        <button type="submit">
+        <button type="submit" className="primary-button">
           {flow === "signIn" ? "Sign in" : "Sign up"}
         </button>
-        {/* <div className="flex flex-row gap-2">
-          <span>
+        {/* <div className="inline-flex">
+          <p>
             {flow === "signIn"
               ? "Don't have an account?"
               : "Already have an account?"}
-          </span>
-          <span
-            className="text-foreground underline hover:no-underline cursor-pointer"
-            onClick={() => setFlow(flow === "signIn" ? "signUp" : "signIn")}
-          >
+          </p>
+          <a href={flow === "signIn" ? "/signup" : "/signin"}>
             {flow === "signIn" ? "Sign up instead" : "Sign in instead"}
-          </span>
+          </a>
         </div> */}
         {error && (
           <div className="bg-red-500/20 border-2 border-red-500/50 rounded-md p-2">
