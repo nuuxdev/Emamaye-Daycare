@@ -91,8 +91,7 @@ function Content() {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const attendanceRecord = formData.getAll("attendance") as Id<"children">[];
-    const date = new Date().toISOString();
-    await recordAttendance({ attendanceRecord, date });
+    await recordAttendance({ attendanceRecord, date: attendanceDate });
   };
 
   return (
@@ -102,6 +101,12 @@ function Content() {
         style={{ display: "grid", gap: "1rem" }}
       >
         <h2>Children List</h2>
+        <input
+          type="date"
+          value={attendanceDate}
+          onChange={(e) => setAttendanceDate(e.target.value)}
+          max={new Date().toISOString().slice(0, 10)}
+        />
         {children.map((child) => (
           <div key={child._id} style={{ display: "flex", gap: "1rem" }}>
             <div
@@ -127,10 +132,18 @@ function Content() {
               defaultChecked={attendancesByDate.some(
                 (attendance) => attendance.childId === child._id,
               )}
+              disabled={
+                attendanceDate !== new Date().toISOString().slice(0, 10)
+              }
             />
           </div>
         ))}
-        <button type="submit">Record Attendance</button>
+        <button
+          type="submit"
+          disabled={attendanceDate !== new Date().toISOString().slice(0, 10)}
+        >
+          Record Attendance
+        </button>
       </form>
       <form onSubmit={addChildHandler} style={{ display: "grid", gap: "1rem" }}>
         <h2>Add Child</h2>
