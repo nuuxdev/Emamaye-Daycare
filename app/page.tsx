@@ -1,11 +1,8 @@
 "use client";
 
-import { useAction, useConvexAuth, useMutation } from "convex/react";
-import { api } from "../convex/_generated/api";
-// import Link from "next/link";
+import { useConvexAuth } from "convex/react";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { useRouter } from "next/navigation";
-import { Id } from "@/convex/_generated/dataModel";
 import Link from "next/link";
 
 export default function Home() {
