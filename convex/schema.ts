@@ -17,6 +17,7 @@ export default defineSchema({
   }),
   attendance: defineTable({
     childId: v.id("children"),
+    status: v.optional(v.union(v.literal("present"), v.literal("absent"))),
     date: v.string(),
   }).index("by_date", ["date"]),
 });
