@@ -7,6 +7,7 @@ import { useAuthActions } from "@convex-dev/auth/react";
 import { useRouter } from "next/navigation";
 import { Id } from "@/convex/_generated/dataModel";
 import { useState } from "react";
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -19,6 +20,9 @@ export default function Home() {
         <h1>Emamaye Daycare Pro</h1>
         <Content />
       </main>
+      <footer>
+        <Link href="/attendance">Attendance</Link>
+      </footer>
     </>
   );
 }
@@ -45,19 +49,9 @@ function SignOutButton() {
 }
 
 function Content() {
-  const [attendanceDate, setAttendanceDate] = useState(
-    new Date().toISOString().slice(0, 10),
-  );
-  const children = useQuery(api.children.getChildren);
-  const attendancesByDate = useQuery(api.attendance.getAttendanceByDate, {
-    date: attendanceDate,
-  });
   const addChild = useMutation(api.children.addChild);
   const uploadImage = useAction(api.images.uploadImage);
-  const recordAttendance = useMutation(api.attendance.recordAttendance);
 
-  if (attendancesByDate === undefined || children === undefined)
-    return <div>Loading...</div>;
   const addChildHandler = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
@@ -78,67 +72,8 @@ function Content() {
     });
   };
 
-  const recordAttendanceHandler = async (
-    e: React.FormEvent<HTMLFormElement>,
-  ) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const attendanceRecord = formData.getAll("attendance") as Id<"children">[];
-    await recordAttendance({ attendanceRecord, date: attendanceDate });
-  };
-
   return (
     <div>
-      <form
-        onSubmit={recordAttendanceHandler}
-        style={{ display: "grid", gap: "1rem" }}
-      >
-        <h2>Children List</h2>
-        <input
-          type="date"
-          value={attendanceDate}
-          onChange={(e) => setAttendanceDate(e.target.value)}
-          max={new Date().toISOString().slice(0, 10)}
-        />
-        {children.map((child) => (
-          <div key={child._id} style={{ display: "flex", gap: "1rem" }}>
-            <div
-              style={{
-                width: "4rem",
-                height: "4rem",
-                borderRadius: "1rem",
-                overflow: "hidden",
-              }}
-            >
-              <img
-                style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                src={child.avatar}
-                alt={child.fullName}
-              />
-            </div>
-            <p>{child.fullName}</p>
-            <p>{child.gender}</p>
-            <input
-              type="checkbox"
-              name="attendance"
-              value={child._id}
-              defaultChecked={attendancesByDate.some(
-                (attendance) => attendance.childId === child._id,
-              )}
-              disabled={
-                attendanceDate !== new Date().toISOString().slice(0, 10)
-              }
-            />
-          </div>
-        ))}
-        <button
-          type="submit"
-          disabled={attendanceDate !== new Date().toISOString().slice(0, 10)}
-          className="primary-button"
-        >
-          Record Attendance
-        </button>
-      </form>
       <form onSubmit={addChildHandler} style={{ display: "grid", gap: "1rem" }}>
         <h2>Add Child</h2>
         <input
