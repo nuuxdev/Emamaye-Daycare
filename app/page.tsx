@@ -134,6 +134,7 @@ function Content() {
         <button
           type="submit"
           disabled={attendanceDate !== new Date().toISOString().slice(0, 10)}
+          className="primary-button"
         >
           Record Attendance
         </button>
@@ -160,7 +161,7 @@ function Content() {
           id="avatar"
           accept="image/*"
         />
-        <button className="border-2" type="submit">
+        <button className="primary-button" type="submit">
           Add Child
         </button>
       </form>
