@@ -58,9 +58,6 @@
     padding: 1.25em 1em;
     border-radius: 100vw;
   }
-  button {
-    margin-top: 2rem;
-  }
   span {
     color: var(--primary-color);
   }
@@ -90,6 +87,7 @@
     box-shadow: 0 0 10px 2px var(--border-primary);
     font-weight: bold;
     font-size: 1rem;
+    margin-top: 2rem;
   }
 }
 @layer utilities {
