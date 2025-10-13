@@ -31,3 +31,17 @@ export const getAttendanceByDate = query({
       .collect();
   },
 });
+
+export const updateSingleAttendance = mutation({
+  args: {
+    attendanceId: v.id("attendance"),
+    status: v.union(v.literal("present"), v.literal("absent")),
+  },
+  handler: async (ctx, args) => {
+    const result = await ctx.db.patch(args.attendanceId, {
+      status: args.status,
+    });
+    console.log(result);
+    return result;
+  },
+});
