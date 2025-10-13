@@ -5,7 +5,6 @@ export default function AttendanceCard({
   childrenData,
   attendanceData,
   saveAttendance,
-  isFirstAttendance,
   recordAttendanceHandler,
 }: {
   currentChild: Doc<"children">;
@@ -15,7 +14,6 @@ export default function AttendanceCard({
     status: Doc<"attendance">["status"];
   }[];
   saveAttendance: (status: Doc<"attendance">["status"]) => void;
-  isFirstAttendance: boolean;
   recordAttendanceHandler: () => void;
 }) {
   return (
@@ -85,7 +83,7 @@ export default function AttendanceCard({
             attendanceData.length === childrenData.length ? "block" : "none",
         }}
       >
-        {isFirstAttendance ? "Save" : "Update"}
+        Save
       </button>
     </>
   );

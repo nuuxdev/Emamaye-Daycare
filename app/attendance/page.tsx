@@ -20,23 +20,20 @@ export default function Attendance() {
   const [attendanceData, setAttendanceData] = useState<
     { childId: Id<"children">; status: Doc<"attendance">["status"] }[]
   >([]);
-  const [isFirstAttendance, setIsFirstAttendance] = useState(true);
 
   useEffect(() => {
     if (attendancesByDate === undefined) return;
     console.log("effect running without returning");
-    if (attendancesByDate !== undefined && attendancesByDate.length !== 0) {
+    if (attendancesByDate.length !== 0) {
       setAttendanceData(
         attendancesByDate.map((attendance) => ({
           childId: attendance.childId,
           status: attendance.status,
         })),
       );
-      setIsFirstAttendance(false);
       setView("list");
     } else {
       setAttendanceData([]);
-      setIsFirstAttendance(true);
       if (attendanceDate === new Date().toISOString().slice(0, 10)) {
         setView("card");
       }
@@ -68,7 +65,6 @@ export default function Attendance() {
         childrenData={childrenData}
         attendanceData={attendanceData}
         saveAttendance={saveAttendance}
-        isFirstAttendance={isFirstAttendance}
         recordAttendanceHandler={recordAttendanceHandler}
       />
     ),
@@ -76,9 +72,6 @@ export default function Attendance() {
       <AttendanceList
         childrenData={childrenData}
         attendancesByDate={attendancesByDate}
-        saveAttendance={saveAttendance}
-        isFirstAttendance={isFirstAttendance}
-        recordAttendanceHandler={recordAttendanceHandler}
       />
     ),
   };

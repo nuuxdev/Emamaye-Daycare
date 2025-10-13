@@ -5,15 +5,9 @@ import { useMutation } from "convex/react";
 export default function AttendanceList({
   childrenData,
   attendancesByDate,
-  saveAttendance,
-  isFirstAttendance,
-  recordAttendanceHandler,
 }: {
   childrenData: Doc<"children">[];
   attendancesByDate: Doc<"attendance">[];
-  saveAttendance: (status: "present" | "absent") => void;
-  isFirstAttendance: boolean;
-  recordAttendanceHandler: () => void;
 }) {
   const updateSingleAttendance = useMutation(
     api.attendance.updateSingleAttendance,
