@@ -38,7 +38,7 @@ export default function Attendance() {
         setView("card");
       }
     }
-  }, [attendancesByDate]);
+  }, [attendancesByDate, attendanceDate]);
   const recordAttendance = useMutation(api.attendance.recordAttendance);
 
   const recordAttendanceHandler = async () => {
