@@ -13,6 +13,16 @@ export default defineSchema({
   children: defineTable({
     fullName: v.string(),
     gender: v.union(v.literal("male"), v.literal("female")),
+    dateOfBirth: v.string(),
+    ageGroup: v.string(),
+    avatar: v.string(),
+    primaryGuardian: v.id("guardians"),
+  }),
+  guardians: defineTable({
+    fullName: v.string(),
+    relationToChild: v.string(),
+    address: v.string(),
+    phoneNumber: v.string(),
     avatar: v.string(),
   }),
   attendance: defineTable({

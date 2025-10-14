@@ -4,9 +4,20 @@ import { getAuthUserId } from "@convex-dev/auth/server";
 
 export const addChild = mutation({
   args: {
-    fullName: v.string(),
-    gender: v.union(v.literal("male"), v.literal("female")),
-    avatar: v.id("_storage"),
+    childData: v.object({
+      fullName: v.string(),
+      gender: v.union(v.literal("male"), v.literal("female")),
+      dateOfBirth: v.string(),
+      ageGroup: v.string(),
+      avatar: v.id("_storage"),
+    }),
+    guardianData: v.object({
+      fullName: v.string(),
+      relationToChild: v.string(),
+      address: v.string(),
+      phoneNumber: v.string(),
+      avatar: v.id("_storage"),
+    }),
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
@@ -14,14 +25,29 @@ export const addChild = mutation({
 
     const user = await ctx.db.get(userId);
     if (!user) throw new Error("User not found");
-    const avatarUrl = await ctx.storage.getUrl(args.avatar);
-    const childId = await ctx.db.insert("children", {
-      fullName: args.fullName,
-      gender: args.gender,
-      avatar: avatarUrl ?? "",
+    const guardianAvatarUrl = await ctx.storage.getUrl(
+      args.guardianData.avatar,
+    );
+    const guardianId = await ctx.db.insert("guardians", {
+      fullName: args.guardianData.fullName,
+      relationToChild: args.guardianData.relationToChild,
+      address: args.guardianData.address,
+      phoneNumber: args.guardianData.phoneNumber,
+      avatar: guardianAvatarUrl ?? "",
     });
 
-    return childId;
+    const childAvatarUrl = await ctx.storage.getUrl(args.childData.avatar);
+
+    const childId = await ctx.db.insert("children", {
+      fullName: args.childData.fullName,
+      gender: args.childData.gender,
+      dateOfBirth: args.childData.dateOfBirth,
+      ageGroup: args.childData.ageGroup,
+      avatar: childAvatarUrl ?? "",
+      primaryGuardian: guardianId,
+    });
+
+    return { childId, guardianId };
   },
 });
 

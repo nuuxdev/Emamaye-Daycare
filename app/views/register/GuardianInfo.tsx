@@ -1,32 +1,21 @@
-import { Dispatch, SetStateAction, useState } from "react";
+import { TGuardianInfo, TSavedSteps } from "@/app/register/page";
+import { Dispatch, SetStateAction } from "react";
 import { useForm } from "react-hook-form";
 
-type TDefaultValues = {
-  fullName: string;
-  relationToChild: string;
-  address: string;
-  phoneNumber: string;
-};
-
 export default function GuardianInfo({
-  saveStep,
-  savedStep,
+  saveSteps,
+  savedSteps,
   setStep,
   step,
 }: {
-  saveStep: Dispatch<SetStateAction<Record<string, any>[]>>;
-  savedStep: Record<string, any>[];
+  saveSteps: Dispatch<SetStateAction<TSavedSteps>>;
+  savedSteps: TSavedSteps;
   setStep: Dispatch<SetStateAction<number>>;
   step: number;
 }) {
-  const defaultValues: TDefaultValues = {
-    fullName: savedStep[step]?.fullName || "",
-    relationToChild: savedStep[step]?.relationToChild || "",
-    address: savedStep[step]?.address || "",
-    phoneNumber: savedStep[step]?.phoneNumber || "",
-  };
+  const defaultValues: TGuardianInfo = savedSteps[step] as TGuardianInfo;
 
-  const { register, trigger, getValues } = useForm<TDefaultValues>({
+  const { register, trigger, getValues } = useForm<TGuardianInfo>({
     defaultValues,
   });
 
@@ -41,9 +30,9 @@ export default function GuardianInfo({
       setStep((prev) => prev - 1);
     }
 
-    const savedStateCopy = [...savedStep];
+    const savedStateCopy = [...savedSteps] as TSavedSteps;
     savedStateCopy[step] = data;
-    saveStep(savedStateCopy);
+    saveSteps(savedStateCopy);
   };
 
   return (

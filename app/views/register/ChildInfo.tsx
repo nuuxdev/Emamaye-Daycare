@@ -1,32 +1,21 @@
-import { Dispatch, SetStateAction, useState } from "react";
+import { TChildInfo, TSavedSteps } from "@/app/register/page";
+import { Dispatch, SetStateAction } from "react";
 import { useForm } from "react-hook-form";
 
-type TDefaultValues = {
-  fullName: string;
-  gender: string;
-  dateOfBirth: string;
-  ageGroup: string;
-};
-
 export default function ChildInfo({
-  saveStep,
-  savedStep,
+  saveSteps,
+  savedSteps,
   setStep,
   step,
 }: {
-  saveStep: Dispatch<SetStateAction<Record<string, any>[]>>;
-  savedStep: Record<string, any>[];
+  saveSteps: Dispatch<SetStateAction<TSavedSteps>>;
+  savedSteps: TSavedSteps;
   setStep: Dispatch<SetStateAction<number>>;
   step: number;
 }) {
-  const defaultValues: TDefaultValues = {
-    fullName: savedStep[step]?.fullName || "",
-    gender: savedStep[step]?.gender || "",
-    dateOfBirth: savedStep[step]?.dateOfBirth || "",
-    ageGroup: savedStep[step]?.ageGroup || "",
-  };
+  const defaultValues: TChildInfo = savedSteps[step] as TChildInfo;
 
-  const { register, trigger, getValues } = useForm<TDefaultValues>({
+  const { register, trigger, getValues } = useForm<TChildInfo>({
     defaultValues,
   });
 
@@ -41,9 +30,9 @@ export default function ChildInfo({
       setStep((prev) => prev - 1);
     }
 
-    const savedStateCopy = [...savedStep];
+    const savedStateCopy = [...savedSteps] as TSavedSteps;
     savedStateCopy[step] = data;
-    saveStep(savedStateCopy);
+    saveSteps(savedStateCopy);
   };
 
   return (

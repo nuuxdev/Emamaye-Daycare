@@ -1,30 +1,43 @@
-import { Dispatch, SetStateAction, useState } from "react";
-import { useForm } from "react-hook-form";
-
-type TDefaultValues = {
-  childAvatar: File;
-  guardianAvatar: File;
-};
+import { TAvatarFiles, TSavedSteps } from "@/app/register/page";
+import { Dispatch, SetStateAction, useState, useEffect } from "react";
+import { useForm, Controller } from "react-hook-form";
 
 export default function AvatarFiles({
-  saveStep,
-  savedStep,
+  saveSteps,
+  savedSteps,
   setStep,
   step,
 }: {
-  saveStep: Dispatch<SetStateAction<Record<string, any>[]>>;
-  savedStep: Record<string, any>[];
+  saveSteps: Dispatch<SetStateAction<TSavedSteps>>;
+  savedSteps: TSavedSteps;
   setStep: Dispatch<SetStateAction<number>>;
   step: number;
 }) {
-  const defaultValues: TDefaultValues = {
-    childAvatar: savedStep[step]?.childAvatar || null,
-    guardianAvatar: savedStep[step]?.guardianAvatar || null,
-  };
+  const defaultValues: TAvatarFiles = savedSteps[step] as TAvatarFiles;
 
-  const { register, trigger, getValues } = useForm<TDefaultValues>({
+  const { control, trigger, getValues } = useForm<TAvatarFiles>({
     defaultValues,
   });
+
+  const [previews, setPreviews] = useState<{
+    childAvatar?: string;
+    guardianAvatar?: string;
+  }>({
+    childAvatar: defaultValues.childAvatar
+      ? URL.createObjectURL(defaultValues.childAvatar)
+      : undefined,
+    guardianAvatar: defaultValues.guardianAvatar
+      ? URL.createObjectURL(defaultValues.guardianAvatar)
+      : undefined,
+  });
+
+  // Cleanup object URLs when files change or component unmounts
+  useEffect(() => {
+    return () => {
+      if (previews.childAvatar) URL.revokeObjectURL(previews.childAvatar);
+      if (previews.guardianAvatar) URL.revokeObjectURL(previews.guardianAvatar);
+    };
+  }, [previews]);
 
   const submitHandler = async (direction: "next" | "previous") => {
     const data = getValues();
@@ -37,42 +50,78 @@ export default function AvatarFiles({
       setStep((prev) => prev - 1);
     }
 
-    const savedStateCopy = [...savedStep];
+    const savedStateCopy = [...savedSteps] as TSavedSteps;
     savedStateCopy[step] = data;
-    saveStep(savedStateCopy);
+    saveSteps(savedStateCopy);
   };
 
   return (
     <form style={{ display: "grid", gap: "1rem" }}>
       <h2>Profile Photos</h2>
 
-      <input
-        type="file"
-        {...register("childAvatar", { required: true })}
-        placeholder="Child Avatar"
+      <Controller
+        name="childAvatar"
+        control={control}
+        rules={{ required: true }}
+        render={({ field }) => (
+          <>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => {
+                const file = e.target.files?.[0] || null;
+                field.onChange(file);
+                if (file) {
+                  const url = URL.createObjectURL(file);
+                  setPreviews((prev) => ({ ...prev, childAvatar: url }));
+                }
+              }}
+            />
+            {previews.childAvatar && (
+              <img
+                src={previews.childAvatar}
+                alt="Child Avatar Preview"
+                style={{ width: "150px", height: "150px", objectFit: "cover" }}
+              />
+            )}
+          </>
+        )}
       />
 
-      <input
-        type="file"
-        {...register("guardianAvatar", { required: true })}
-        placeholder="Guardian Avatar"
+      <Controller
+        name="guardianAvatar"
+        control={control}
+        rules={{ required: true }}
+        render={({ field }) => (
+          <>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => {
+                const file = e.target.files?.[0] || null;
+                field.onChange(file);
+                if (file) {
+                  const url = URL.createObjectURL(file);
+                  setPreviews((prev) => ({ ...prev, guardianAvatar: url }));
+                }
+              }}
+            />
+            {previews.guardianAvatar && (
+              <img
+                src={previews.guardianAvatar}
+                alt="Guardian Avatar Preview"
+                style={{ width: "150px", height: "150px", objectFit: "cover" }}
+              />
+            )}
+          </>
+        )}
       />
 
-      <button
-        type="button"
-        onClick={() => {
-          submitHandler("previous");
-        }}
-      >
+      <button type="button" onClick={() => submitHandler("previous")}>
         Previous
       </button>
 
-      <button
-        type="button"
-        onClick={() => {
-          submitHandler("next");
-        }}
-      >
+      <button type="button" onClick={() => submitHandler("next")}>
         Next
       </button>
     </form>
