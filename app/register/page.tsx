@@ -68,10 +68,6 @@ export default function Register() {
           </form>
         </div>
       </main>
-      <footer>
-        <Link href="/attendance">Attendance</Link>
-        <Link href="/register">Register</Link>
-      </footer>
     </>
   );
 }

@@ -1,17 +1,10 @@
 "use client";
-
-import { useConvexAuth } from "convex/react";
-import { useAuthActions } from "@convex-dev/auth/react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 export default function Home() {
   return (
     <>
-      <header>
-        Emamaye Daycare Pro
-        {/* <SignOutButton /> */}
-      </header>
+      <header>Emamaye Daycare Pro</header>
       <main>
         <h1>Emamaye Daycare Pro</h1>
       </main>
@@ -19,28 +12,8 @@ export default function Home() {
         <Link href="/attendance">Attendance</Link>
         <Link href="/register">Register</Link>
         <Link href="/children">Children</Link>
+        <Link href="/payment">Payment</Link>
       </footer>
-    </>
-  );
-}
-
-function SignOutButton() {
-  const { isAuthenticated } = useConvexAuth();
-  const { signOut } = useAuthActions();
-  const router = useRouter();
-  return (
-    <>
-      {isAuthenticated && (
-        <button
-          onClick={() =>
-            void signOut().then(() => {
-              router.push("/signin");
-            })
-          }
-        >
-          Sign out
-        </button>
-      )}
     </>
   );
 }
