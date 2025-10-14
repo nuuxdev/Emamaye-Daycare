@@ -33,7 +33,8 @@
   }
 
   input,
-  button {
+  button,
+  select {
     padding: 1.25em 1em;
     border-radius: 100vw;
   }
