@@ -10,7 +10,7 @@ export default function Home() {
     <>
       <header>
         Emamaye Daycare Pro
-        <SignOutButton />
+        {/* <SignOutButton /> */}
       </header>
       <main>
         <h1>Emamaye Daycare Pro</h1>
@@ -18,6 +18,7 @@ export default function Home() {
       <footer>
         <Link href="/attendance">Attendance</Link>
         <Link href="/register">Register</Link>
+        <Link href="/children">Children</Link>
       </footer>
     </>
   );
