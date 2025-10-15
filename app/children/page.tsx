@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useAction, useQuery } from "convex/react";
+import { useConvex, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useState } from "react";
 import { Id } from "@/convex/_generated/dataModel";
@@ -10,7 +10,7 @@ export default function ChildrenList() {
     Record<Id<"guardians">, string>
   >({});
   const children = useQuery(api.children.getChildren);
-  const getPhoneNumber = useAction(api.guardians.getPhoneNumber);
+  const convex = useConvex();
   return (
     <>
       <header>
@@ -25,10 +25,13 @@ export default function ChildrenList() {
               onToggle={async (e) => {
                 const details = e.currentTarget;
                 if (details.open) {
-                  const phoneNumber = await getPhoneNumber({
-                    field: "phoneNumber",
-                    id: child.primaryGuardian,
-                  });
+                  if (guardianPhoneNumber[child.primaryGuardian]) return;
+                  const phoneNumber = await convex.query(
+                    api.guardians.getGuardianPhoneNumber,
+                    {
+                      id: child.primaryGuardian,
+                    },
+                  );
                   setGuardianPhoneNumber((prev) => ({
                     ...prev,
                     [child.primaryGuardian]: phoneNumber,
