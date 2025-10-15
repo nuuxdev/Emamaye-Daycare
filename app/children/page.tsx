@@ -71,8 +71,6 @@ export default function ChildrenList() {
                 </div>
               </summary>
 
-              <p>child avatar: {child.avatar}</p>
-              <p>child primary guardian: {child.primaryGuardian}</p>
               <Link href={`tel:${guardianPhoneNumber[child.primaryGuardian]}`}>
                 Call
               </Link>
