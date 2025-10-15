@@ -1,10 +1,8 @@
 "use client";
 
 import { useAuthActions } from "@convex-dev/auth/react";
-import { useConvexAuth } from "convex/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { toast } from "sonner";
 
 export default function SignIn() {
   const { signIn } = useAuthActions();
@@ -30,6 +28,7 @@ export default function SignIn() {
             await signIn("password", formData);
             router.push("/");
           } catch (error) {
+            console.error(error);
             setError("Oops!😯 Error signing in!");
           } finally {
             setIsLoading(false);
