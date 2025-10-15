@@ -84,6 +84,7 @@ export default function Register() {
     }
     setIsPending("base64ing first image...");
     const childAvatarBase64 = await fileToBase64(childAvatar!);
+    console.log(childAvatarBase64);
     setIsPending("arrayBuffering first image...");
     const childAvatarArrayBuffer = await fileToArrayBuffer(childAvatar!);
     setIsPending("buffering second image...");
