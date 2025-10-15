@@ -63,7 +63,9 @@ export default function Register() {
     if (step !== stepsData.length - 1) return;
     const childAvatar = savedSteps[2].childAvatar;
     const guardianAvatar = savedSteps[2].guardianAvatar;
+    setIsPending("buffering first image...");
     const childAvatarArrayBuffer = await childAvatar!.arrayBuffer();
+    setIsPending("buffering second image...");
     const guardianAvatarArrayBuffer = await guardianAvatar!.arrayBuffer();
     setIsPending("Uploading first image...");
     const childStorageId = await uploadImage({
