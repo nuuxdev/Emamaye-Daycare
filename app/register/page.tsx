@@ -12,6 +12,7 @@ import useBetterMutation from "@/hooks/useBetterMutation";
 import useTelegram from "@/hooks/useTelegram";
 import { toast } from "sonner";
 import fileToArrayBuffer from "@/utils/fileToArrayBuffer";
+import fileToBase64 from "@/utils/fileTOBase64";
 
 export type TChildInfo = {
   fullName: string;
