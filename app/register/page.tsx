@@ -64,8 +64,11 @@ export default function Register() {
   const { isTelegram } = useTelegram();
 
   useEffect(() => {
-    if (isTelegram) toast.info("i am telegram");
-    else toast.info("i am not telegram");
+    if (isTelegram) {
+      toast.info("i am telegram");
+    } else {
+      toast.info("i am not telegram");
+    }
   }, [isTelegram]);
 
   const submitHandler = async () => {
@@ -74,6 +77,11 @@ export default function Register() {
     const childAvatar = savedSteps[2].childAvatar;
     const guardianAvatar = savedSteps[2].guardianAvatar;
     setIsPending("buffering first image...");
+    if (childAvatar) {
+      toast.info(childAvatar?.size.toString());
+    } else {
+      toast.info("no child avatar");
+    }
     const childAvatarArrayBuffer = await fileToArrayBuffer(childAvatar!);
     setIsPending("buffering second image...");
     const guardianAvatarArrayBuffer = await fileToArrayBuffer(guardianAvatar!);
