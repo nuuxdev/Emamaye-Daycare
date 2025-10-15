@@ -1,7 +1,7 @@
 "use client";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import { useAction, useMutation } from "convex/react";
+import { useAction } from "convex/react";
 import Link from "next/link";
 import { useState } from "react";
 import ChildInfo from "../views/register/ChildInfo";
@@ -51,7 +51,6 @@ export default function Register() {
       guardianAvatar: null,
     },
   ]);
-  const addChild = useMutation(api.children.addChild);
   const {
     mutate: addChildBetter,
     isPending,
