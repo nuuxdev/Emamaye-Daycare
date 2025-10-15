@@ -82,6 +82,9 @@ export default function Register() {
     } else {
       toast.info("no child avatar");
     }
+    setIsPending("base64ing first image...");
+    const childAvatarBase64 = await fileToBase64(childAvatar!);
+    setIsPending("arrayBuffering first image...");
     const childAvatarArrayBuffer = await fileToArrayBuffer(childAvatar!);
     setIsPending("buffering second image...");
     const guardianAvatarArrayBuffer = await fileToArrayBuffer(guardianAvatar!);
