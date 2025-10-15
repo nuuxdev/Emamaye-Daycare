@@ -8,6 +8,7 @@ import ChildInfo from "../views/register/ChildInfo";
 import GuardianInfo from "../views/register/GuardianInfo";
 import Avatars from "../views/register/AvatarFiles";
 import PreviewForm from "../views/register/PreviewForm";
+import useBetterMutation from "@/hooks/useBetterMutation";
 
 export type TChildInfo = {
   fullName: string;
@@ -51,37 +52,43 @@ export default function Register() {
     },
   ]);
   const addChild = useMutation(api.children.addChild);
+  const {
+    mutate: addChildBetter,
+    isPending,
+    setIsPending,
+  } = useBetterMutation(api.children.addChild);
   const uploadImage = useAction(api.images.uploadImage);
 
   const submitHandler = async () => {
-    if (step === stepsData.length - 1) {
-      const childAvatar = savedSteps[2].childAvatar;
-      const guardianAvatar = savedSteps[2].guardianAvatar;
-      const childAvatarArrayBuffer = await childAvatar!.arrayBuffer();
-      const guardianAvatarArrayBuffer = await guardianAvatar!.arrayBuffer();
+    setIsPending(true);
+    if (step !== stepsData.length - 1) return;
+    const childAvatar = savedSteps[2].childAvatar;
+    const guardianAvatar = savedSteps[2].guardianAvatar;
+    const childAvatarArrayBuffer = await childAvatar!.arrayBuffer();
+    const guardianAvatarArrayBuffer = await guardianAvatar!.arrayBuffer();
+    setIsPending("Uploading first image...");
+    const childStorageId = await uploadImage({
+      imageArrayBuffer: childAvatarArrayBuffer,
+    });
+    setIsPending("Uploading second image...");
+    const guardianStorageId = await uploadImage({
+      imageArrayBuffer: guardianAvatarArrayBuffer,
+    });
+    setIsPending(true);
+    const childData = {
+      ...savedSteps[0],
+      avatar: childStorageId as Id<"_storage">,
+    };
+    const guardianData = {
+      ...savedSteps[1],
+      avatar: guardianStorageId as Id<"_storage">,
+    };
 
-      const childStorageId = await uploadImage({
-        imageArrayBuffer: childAvatarArrayBuffer,
-      });
-
-      const guardianStorageId = await uploadImage({
-        imageArrayBuffer: guardianAvatarArrayBuffer,
-      });
-
-      const childData = {
-        ...savedSteps[0],
-        avatar: childStorageId as Id<"_storage">,
-      };
-      const guardianData = {
-        ...savedSteps[1],
-        avatar: guardianStorageId as Id<"_storage">,
-      };
-
-      await addChild({
-        childData,
-        guardianData,
-      });
-    }
+    await addChildBetter({
+      childData,
+      guardianData,
+    });
+    setIsPending(false);
   };
 
   const stepsData = [
@@ -110,6 +117,7 @@ export default function Register() {
       key={"preview-form"}
       savedSteps={savedSteps}
       submitForm={submitHandler}
+      isPending={isPending}
     />,
   ];
 

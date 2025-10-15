@@ -3,9 +3,11 @@ import { TSavedSteps } from "@/app/register/page";
 export default function PreviewForm({
   savedSteps,
   submitForm,
+  isPending,
 }: {
   savedSteps: TSavedSteps;
   submitForm: () => void;
+  isPending: boolean | string;
 }) {
   return (
     <div>
@@ -40,8 +42,16 @@ export default function PreviewForm({
         <p>{savedSteps[1].phoneNumber}</p>
         <p>{savedSteps[1].address}</p>
       </div>
-      <button className="primary-button" onClick={submitForm}>
-        Submit
+      <button
+        className="primary-button"
+        onClick={submitForm}
+        disabled={!!isPending}
+      >
+        {isPending === false
+          ? "submit"
+          : isPending === true
+            ? "submitting..."
+            : isPending}
       </button>
     </div>
   );

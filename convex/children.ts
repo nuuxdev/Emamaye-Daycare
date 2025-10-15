@@ -19,7 +19,7 @@ export const addChild = mutation({
       avatar: v.id("_storage"),
     }),
   },
-  handler: async (ctx, args) => {
+  handler: async (ctx, args): Promise<string> => {
     const userId = await getAuthUserId(ctx);
     if (!userId) throw new Error("Unauthorized");
 
@@ -46,8 +46,9 @@ export const addChild = mutation({
       avatar: childAvatarUrl ?? "",
       primaryGuardian: guardianId,
     });
+    if (!childId) throw new Error("Child not added");
 
-    return { childId, guardianId };
+    return "Child and Guardian added successfully";
   },
 });
 
