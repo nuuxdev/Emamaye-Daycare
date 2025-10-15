@@ -3,12 +3,14 @@ import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { useAction } from "convex/react";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ChildInfo from "../views/register/ChildInfo";
 import GuardianInfo from "../views/register/GuardianInfo";
 import Avatars from "../views/register/AvatarFiles";
 import PreviewForm from "../views/register/PreviewForm";
 import useBetterMutation from "@/hooks/useBetterMutation";
+import useTelegram from "@/hooks/useTelegram";
+import { toast } from "sonner";
 
 export type TChildInfo = {
   fullName: string;
@@ -57,6 +59,13 @@ export default function Register() {
     setIsPending,
   } = useBetterMutation(api.children.addChild);
   const uploadImage = useAction(api.images.uploadImage);
+
+  const { isTelegram } = useTelegram();
+
+  useEffect(() => {
+    if (isTelegram) toast.info("i am telegram");
+    else toast.info("i am not telegram");
+  }, [isTelegram]);
 
   const submitHandler = async () => {
     setIsPending(true);
