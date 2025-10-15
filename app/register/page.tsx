@@ -12,7 +12,7 @@ import useBetterMutation from "@/hooks/useBetterMutation";
 import useTelegram from "@/hooks/useTelegram";
 import { toast } from "sonner";
 import fileToArrayBuffer from "@/utils/fileToArrayBuffer";
-import fileToBase64 from "@/utils/fileTOBase64";
+import fileToBaseString from "@/utils/fileToBaseString";
 
 export type TChildInfo = {
   fullName: string;
@@ -84,7 +84,7 @@ export default function Register() {
       toast.info("no child avatar");
     }
     setIsPending("base64ing first image...");
-    const childAvatarBase64 = await fileToBase64(childAvatar!);
+    const childAvatarBase64 = await fileToBaseString(childAvatar!);
     console.log(childAvatarBase64);
     setIsPending("arrayBuffering first image...");
     const childAvatarArrayBuffer = await fileToArrayBuffer(childAvatar!);
