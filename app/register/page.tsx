@@ -11,6 +11,7 @@ import PreviewForm from "../views/register/PreviewForm";
 import useBetterMutation from "@/hooks/useBetterMutation";
 import useTelegram from "@/hooks/useTelegram";
 import { toast } from "sonner";
+import fileToArrayBuffer from "@/utils/fileToArrayBuffer";
 
 export type TChildInfo = {
   fullName: string;
@@ -73,9 +74,9 @@ export default function Register() {
     const childAvatar = savedSteps[2].childAvatar;
     const guardianAvatar = savedSteps[2].guardianAvatar;
     setIsPending("buffering first image...");
-    const childAvatarArrayBuffer = await childAvatar!.arrayBuffer();
+    const childAvatarArrayBuffer = await fileToArrayBuffer(childAvatar!);
     setIsPending("buffering second image...");
-    const guardianAvatarArrayBuffer = await guardianAvatar!.arrayBuffer();
+    const guardianAvatarArrayBuffer = await fileToArrayBuffer(guardianAvatar!);
     setIsPending("Uploading first image...");
     const childStorageId = await uploadImage({
       imageArrayBuffer: childAvatarArrayBuffer,
