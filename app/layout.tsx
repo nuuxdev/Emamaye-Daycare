@@ -3,6 +3,7 @@ import { Geist, PT_Serif } from "next/font/google";
 import "./globals.css";
 import { ConvexAuthNextjsServerProvider } from "@convex-dev/auth/nextjs/server";
 import ConvexClientProvider from "@/components/ConvexClientProvider";
+import { Toaster } from "sonner";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -34,6 +35,7 @@ export default function RootLayout({
         <body
           className={`${geistSans.variable} ${ptSerif.variable} antialiased`}
         >
+          <Toaster />
           <ConvexClientProvider>{children}</ConvexClientProvider>
         </body>
       </html>
