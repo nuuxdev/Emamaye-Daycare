@@ -93,9 +93,6 @@ export default function Attendance() {
           {viewComponents[view]}
         </div>
       </main>
-      <footer>
-        <Link href="/attendance">Attendance</Link>
-      </footer>
     </>
   );
 }

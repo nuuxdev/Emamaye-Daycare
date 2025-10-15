@@ -38,6 +38,10 @@
     padding: 1.25em 1em;
     border-radius: 100vw;
   }
+  a {
+    text-decoration: none;
+    color: var(--primary-color);
+  }
   span {
     color: var(--primary-color);
   }
