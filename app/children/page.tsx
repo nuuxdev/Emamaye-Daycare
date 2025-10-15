@@ -71,9 +71,21 @@ export default function ChildrenList() {
                 </div>
               </summary>
 
-              <Link href={`tel:${guardianPhoneNumber[child.primaryGuardian]}`}>
-                Call
-              </Link>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  gap: "4rem",
+                  padding: "1rem",
+                }}
+              >
+                <Link
+                  href={`tel:${guardianPhoneNumber[child.primaryGuardian]}`}
+                >
+                  Call
+                </Link>
+                <Link href={`/children/${child._id}`}>Info</Link>
+              </div>
             </details>
           ))}
         </div>

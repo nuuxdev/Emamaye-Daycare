@@ -63,3 +63,12 @@ export const getChildren = query({
     return children;
   },
 });
+export const getChild = query({
+  args: {
+    id: v.id("children"),
+  },
+  handler: async (ctx, args) => {
+    const child = await ctx.db.get(args.id);
+    return child;
+  },
+});
