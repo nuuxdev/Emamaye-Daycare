@@ -13,12 +13,13 @@ import useTelegram from "@/hooks/useTelegram";
 import { toast } from "sonner";
 import fileToArrayBuffer from "@/utils/fileToArrayBuffer";
 import fileToBaseString from "@/utils/fileToBaseString";
+import { TAgeGroup, TGender } from "@/convex/types/children";
 
 export type TChildInfo = {
   fullName: string;
-  gender: "male" | "female";
+  gender: TGender;
   dateOfBirth: string;
-  ageGroup: string;
+  ageGroup: TAgeGroup;
 };
 
 export type TGuardianInfo = {
@@ -40,9 +41,9 @@ export default function Register() {
   const [savedSteps, saveSteps] = useState<TSavedSteps>([
     {
       fullName: "",
-      gender: "" as "male" | "female",
+      gender: "" as TGender,
       dateOfBirth: "",
-      ageGroup: "",
+      ageGroup: "" as TAgeGroup,
     },
     {
       fullName: "",

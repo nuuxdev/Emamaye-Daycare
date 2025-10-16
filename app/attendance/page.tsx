@@ -2,7 +2,7 @@
 import { useMutation, useQuery } from "convex/react";
 import Link from "next/link";
 import { api } from "@/convex/_generated/api";
-import { Doc, Id } from "@/convex/_generated/dataModel";
+import { Id } from "@/convex/_generated/dataModel";
 import { JSX, useEffect, useState } from "react";
 import AttendanceCard from "../views/attendance/Card";
 import AttendanceList from "../views/attendance/List";
