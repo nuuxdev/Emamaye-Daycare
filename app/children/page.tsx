@@ -3,9 +3,31 @@ import Link from "next/link";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { calculateAge } from "@/utils/calculateAge";
+import { TAgeGroup } from "@/convex/types/children";
+import { useEffect, useState } from "react";
+
+const ageGroupsTabs: (TAgeGroup | "all")[] = [
+  "all",
+  "infant",
+  "toddler",
+  "preschooler",
+];
 
 export default function ChildrenList() {
   const children = useQuery(api.children.getChildrenWithPrimaryGuardian);
+  const [filteredChildren, setFilteredChildren] = useState(children);
+
+  const [tab, setTab] = useState<TAgeGroup | "all">("all");
+  useEffect(() => {
+    if (tab === "all") {
+      setFilteredChildren(children);
+    } else {
+      const filteredChildren = children?.filter(
+        (child) => child.ageGroup === tab,
+      );
+      setFilteredChildren(filteredChildren);
+    }
+  }, [tab, children]);
   return (
     <>
       <header>
@@ -13,8 +35,21 @@ export default function ChildrenList() {
         Children
       </header>
       <main>
+        <div style={{ display: "flex", gap: "1rem" }}>
+          {ageGroupsTabs.map((ageGroupTab) => (
+            <button
+              key={ageGroupTab}
+              disabled={tab === ageGroupTab}
+              onClick={() => setTab(ageGroupTab)}
+              style={{ textTransform: "capitalize", flex: "1" }}
+            >
+              {ageGroupTab}
+            </button>
+          ))}
+        </div>
         <div style={{ display: "grid", gap: "1rem" }}>
-          {children?.map((child) => (
+          {children === undefined && <p>Loading...</p>}
+          {filteredChildren?.map((child) => (
             <details key={child._id}>
               <summary
                 style={{ display: "flex", gap: "1rem", alignItems: "start" }}
