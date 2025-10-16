@@ -1,16 +1,10 @@
 "use client";
 import Link from "next/link";
-import { useConvex, useQuery } from "convex/react";
+import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { useState } from "react";
-import { Id } from "@/convex/_generated/dataModel";
 
 export default function ChildrenList() {
-  const [guardianPhoneNumber, setGuardianPhoneNumber] = useState<
-    Record<Id<"guardians">, string>
-  >({});
-  const children = useQuery(api.children.getChildren);
-  const convex = useConvex();
+  const children = useQuery(api.children.getChildrenWithPrimaryGuardian);
   return (
     <>
       <header>
@@ -18,38 +12,32 @@ export default function ChildrenList() {
         Children
       </header>
       <main>
-        <div>
+        <div style={{ display: "grid", gap: "1rem" }}>
           {children?.map((child) => (
-            <details
-              key={child._id}
-              onToggle={async (e) => {
-                const details = e.currentTarget;
-                if (details.open) {
-                  if (guardianPhoneNumber[child.primaryGuardian]) return;
-                  const phoneNumber = await convex.query(
-                    api.guardians.getGuardianPhoneNumber,
-                    {
-                      id: child.primaryGuardian,
-                    },
-                  );
-                  setGuardianPhoneNumber((prev) => ({
-                    ...prev,
-                    [child.primaryGuardian]: phoneNumber,
-                  }));
-                }
-              }}
-            >
-              <summary style={{ display: "flex", gap: "1rem" }}>
-                <img
-                  src={child.avatar}
-                  alt="child avatar"
+            <details key={child._id}>
+              <summary
+                style={{ display: "flex", gap: "1rem", alignItems: "start" }}
+              >
+                <Link
+                  href={`/children/${child._id}`}
                   style={{
                     width: "5rem",
-                    height: "5rem",
+                    aspectRatio: "1/1",
                     borderRadius: "50%",
-                    objectFit: "cover",
+                    overflow: "hidden",
                   }}
-                />
+                >
+                  <img
+                    src={child.avatar}
+                    alt="child avatar"
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                    }}
+                  />
+                </Link>
+
                 <div
                   style={{
                     display: "flex",
@@ -73,21 +61,25 @@ export default function ChildrenList() {
                   </div>
                 </div>
               </summary>
-
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "center",
-                  gap: "4rem",
-                  padding: "1rem",
-                }}
-              >
-                <Link
-                  href={`tel:${guardianPhoneNumber[child.primaryGuardian]}`}
+              <div style={{ padding: "1rem 2rem" }}>
+                <p>{child.primaryGuardianFullName}</p>
+                <p>{child.primaryGuardianPhoneNumber}</p>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    marginTop: "0.5rem",
+                  }}
                 >
-                  Call
-                </Link>
-                <Link href={`/children/${child._id}`}>Info</Link>
+                  <button>
+                    <Link href={`tel:${child.primaryGuardianPhoneNumber}`}>
+                      Call
+                    </Link>
+                  </button>
+                  <button>
+                    <Link href={`/children/${child._id}`}>Info</Link>
+                  </button>
+                </div>
               </div>
             </details>
           ))}

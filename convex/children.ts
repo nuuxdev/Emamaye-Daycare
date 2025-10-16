@@ -52,15 +52,22 @@ export const addChild = mutation({
   },
 });
 
-export const getChildren = query({
-  args: {},
-  handler: async (ctx, args) => {
+export const getChildrenWithPrimaryGuardian = query({
+  handler: async (ctx) => {
     const userId = await getAuthUserId(ctx);
     if (!userId) throw new Error("Unauthorized");
 
     const children = await ctx.db.query("children").collect();
-
-    return children;
+    return await Promise.all(
+      children.map(async (child) => {
+        const primaryGuardian = await ctx.db.get(child.primaryGuardian);
+        return {
+          ...child,
+          primaryGuardianFullName: primaryGuardian?.fullName,
+          primaryGuardianPhoneNumber: primaryGuardian?.phoneNumber,
+        };
+      }),
+    );
   },
 });
 export const getChild = query({

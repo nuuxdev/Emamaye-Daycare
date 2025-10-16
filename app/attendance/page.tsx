@@ -13,7 +13,7 @@ export default function Attendance() {
   );
   const [currentChildIndex, setCurrentChildIndex] = useState(0);
   const [view, setView] = useState<"card" | "list">("card");
-  const childrenData = useQuery(api.children.getChildren);
+  const childrenData = useQuery(api.children.getChildrenWithPrimaryGuardian);
   const attendancesByDate = useQuery(api.attendance.getAttendanceByDate, {
     date: attendanceDate,
   });
