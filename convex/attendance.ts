@@ -1,12 +1,13 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
+import { VStatus } from "./types/attendance";
 
 export const recordAttendance = mutation({
   args: {
     attendanceData: v.array(
       v.object({
         childId: v.id("children"),
-        status: v.optional(v.union(v.literal("present"), v.literal("absent"))),
+        status: VStatus,
       }),
     ),
     date: v.string(),
@@ -35,7 +36,7 @@ export const getAttendanceByDate = query({
 export const updateSingleAttendance = mutation({
   args: {
     attendanceId: v.id("attendance"),
-    status: v.union(v.literal("present"), v.literal("absent")),
+    status: VStatus,
   },
   handler: async (ctx, args) => {
     const result = await ctx.db.patch(args.attendanceId, {

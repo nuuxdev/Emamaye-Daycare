@@ -6,6 +6,7 @@ import { Doc, Id } from "@/convex/_generated/dataModel";
 import { JSX, useEffect, useState } from "react";
 import AttendanceCard from "../views/attendance/Card";
 import AttendanceList from "../views/attendance/List";
+import { TStatus } from "@/convex/types/attendance";
 
 export default function Attendance() {
   const [attendanceDate, setAttendanceDate] = useState(
@@ -18,7 +19,7 @@ export default function Attendance() {
     date: attendanceDate,
   });
   const [attendanceData, setAttendanceData] = useState<
-    { childId: Id<"children">; status: Doc<"attendance">["status"] }[]
+    { childId: Id<"children">; status: TStatus }[]
   >([]);
 
   useEffect(() => {
@@ -48,7 +49,7 @@ export default function Attendance() {
   if (childrenData === undefined || attendancesByDate === undefined)
     return <div>Loading...</div>;
 
-  const saveAttendance = (status: Doc<"attendance">["status"]) => {
+  const saveAttendance = (status: TStatus) => {
     setAttendanceData([
       ...attendanceData,
       { childId: childrenData[currentChildIndex]._id, status },

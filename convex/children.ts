@@ -1,14 +1,15 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { getAuthUserId } from "@convex-dev/auth/server";
+import { VAgeGroup, VGender } from "./types/children";
 
 export const addChild = mutation({
   args: {
     childData: v.object({
       fullName: v.string(),
-      gender: v.union(v.literal("male"), v.literal("female")),
+      gender: VGender,
       dateOfBirth: v.string(),
-      ageGroup: v.string(),
+      ageGroup: VAgeGroup,
       avatar: v.id("_storage"),
     }),
     guardianData: v.object({

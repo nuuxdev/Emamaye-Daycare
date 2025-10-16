@@ -1,5 +1,6 @@
 import { api } from "@/convex/_generated/api";
 import { Doc, Id } from "@/convex/_generated/dataModel";
+import { TStatus } from "@/convex/types/attendance";
 import { useMutation } from "convex/react";
 
 export default function AttendanceList({
@@ -15,7 +16,7 @@ export default function AttendanceList({
 
   const handleUpdateSingleAttendance = (
     childId: Id<"children">,
-    status: "present" | "absent",
+    status: TStatus,
   ) => {
     const attendanceRecord = attendancesByDate.find(
       (att) => att.childId === childId,

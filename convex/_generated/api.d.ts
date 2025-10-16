@@ -20,6 +20,8 @@ import type * as guardians from "../guardians.js";
 import type * as http from "../http.js";
 import type * as images from "../images.js";
 import type * as myFunctions from "../myFunctions.js";
+import type * as types_attendance from "../types/attendance.js";
+import type * as types_children from "../types/children.js";
 
 /**
  * A utility for referencing Convex functions in your app's API.
@@ -37,6 +39,8 @@ declare const fullApi: ApiFromModules<{
   http: typeof http;
   images: typeof images;
   myFunctions: typeof myFunctions;
+  "types/attendance": typeof types_attendance;
+  "types/children": typeof types_children;
 }>;
 export declare const api: FilterApi<
   typeof fullApi,

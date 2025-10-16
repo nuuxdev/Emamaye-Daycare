@@ -1,4 +1,5 @@
 import { Doc, Id } from "@/convex/_generated/dataModel";
+import { TStatus } from "@/convex/types/attendance";
 
 export default function AttendanceCard({
   currentChild,
@@ -11,9 +12,9 @@ export default function AttendanceCard({
   childrenData: Doc<"children">[];
   attendanceData: {
     childId: Id<"children">;
-    status: Doc<"attendance">["status"];
+    status: TStatus;
   }[];
-  saveAttendance: (status: Doc<"attendance">["status"]) => void;
+  saveAttendance: (status: TStatus) => void;
   recordAttendanceHandler: () => void;
 }) {
   return (
