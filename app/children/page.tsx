@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
+import { calculateAge } from "@/utils/calculateAge";
 
 export default function ChildrenList() {
   const children = useQuery(api.children.getChildrenWithPrimaryGuardian);
@@ -57,13 +58,12 @@ export default function ChildrenList() {
                     }}
                   >
                     <p className={`pill ${child.ageGroup}`}>{child.ageGroup}</p>
-                    <p>{child.dateOfBirth}</p>
+                    <p>{calculateAge(child.dateOfBirth)}</p>
                   </div>
                 </div>
               </summary>
-              <div style={{ padding: "1rem 2rem" }}>
+              <div style={{ padding: "0.5rem 2rem" }}>
                 <p>{child.primaryGuardianFullName}</p>
-                <p>{child.primaryGuardianPhoneNumber}</p>
                 <div
                   style={{
                     display: "flex",
