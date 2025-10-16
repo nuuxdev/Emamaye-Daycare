@@ -56,7 +56,7 @@ export default function ChildrenList() {
                       alignItems: "end",
                     }}
                   >
-                    <p>{child.ageGroup}</p>
+                    <p className={`pill ${child.ageGroup}`}>{child.ageGroup}</p>
                     <p>{child.dateOfBirth}</p>
                   </div>
                 </div>

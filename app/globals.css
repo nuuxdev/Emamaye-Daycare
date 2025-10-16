@@ -8,6 +8,9 @@
     --primary-color: #dd5aa2;
     --border-grey: #ccc;
     --border-primary: color-mix(in srgb, var(--primary-color), transparent 96%);
+    --color-infant: red;
+    --color-toddler: orange;
+    --color-preschooler: violet;
   }
 }
 
@@ -92,6 +95,21 @@
   }
 }
 @layer components {
+  .pill {
+    --_opacity-color: color-mix(in srgb, currentColor, transparent 90%);
+    padding: 0.25rem 0.5rem;
+    background-color: var(--_opacity-color);
+    border-radius: 100vw;
+    &.toddler {
+      color: var(--color-toddler);
+    }
+    &.preschooler {
+      color: var(--color-preschooler);
+    }
+    &.infant {
+      color: var(--color-infant);
+    }
+  }
   .subheader {
     text-align: center;
     text-transform: capitalize;
