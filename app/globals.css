@@ -15,7 +15,7 @@
 }
 
 @layer reset {
-  * {
+  *:not(dialog) {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -123,6 +123,51 @@
     font-weight: bold;
     font-size: 1rem;
     margin-top: 2rem;
+  }
+  dialog {
+    padding: 1rem;
+    max-width: 50ch;
+    .scroller-wrapper {
+      display: flex;
+      gap: 1rem;
+      position: relative;
+      &::after {
+        content: "";
+        inset: 0;
+        position: absolute;
+        z-index: 1000;
+        background: linear-gradient(
+          white,
+          transparent 30%,
+          transparent 70%,
+          white
+        );
+        pointer-events: none;
+      }
+      .scroller {
+        --_padding: 1.5rem;
+        height: calc(1.313em + 6 * var(--_padding));
+        /* background-color: red; */
+        overflow-y: auto;
+        scroll-snap-type: y proximity;
+        scroll-behavior: smooth;
+        scrollbar-width: none;
+      }
+    }
+    li {
+      box-sizing: content-box;
+      padding: var(--_padding);
+      /* background-color: yellow; */
+      scroll-snap-align: center;
+      text-align: center;
+      cursor: pointer;
+      &:first-child {
+        margin-top: calc(2 * var(--_padding));
+      }
+      &:last-child {
+        margin-bottom: calc(2 * var(--_padding));
+      }
+    }
   }
 }
 @layer utilities {

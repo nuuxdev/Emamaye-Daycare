@@ -1,7 +1,30 @@
 import { TChildInfo, TSavedSteps } from "@/app/register/page";
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, useRef } from "react";
 import { useForm } from "react-hook-form";
 
+const years: number[] = [];
+const currentYear = new Date().getFullYear();
+for (let year = currentYear; year > currentYear - 25; year--) {
+  years.push(year);
+}
+const months = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
+const days: number[] = [];
+for (let day = 1; day <= 31; day++) {
+  days.push(day);
+}
 export default function ChildInfo({
   saveSteps,
   savedSteps,
@@ -14,6 +37,8 @@ export default function ChildInfo({
   step: number;
 }) {
   const defaultValues: TChildInfo = savedSteps[step] as TChildInfo;
+
+  const dialogRef = useRef<HTMLDialogElement>(null);
 
   const { register, trigger, getValues } = useForm<TChildInfo>({
     defaultValues,
@@ -60,6 +85,53 @@ export default function ChildInfo({
         <label htmlFor="female">Female</label>
       </fieldset>
       <input type="date" {...register("dateOfBirth", { required: true })} />
+      <button type="button" onClick={() => dialogRef.current?.showModal()}>
+        Birthdate
+      </button>
+      <dialog ref={dialogRef}>
+        <div className="scroller-wrapper">
+          <div className="scroller">
+            <ul style={{ listStyle: "none" }}>
+              {months.map((month) => (
+                <li key={month}>{month}</li>
+              ))}
+            </ul>
+          </div>
+          <div className="scroller">
+            <ul style={{ listStyle: "none" }}>
+              {days.map((day) => {
+                if (day < 10) {
+                  return <li key={day}>0{day}</li>;
+                }
+                return <li key={day}>{day}</li>;
+              })}
+            </ul>
+          </div>
+          <div className="scroller">
+            <ul style={{ listStyle: "none" }}>
+              {years.map((year) => (
+                <li key={year}>{year}</li>
+              ))}
+            </ul>
+          </div>
+        </div>
+        <div style={{ display: "flex", gap: "1rem", marginBlock: "3rem" }}>
+          <button
+            style={{ flex: "1" }}
+            type="button"
+            onClick={() => dialogRef.current?.close()}
+          >
+            Cancel
+          </button>
+          <button
+            style={{ flex: "1" }}
+            type="button"
+            onClick={() => dialogRef.current?.close()}
+          >
+            Set
+          </button>
+        </div>
+      </dialog>
       <select {...register("ageGroup", { required: true })}>
         <option value="">Select Age Group</option>
         <option value="infant">Infant - 3,000Br</option>
