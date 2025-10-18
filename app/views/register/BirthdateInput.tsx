@@ -49,7 +49,7 @@ export default function BirthdateInput({
   const [currentMonth, setCurrentMonth] = useState<number>();
   const [currentDate, setCurrentDate] = useState<number>();
   const [currentYear, setCurrentYear] = useState<number>();
-  const [pagumen, setPagumen] = useState<boolean>();
+  const [pagumenIsFive, setPagumenIsFive] = useState<boolean | null>(null);
 
   useEffect(() => {
     const scrollers = document.querySelectorAll(".scroller");
@@ -84,7 +84,7 @@ export default function BirthdateInput({
       observers.push(observer);
     });
     return () => observers.forEach((observer) => observer.disconnect());
-  }, [pagumen]);
+  }, [pagumenIsFive]);
 
   const dialogRef = useRef<HTMLDialogElement>(null);
 
@@ -102,12 +102,12 @@ export default function BirthdateInput({
 
   const daysArray = useMemo(() => {
     if (currentMonth !== 13) {
-      if (pagumen === true) {
-        setPagumen(false);
+      if (pagumenIsFive !== null) {
+        setPagumenIsFive(null);
       }
       return days;
     }
-    setPagumen(true);
+    setPagumenIsFive(true);
     const eth = new EthiopicCalendar();
     const selectedDate = new CalendarDate(
       new EthiopicCalendar(),
@@ -115,6 +115,13 @@ export default function BirthdateInput({
       currentMonth!,
       currentDate!,
     );
+    const daysInMonth = eth.getDaysInMonth(selectedDate);
+    if (daysInMonth === 5) {
+      setPagumenIsFive(true);
+    } else {
+      //if pagumen is 6
+      setPagumenIsFive(false);
+    }
     return Array.from(
       { length: eth.getDaysInMonth(selectedDate) },
       (_, i) => i + 1,
