@@ -49,6 +49,7 @@ export default function BirthdateInput({
   const [currentMonth, setCurrentMonth] = useState<number>();
   const [currentDate, setCurrentDate] = useState<number>();
   const [currentYear, setCurrentYear] = useState<number>();
+  const [pagumen, setPagumen] = useState<boolean>();
 
   useEffect(() => {
     const scrollers = document.querySelectorAll(".scroller");
@@ -83,7 +84,7 @@ export default function BirthdateInput({
       observers.push(observer);
     });
     return () => observers.forEach((observer) => observer.disconnect());
-  }, []);
+  }, [pagumen]);
 
   const dialogRef = useRef<HTMLDialogElement>(null);
 
@@ -101,8 +102,12 @@ export default function BirthdateInput({
 
   const daysArray = useMemo(() => {
     if (currentMonth !== 13) {
+      if (pagumen === true) {
+        setPagumen(false);
+      }
       return days;
     }
+    setPagumen(true);
     const eth = new EthiopicCalendar();
     const selectedDate = new CalendarDate(
       new EthiopicCalendar(),
