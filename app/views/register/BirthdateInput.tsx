@@ -62,6 +62,7 @@ export default function BirthdateInput({
       const callback = (entries: IntersectionObserverEntry[]) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
+            navigator.vibrate(2);
             const index = Array.from(
               entry.target.parentElement!.children,
             ).indexOf(entry.target);
