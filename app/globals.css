@@ -157,6 +157,7 @@
     li {
       box-sizing: content-box;
       padding: var(--_padding);
+      /* border: 2px solid black; */
       /* background-color: yellow; */
       scroll-snap-align: center;
       text-align: center;
