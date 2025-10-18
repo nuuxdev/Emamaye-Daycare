@@ -14,6 +14,12 @@ import { toast } from "sonner";
 import fileToArrayBuffer from "@/utils/fileToArrayBuffer";
 import fileToBaseString from "@/utils/fileToBaseString";
 import { TAgeGroup, TGender } from "@/convex/types/children";
+import {
+  CalendarDate,
+  EthiopicCalendar,
+  GregorianCalendar,
+  toCalendar,
+} from "@internationalized/date";
 
 export type TChildInfo = {
   fullName: string;
@@ -100,9 +106,19 @@ export default function Register() {
       imageArrayBuffer: guardianAvatarArrayBuffer,
     });
     setIsPending(true);
+    const dateOfBirth = savedSteps[0].dateOfBirth;
+    const [month, date, year] = dateOfBirth.split("-");
+    const dateInEt = new CalendarDate(
+      new EthiopicCalendar(),
+      parseInt(year),
+      parseInt(month),
+      parseInt(date),
+    );
+    const dateInGreg = toCalendar(dateInEt, new GregorianCalendar());
     const childData = {
       ...savedSteps[0],
       avatar: childStorageId as Id<"_storage">,
+      dateOfBirth: dateInGreg.toString(),
     };
     const guardianData = {
       ...savedSteps[1],
