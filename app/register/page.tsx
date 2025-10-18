@@ -1,18 +1,15 @@
 "use client";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import { useAction } from "convex/react";
+import { useMutation } from "convex/react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import ChildInfo from "../views/register/ChildInfo";
 import GuardianInfo from "../views/register/GuardianInfo";
 import Avatars from "../views/register/AvatarFiles";
 import PreviewForm from "../views/register/PreviewForm";
 import useBetterMutation from "@/hooks/useBetterMutation";
-import useTelegram from "@/hooks/useTelegram";
 import { toast } from "sonner";
-import fileToArrayBuffer from "@/utils/fileToArrayBuffer";
-import fileToBaseString from "@/utils/fileToBaseString";
 import { TAgeGroup, TGender } from "@/convex/types/children";
 import {
   CalendarDate,
@@ -63,49 +60,50 @@ export default function Register() {
     },
   ]);
   const {
-    mutate: addChildBetter,
+    mutate: addChild,
     isPending,
     setIsPending,
   } = useBetterMutation(api.children.addChild);
-  const uploadImage = useAction(api.images.uploadImage);
+  const generateUploadUrl = useMutation(api.images.generateUploadUrl);
 
-  const { isTelegram } = useTelegram();
+  // const { isTelegram } = useTelegram();
 
-  useEffect(() => {
-    if (isTelegram) {
-      toast.info("i am telegram");
-    } else {
-      toast.info("i am not telegram");
-    }
-  }, [isTelegram]);
+  // useEffect(() => {
+  //   if (isTelegram) {
+  //     toast.info("i am telegram");
+  //   } else {
+  //     toast.info("i am not telegram");
+  //   }
+  // }, [isTelegram]);
 
   const submitHandler = async () => {
     setIsPending(true);
     if (step !== stepsData.length - 1) return;
     const childAvatar = savedSteps[2].childAvatar;
     const guardianAvatar = savedSteps[2].guardianAvatar;
-    setIsPending("buffering first image...");
-    if (childAvatar) {
-      toast.info(childAvatar?.size.toString());
-    } else {
-      toast.info("no child avatar");
+    const postUrl = await generateUploadUrl();
+    let childStorageId: Id<"_storage">;
+    let guardianStorageId: Id<"_storage">;
+    try {
+      setIsPending("uploading child's avatar...");
+      const childRes = await fetch(postUrl, {
+        method: "POST",
+        headers: { "Content-Type": childAvatar!.type },
+        body: childAvatar,
+      });
+      childStorageId = (await childRes.json()).storageId;
+      setIsPending("uploading guardian's avatar...");
+      const guardianRes = await fetch(postUrl, {
+        method: "POST",
+        headers: { "Content-Type": guardianAvatar!.type },
+        body: guardianAvatar,
+      });
+      guardianStorageId = (await guardianRes.json()).storageId;
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to upload avatars");
+      return;
     }
-    setIsPending("base64ing first image...");
-    const childAvatarBase64 = await fileToBaseString(childAvatar!);
-    console.log(childAvatarBase64);
-    setIsPending("arrayBuffering first image...");
-    const childAvatarArrayBuffer = await fileToArrayBuffer(childAvatar!);
-    setIsPending("buffering second image...");
-    const guardianAvatarArrayBuffer = await fileToArrayBuffer(guardianAvatar!);
-    setIsPending("Uploading first image...");
-    const childStorageId = await uploadImage({
-      imageArrayBuffer: childAvatarArrayBuffer,
-    });
-    setIsPending("Uploading second image...");
-    const guardianStorageId = await uploadImage({
-      imageArrayBuffer: guardianAvatarArrayBuffer,
-    });
-    setIsPending(true);
     const dateOfBirth = savedSteps[0].dateOfBirth;
     const [month, date, year] = dateOfBirth.split("-");
     const dateInEt = new CalendarDate(
@@ -124,8 +122,8 @@ export default function Register() {
       ...savedSteps[1],
       avatar: guardianStorageId as Id<"_storage">,
     };
-
-    await addChildBetter({
+    setIsPending(true);
+    await addChild({
       childData,
       guardianData,
     });
