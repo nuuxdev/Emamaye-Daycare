@@ -10,12 +10,14 @@ import { useEffect, useRef, useState } from "react";
 import { UseFormRegister, UseFormSetValue } from "react-hook-form";
 
 const EthiopianCalendar = new EthiopicCalendar();
-
-const years: number[] = [];
 const todayInGreg = today(getLocalTimeZone());
-const todayInEt = toCalendar(todayInGreg, EthiopianCalendar);
-const currentYear = todayInEt.year;
-for (let year = currentYear; year > currentYear - 5; year--) {
+const {
+  year: thisYear,
+  month: thisMonth,
+  day: thisDay,
+} = toCalendar(todayInGreg, EthiopianCalendar);
+const years: number[] = [];
+for (let year = thisYear; year > thisYear - 5; year--) {
   years.push(year);
 }
 const months = [
@@ -45,15 +47,30 @@ export default function BirthdateInput({
   register: UseFormRegister<TChildInfo>;
   setValue: UseFormSetValue<TChildInfo>;
 }) {
-  // const todayDate = today(getLocalTimeZone());
-  // const todayInEt = toCalendar(todayDate, new EthiopicCalendar());
-
   const [currentMonth, setCurrentMonth] = useState<number>();
   const [currentDate, setCurrentDate] = useState<number>();
   const [currentYear, setCurrentYear] = useState<number>();
   const [daysInMonth, setDaysInMonth] = useState<number>(30);
+  const [monthsArray, setMonthsArray] = useState<string[]>([]);
 
   useEffect(() => {
+    if (currentYear === thisYear) {
+      if (monthsArray.length === 13) {
+        const newMonthsArray = months.filter((_, i) => i + 1 <= thisMonth);
+        setMonthsArray(newMonthsArray);
+      }
+      if (currentMonth === thisMonth) {
+        console.log(currentMonth, thisMonth, thisDay);
+        if (daysInMonth !== thisDay) {
+          setDaysInMonth(thisDay);
+        }
+        return;
+      }
+    } else {
+      if (monthsArray.length !== 13) {
+        setMonthsArray(months);
+      }
+    }
     if (!currentMonth || !currentYear) {
       return;
     }
@@ -101,7 +118,7 @@ export default function BirthdateInput({
       observers.push(observer);
     });
     return () => observers.forEach((observer) => observer.disconnect());
-  }, [daysInMonth]);
+  }, [daysInMonth, monthsArray]);
 
   const dialogRef = useRef<HTMLDialogElement>(null);
 
@@ -132,7 +149,7 @@ export default function BirthdateInput({
         <div className="scroller-wrapper">
           <div className="scroller">
             <ul style={{ listStyle: "none" }}>
-              {months.map((month) => (
+              {monthsArray?.map((month) => (
                 <li key={month} className="months">
                   {month}
                 </li>
