@@ -6,12 +6,14 @@ import {
   toCalendar,
   today,
 } from "@internationalized/date";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { UseFormRegister, UseFormSetValue } from "react-hook-form";
+
+const EthiopianCalendar = new EthiopicCalendar();
 
 const years: number[] = [];
 const todayInGreg = today(getLocalTimeZone());
-const todayInEt = toCalendar(todayInGreg, new EthiopicCalendar());
+const todayInEt = toCalendar(todayInGreg, EthiopianCalendar);
 const currentYear = todayInEt.year;
 for (let year = currentYear; year > currentYear - 5; year--) {
   years.push(year);
@@ -49,7 +51,21 @@ export default function BirthdateInput({
   const [currentMonth, setCurrentMonth] = useState<number>();
   const [currentDate, setCurrentDate] = useState<number>();
   const [currentYear, setCurrentYear] = useState<number>();
-  const [pagumenIsFive, setPagumenIsFive] = useState<boolean | null>(null);
+  const [daysInMonth, setDaysInMonth] = useState<number>(30);
+
+  useEffect(() => {
+    if (!currentMonth || !currentYear) {
+      return;
+    }
+    const selectedDate = new CalendarDate(
+      EthiopianCalendar,
+      currentYear,
+      currentMonth,
+      1, //the current date doesn't matter to get the number of days in the month
+    );
+    const daysInCurrentMonth = EthiopianCalendar.getDaysInMonth(selectedDate);
+    setDaysInMonth(daysInCurrentMonth);
+  }, [currentMonth, currentYear]);
 
   useEffect(() => {
     const scrollers = document.querySelectorAll(".scroller");
@@ -58,12 +74,13 @@ export default function BirthdateInput({
       const childOptions = scroller.children[0].childNodes;
       const options = {
         root: scroller,
+        rootMargin: "-20% 0%",
         threshold: 1.0,
       };
       const callback = (entries: IntersectionObserverEntry[]) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            navigator.vibrate(2);
+            navigator.vibrate(1);
             const index = Array.from(
               entry.target.parentElement!.children,
             ).indexOf(entry.target);
@@ -84,7 +101,7 @@ export default function BirthdateInput({
       observers.push(observer);
     });
     return () => observers.forEach((observer) => observer.disconnect());
-  }, [pagumenIsFive]);
+  }, [daysInMonth]);
 
   const dialogRef = useRef<HTMLDialogElement>(null);
 
@@ -99,35 +116,6 @@ export default function BirthdateInput({
       dialogRef.current?.close();
     }
   };
-
-  const daysArray = useMemo(() => {
-    if (currentMonth !== 13) {
-      if (pagumenIsFive !== null) {
-        setPagumenIsFive(null);
-      }
-      return days;
-    }
-    setPagumenIsFive(true);
-    const eth = new EthiopicCalendar();
-    const selectedDate = new CalendarDate(
-      new EthiopicCalendar(),
-      currentYear!,
-      currentMonth!,
-      currentDate!,
-    );
-    const daysInMonth = eth.getDaysInMonth(selectedDate);
-    if (daysInMonth === 5) {
-      setPagumenIsFive(true);
-    } else {
-      //if pagumen is 6
-      setPagumenIsFive(false);
-    }
-    return Array.from(
-      { length: eth.getDaysInMonth(selectedDate) },
-      (_, i) => i + 1,
-    );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentMonth, currentYear]);
 
   return (
     <div style={{ display: "flex" }}>
@@ -153,20 +141,22 @@ export default function BirthdateInput({
           </div>
           <div className="scroller">
             <ul style={{ listStyle: "none" }}>
-              {daysArray.map((day) => {
-                if (day < 10) {
+              {Array.from({ length: daysInMonth }, (_, i) => i + 1).map(
+                (day) => {
+                  if (day < 10) {
+                    return (
+                      <li key={day} className="dates">
+                        0{day}
+                      </li>
+                    );
+                  }
                   return (
                     <li key={day} className="dates">
-                      0{day}
+                      {day}
                     </li>
                   );
-                }
-                return (
-                  <li key={day} className="dates">
-                    {day}
-                  </li>
-                );
-              })}
+                },
+              )}
             </ul>
           </div>
           <div className="scroller">
