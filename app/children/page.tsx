@@ -5,6 +5,7 @@ import { api } from "@/convex/_generated/api";
 import { calculateAge } from "@/utils/calculateAge";
 import { TAgeGroup } from "@/convex/types/children";
 import { useEffect, useState } from "react";
+import { parseDate } from "@internationalized/date";
 
 const ageGroupsTabs: (TAgeGroup | "all")[] = [
   "all",
@@ -93,7 +94,8 @@ export default function ChildrenList() {
                     }}
                   >
                     <p className={`pill ${child.ageGroup}`}>{child.ageGroup}</p>
-                    <p>{calculateAge(child.dateOfBirth)}</p>
+                    {/* TODO: calculate age based on the calendar */}
+                    {/* <p>{calculateAge(parseDate(child.dateOfBirth))?.age}</p> */}
                   </div>
                 </div>
               </summary>

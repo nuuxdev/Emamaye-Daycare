@@ -124,7 +124,6 @@ export default function BirthdateInput({
           currentDate!,
         ),
       );
-      console.log(age);
       if (age) {
         setValue("ageGroup", getAgeGroup(age.ageInYears));
       }
