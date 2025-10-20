@@ -22,6 +22,7 @@ import type * as images from "../images.js";
 import type * as myFunctions from "../myFunctions.js";
 import type * as types_attendance from "../types/attendance.js";
 import type * as types_children from "../types/children.js";
+import type * as types_guardians from "../types/guardians.js";
 
 /**
  * A utility for referencing Convex functions in your app's API.
@@ -41,6 +42,7 @@ declare const fullApi: ApiFromModules<{
   myFunctions: typeof myFunctions;
   "types/attendance": typeof types_attendance;
   "types/children": typeof types_children;
+  "types/guardians": typeof types_guardians;
 }>;
 export declare const api: FilterApi<
   typeof fullApi,

@@ -1,6 +1,5 @@
 import { v } from "convex/values";
 import { query } from "./_generated/server";
-import { api } from "./_generated/api";
 
 export const getGuardianPhoneNumber = query({
   args: {

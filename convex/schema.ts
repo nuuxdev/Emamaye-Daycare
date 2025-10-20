@@ -3,6 +3,7 @@ import { v } from "convex/values";
 import { authTables } from "@convex-dev/auth/server";
 import { VAgeGroup, VGender } from "./types/children";
 import { VStatus } from "./types/attendance";
+import { VRelationToChild } from "./types/guardians";
 // The schema is normally optional, but Convex Auth
 // requires indexes defined on `authTables`.
 // The schema provides more precise TypeScript types.
@@ -21,7 +22,7 @@ export default defineSchema({
   }),
   guardians: defineTable({
     fullName: v.string(),
-    relationToChild: v.string(),
+    relationToChild: VRelationToChild,
     address: v.string(),
     phoneNumber: v.string(),
     avatar: v.string(),

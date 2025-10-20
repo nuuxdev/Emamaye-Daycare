@@ -17,6 +17,7 @@ import {
   GregorianCalendar,
   toCalendar,
 } from "@internationalized/date";
+import { TRelationToChild } from "@/convex/types/guardians";
 
 export type TChildInfo = {
   fullName: string;
@@ -27,7 +28,7 @@ export type TChildInfo = {
 
 export type TGuardianInfo = {
   fullName: string;
-  relationToChild: string;
+  relationToChild: TRelationToChild;
   address: string;
   phoneNumber: string;
 };
@@ -50,7 +51,7 @@ export default function Register() {
     },
     {
       fullName: "",
-      relationToChild: "",
+      relationToChild: "" as TRelationToChild,
       address: "",
       phoneNumber: "",
     },
@@ -65,16 +66,6 @@ export default function Register() {
     setIsPending,
   } = useBetterMutation(api.children.addChild);
   const generateUploadUrl = useMutation(api.images.generateUploadUrl);
-
-  // const { isTelegram } = useTelegram();
-
-  // useEffect(() => {
-  //   if (isTelegram) {
-  //     toast.info("i am telegram");
-  //   } else {
-  //     toast.info("i am not telegram");
-  //   }
-  // }, [isTelegram]);
 
   const submitHandler = async () => {
     setIsPending(true);
