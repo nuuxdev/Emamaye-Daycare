@@ -1,21 +1,12 @@
 import { TChildInfo } from "@/app/register/page";
-import {
-  CalendarDate,
-  EthiopicCalendar,
-  getLocalTimeZone,
-  toCalendar,
-  today,
-} from "@internationalized/date";
+import { calculateAge, getAgeGroup } from "@/utils/calculateAge";
+import { CalendarDate } from "@internationalized/date";
 import { useEffect, useRef, useState } from "react";
 import { UseFormRegister, UseFormSetValue } from "react-hook-form";
+import { EthiopianCalendar, todayInEth } from "@/utils/calendar";
 
-const EthiopianCalendar = new EthiopicCalendar();
-const todayInGreg = today(getLocalTimeZone());
-const {
-  year: thisYear,
-  month: thisMonth,
-  day: thisDay,
-} = toCalendar(todayInGreg, EthiopianCalendar);
+const { year: thisYear, month: thisMonth, day: thisDay } = todayInEth;
+
 const years: number[] = [];
 for (let year = thisYear; year > thisYear - 5; year--) {
   years.push(year);
@@ -60,7 +51,6 @@ export default function BirthdateInput({
         setMonthsArray(newMonthsArray);
       }
       if (currentMonth === thisMonth) {
-        console.log(currentMonth, thisMonth, thisDay);
         if (daysInMonth !== thisDay) {
           setDaysInMonth(thisDay);
         }
@@ -126,6 +116,18 @@ export default function BirthdateInput({
     if (type === "cancel") {
       dialogRef.current?.close();
     } else if (type === "set") {
+      const age = calculateAge(
+        new CalendarDate(
+          EthiopianCalendar,
+          currentYear!,
+          currentMonth!,
+          currentDate!,
+        ),
+      );
+      console.log(age);
+      if (age) {
+        setValue("ageGroup", getAgeGroup(age.ageInYears));
+      }
       const dateString = currentDate! < 10 ? `0${currentDate}` : currentDate;
       const monthString =
         currentMonth! < 10 ? `0${currentMonth}` : currentMonth;

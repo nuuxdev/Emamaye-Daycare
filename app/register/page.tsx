@@ -132,28 +132,28 @@ export default function Register() {
 
   const stepsData = [
     <ChildInfo
-      key={"child-info"}
+      key="child-info"
       saveSteps={saveSteps}
       savedSteps={savedSteps}
       setStep={setStep}
       step={step}
     />,
     <GuardianInfo
-      key={"guardian-info"}
+      key="guardian-info"
       saveSteps={saveSteps}
       savedSteps={savedSteps}
       setStep={setStep}
       step={step}
     />,
     <Avatars
-      key={"avatar-files"}
+      key="avatar-files"
       saveSteps={saveSteps}
       savedSteps={savedSteps}
       setStep={setStep}
       step={step}
     />,
     <PreviewForm
-      key={"preview-form"}
+      key="preview-form"
       savedSteps={savedSteps}
       submitForm={submitHandler}
       isPending={isPending}
