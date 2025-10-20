@@ -2,10 +2,8 @@
 import Link from "next/link";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { calculateAge } from "@/utils/calculateAge";
 import { TAgeGroup } from "@/convex/types/children";
 import { useEffect, useState } from "react";
-import { parseDate } from "@internationalized/date";
 
 const ageGroupsTabs: (TAgeGroup | "all")[] = [
   "all",
