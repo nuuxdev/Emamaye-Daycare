@@ -24,6 +24,7 @@ export type TChildInfo = {
   gender: TGender;
   dateOfBirth: string;
   ageGroup: TAgeGroup;
+  paymentAmount: number | null;
 };
 
 export type TGuardianInfo = {
@@ -48,6 +49,7 @@ export default function Register() {
       gender: "" as TGender,
       dateOfBirth: "",
       ageGroup: "" as TAgeGroup,
+      paymentAmount: null,
     },
     {
       fullName: "",
@@ -106,6 +108,7 @@ export default function Register() {
     const dateInGreg = toCalendar(dateInEt, new GregorianCalendar());
     const childData = {
       ...savedSteps[0],
+      paymentAmount: savedSteps[0].paymentAmount!,
       avatar: childStorageId as Id<"_storage">,
       dateOfBirth: dateInGreg.toString(),
     };

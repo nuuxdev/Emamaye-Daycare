@@ -1,5 +1,9 @@
 import { TChildInfo } from "@/app/register/page";
-import { calculateAge, getAgeGroup } from "@/utils/calculateAge";
+import {
+  calculateAge,
+  getAgeGroup,
+  getPaymentAmount,
+} from "@/utils/calculateAge";
 import { CalendarDate } from "@internationalized/date";
 import { useEffect, useRef, useState } from "react";
 import { UseFormRegister, UseFormSetValue } from "react-hook-form";
@@ -125,7 +129,9 @@ export default function BirthdateInput({
         ),
       );
       if (age) {
-        setValue("ageGroup", getAgeGroup(age.ageInYears));
+        const ageGroup = getAgeGroup(age.ageInYears);
+        setValue("ageGroup", ageGroup);
+        setValue("paymentAmount", getPaymentAmount(ageGroup));
       }
       const dateString = currentDate! < 10 ? `0${currentDate}` : currentDate;
       const monthString =

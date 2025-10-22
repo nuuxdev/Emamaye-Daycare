@@ -17,6 +17,7 @@ export default defineSchema({
     gender: VGender,
     dateOfBirth: v.string(),
     ageGroup: VAgeGroup,
+    paymentAmount: v.number(),
     avatar: v.string(),
     primaryGuardian: v.id("guardians"),
   }),

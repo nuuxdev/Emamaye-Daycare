@@ -34,6 +34,7 @@ export default function ChildInfo() {
         <p>Age Group: {child?.ageGroup}</p>
         <p>Date of Birth: {child?.dateOfBirth}</p>
         <p>Primary Guardian Id: {child?.primaryGuardian}</p>
+        <p>Payment Amount: {child?.paymentAmount}</p>
       </main>
     </>
   );

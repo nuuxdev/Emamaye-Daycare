@@ -5,6 +5,7 @@
 import { CalendarDate } from "@internationalized/date";
 import { todayInEth } from "./calendar";
 import { toast } from "sonner";
+import { TAgeGroup } from "@/convex/types/children";
 
 //   let years = today.getFullYear() - birthDate.getFullYear();
 //   let months = today.getMonth() - birthDate.getMonth();
@@ -69,5 +70,16 @@ export function getAgeGroup(ageInYears: number) {
     return "toddler";
   } else {
     return "preschooler";
+  }
+}
+
+export function getPaymentAmount(ageGroup: TAgeGroup) {
+  switch (ageGroup) {
+    case "infant":
+      return 2500;
+    case "toddler":
+      return 2000;
+    case "preschooler":
+      return 1500;
   }
 }
