@@ -2,6 +2,7 @@ import { TChildInfo, TSavedSteps } from "@/app/register/page";
 import { Dispatch, SetStateAction } from "react";
 import { useForm } from "react-hook-form";
 import BirthdateInput from "./BirthdateInput";
+import { TAgeGroup } from "@/convex/types/children";
 
 export default function ChildInfo({
   saveSteps,
@@ -36,6 +37,20 @@ export default function ChildInfo({
     saveSteps(savedStateCopy);
   };
 
+  const setPaymentAmount = (ageGroup: TAgeGroup) => {
+    switch (ageGroup) {
+      case "infant":
+        setValue("paymentAmount", 2500);
+        break;
+      case "toddler":
+        setValue("paymentAmount", 2000);
+        break;
+      case "preschooler":
+        setValue("paymentAmount", 1500);
+        break;
+    }
+  };
+
   return (
     <form style={{ display: "grid", gap: "1rem" }}>
       <h2>Child Information</h2>
@@ -60,15 +75,19 @@ export default function ChildInfo({
         />
         <label htmlFor="female">Female</label>
       </fieldset>
-      {/* <input type="date" {...register("dateOfBirth", { required: true })} /> */}
       <BirthdateInput register={register} setValue={setValue} />
 
-      <select {...register("ageGroup", { required: true })}>
+      <select
+        {...register("ageGroup", { required: true })}
+        onChange={(e) => setPaymentAmount(e.target.value as TAgeGroup)}
+      >
         <option value="">Select Age Group</option>
-        <option value="infant">Infant - 3,000Br</option>
-        <option value="toddler">Toddler - 2,000Br</option>
-        <option value="preschooler">Preschooler - 1,500Br</option>
+        <option value="infant">ጨቅላ</option>
+        <option value="toddler">ድክድክ</option>
+        <option value="preschooler">ታዳጊ</option>
       </select>
+
+      <input type="number" {...register("paymentAmount", { required: true })} />
 
       <button
         type="button"

@@ -2,6 +2,7 @@ import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { VAgeGroup, VGender } from "./types/children";
+import { VRelationToChild } from "./types/guardians";
 
 export const addChild = mutation({
   args: {
@@ -10,11 +11,12 @@ export const addChild = mutation({
       gender: VGender,
       dateOfBirth: v.string(),
       ageGroup: VAgeGroup,
+      paymentAmount: v.number(),
       avatar: v.id("_storage"),
     }),
     guardianData: v.object({
       fullName: v.string(),
-      relationToChild: v.string(),
+      relationToChild: VRelationToChild,
       address: v.string(),
       phoneNumber: v.string(),
       avatar: v.id("_storage"),
@@ -44,6 +46,7 @@ export const addChild = mutation({
       gender: args.childData.gender,
       dateOfBirth: args.childData.dateOfBirth,
       ageGroup: args.childData.ageGroup,
+      paymentAmount: args.childData.paymentAmount,
       avatar: childAvatarUrl ?? "",
       primaryGuardian: guardianId,
     });

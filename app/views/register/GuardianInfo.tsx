@@ -47,9 +47,12 @@ export default function GuardianInfo({
 
       <select {...register("relationToChild", { required: true })}>
         <option value="">Select Relation To Child</option>
-        <option value="mother">Mother</option>
-        <option value="father">Father</option>
-        <option value="other">Other</option>
+        <option value="mother">እናት</option>
+        <option value="father">አባት</option>
+        <option value="grandparent">አያት</option>
+        <option value="aunt">አክስት</option>
+        <option value="uncle">አጎት</option>
+        <option value="other">ሌላ</option>
       </select>
 
       <input

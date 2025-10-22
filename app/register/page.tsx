@@ -17,17 +17,19 @@ import {
   GregorianCalendar,
   toCalendar,
 } from "@internationalized/date";
+import { TRelationToChild } from "@/convex/types/guardians";
 
 export type TChildInfo = {
   fullName: string;
   gender: TGender;
   dateOfBirth: string;
   ageGroup: TAgeGroup;
+  paymentAmount: number | null;
 };
 
 export type TGuardianInfo = {
   fullName: string;
-  relationToChild: string;
+  relationToChild: TRelationToChild;
   address: string;
   phoneNumber: string;
 };
@@ -47,10 +49,11 @@ export default function Register() {
       gender: "" as TGender,
       dateOfBirth: "",
       ageGroup: "" as TAgeGroup,
+      paymentAmount: null,
     },
     {
       fullName: "",
-      relationToChild: "",
+      relationToChild: "" as TRelationToChild,
       address: "",
       phoneNumber: "",
     },
@@ -65,16 +68,6 @@ export default function Register() {
     setIsPending,
   } = useBetterMutation(api.children.addChild);
   const generateUploadUrl = useMutation(api.images.generateUploadUrl);
-
-  // const { isTelegram } = useTelegram();
-
-  // useEffect(() => {
-  //   if (isTelegram) {
-  //     toast.info("i am telegram");
-  //   } else {
-  //     toast.info("i am not telegram");
-  //   }
-  // }, [isTelegram]);
 
   const submitHandler = async () => {
     setIsPending(true);
@@ -115,6 +108,7 @@ export default function Register() {
     const dateInGreg = toCalendar(dateInEt, new GregorianCalendar());
     const childData = {
       ...savedSteps[0],
+      paymentAmount: savedSteps[0].paymentAmount!,
       avatar: childStorageId as Id<"_storage">,
       dateOfBirth: dateInGreg.toString(),
     };
@@ -132,28 +126,28 @@ export default function Register() {
 
   const stepsData = [
     <ChildInfo
-      key={"child-info"}
+      key="child-info"
       saveSteps={saveSteps}
       savedSteps={savedSteps}
       setStep={setStep}
       step={step}
     />,
     <GuardianInfo
-      key={"guardian-info"}
+      key="guardian-info"
       saveSteps={saveSteps}
       savedSteps={savedSteps}
       setStep={setStep}
       step={step}
     />,
     <Avatars
-      key={"avatar-files"}
+      key="avatar-files"
       saveSteps={saveSteps}
       savedSteps={savedSteps}
       setStep={setStep}
       step={step}
     />,
     <PreviewForm
-      key={"preview-form"}
+      key="preview-form"
       savedSteps={savedSteps}
       submitForm={submitHandler}
       isPending={isPending}
