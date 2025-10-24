@@ -37,16 +37,17 @@ export default function GuardianInfo({
 
   return (
     <form style={{ display: "grid", gap: "1rem" }}>
-      <h2>Guardian Information</h2>
-
+      <h2>የወላጅ መረጃዎች</h2>
+<label htmlFor="fullName">ሙሉ ስም</label>
       <input
+      id="fullName"
         type="text"
         {...register("fullName", { required: true })}
-        placeholder="Full name"
+        placeholder="ምሳሌ: Abebe Kebede"
       />
-
-      <select {...register("relationToChild", { required: true })}>
-        <option value="">Select Relation To Child</option>
+<label htmlFor="relationToChild">ዝምድና</label>
+      <select id="relationToChild" {...register("relationToChild", { required: true })}>
+        <option value="">እዚህ ጋር ይምረጡ</option>
         <option value="mother">እናት</option>
         <option value="father">አባት</option>
         <option value="grandparent">አያት</option>
@@ -54,16 +55,18 @@ export default function GuardianInfo({
         <option value="uncle">አጎት</option>
         <option value="other">ሌላ</option>
       </select>
-
+<label htmlFor="address">አድራሻ</label>
       <input
+      id="address"
         {...register("address", { required: true })}
-        placeholder="Address"
+        placeholder="ምሳሌ: debre abay"
       />
-
+<label htmlFor="phoneNumber">ስልክ ቁጥር</label>
       <input
+      id="phoneNumber"
         type="tel"
         {...register("phoneNumber", { required: true })}
-        placeholder="Phone number"
+        placeholder="ምሳሌ: 0911121314"
       />
 
       <button
@@ -72,7 +75,7 @@ export default function GuardianInfo({
           submitHandler("previous");
         }}
       >
-        Previous
+        ቀዳሚ
       </button>
 
       <button
@@ -81,7 +84,7 @@ export default function GuardianInfo({
           submitHandler("next");
         }}
       >
-        Next
+        ቀጣይ
       </button>
     </form>
   );

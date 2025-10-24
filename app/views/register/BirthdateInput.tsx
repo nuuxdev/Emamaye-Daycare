@@ -142,14 +142,15 @@ export default function BirthdateInput({
   };
 
   return (
-    <div style={{ display: "flex" }}>
+    <div style={{display:"flex", flexDirection: "column"}}>
+      <label htmlFor="dateOfBirth">የልደት ቀን</label>
       <input
         style={{ flex: "1" }}
         onClick={() => dialogRef.current?.showModal()}
         onBeforeInput={() => dialogRef.current?.showModal()}
         type="text"
         id="dateOfBirth"
-        placeholder="MMM-DD-YYYY"
+        placeholder="ወር-ቀን-አመት"
         {...register("dateOfBirth", { required: true })}
       />
       <dialog ref={dialogRef}>
