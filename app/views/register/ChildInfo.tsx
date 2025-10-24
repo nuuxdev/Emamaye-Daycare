@@ -53,41 +53,43 @@ export default function ChildInfo({
 
   return (
     <form style={{ display: "grid", gap: "1rem" }}>
-      <h2>Child Information</h2>
+      <h2>የልጅ መረጃዎች</h2>
+      <label htmlFor="fullName">ሙሉ ስም</label>
       <input
         {...register("fullName", { required: true })}
         placeholder="Full name"
       />
       <fieldset>
-        <legend>Gender</legend>
+        <legend>ፆታ</legend>
         <input
           type="radio"
           id="male"
           value="male"
           {...register("gender", { required: true })}
         />
-        <label htmlFor="male">Male</label>
+        <label htmlFor="male">ወንድ</label>
         <input
           type="radio"
           id="female"
           value="female"
           {...register("gender", { required: true })}
         />
-        <label htmlFor="female">Female</label>
+        <label htmlFor="female">ሴት</label>
       </fieldset>
       <BirthdateInput register={register} setValue={setValue} />
-
+      <label htmlFor="ageGroup">የእድሜ መደብ</label>
       <select
+      id="ageGroup"
         {...register("ageGroup", { required: true })}
         onChange={(e) => setPaymentAmount(e.target.value as TAgeGroup)}
       >
-        <option value="">Select Age Group</option>
+        <option value="">እዚህ ጋር ይምረጡ </option>
         <option value="infant">ጨቅላ</option>
         <option value="toddler">ድክድክ</option>
         <option value="preschooler">ታዳጊ</option>
       </select>
-
-      <input type="number" {...register("paymentAmount", { required: true })} />
+      <label htmlFor="paymentAmount">የክፍያ መጠን(ወርሃዊ)</label>
+      <input id="paymentAmount" type="number" {...register("paymentAmount", { required: true })} placeholder="በብር" />
 
       <button
         type="button"
@@ -96,7 +98,7 @@ export default function ChildInfo({
         }}
         disabled={step === 0}
       >
-        Previous
+        ቀዳሚ
       </button>
 
       <button
@@ -105,7 +107,7 @@ export default function ChildInfo({
           submitHandler("next");
         }}
       >
-        Next
+        ቀጣይ
       </button>
     </form>
   );

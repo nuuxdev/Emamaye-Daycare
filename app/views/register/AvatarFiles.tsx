@@ -57,15 +57,16 @@ export default function AvatarFiles({
 
   return (
     <form style={{ display: "grid", gap: "1rem" }}>
-      <h2>Profile Photos</h2>
-
+      <h2>ጉርድ ፎቶዎች</h2>
       <Controller
         name="childAvatar"
         control={control}
         rules={{ required: true }}
         render={({ field }) => (
-          <>
+          <div style={{display:"flex", flexDirection:"column", padding: "2rem", border: "2px solid" }}>
+          <label htmlFor="childAvatar">የልጅ ፎቶ</label>
             <input
+              id="childAvatar"
               type="file"
               accept="image/*"
               onChange={(e) => {
@@ -84,17 +85,18 @@ export default function AvatarFiles({
                 style={{ width: "150px", height: "150px", objectFit: "cover" }}
               />
             )}
-          </>
+          </div>
         )}
       />
-
       <Controller
         name="guardianAvatar"
         control={control}
         rules={{ required: true }}
         render={({ field }) => (
-          <>
+          <div style={{display:"flex", flexDirection:"column", padding: "2rem", border: "2px solid" }}>
+          <label htmlFor="guardianAvatar">የአሳዳጊ ፎቶ</label>
             <input
+              id="guardianAvatar"
               type="file"
               accept="image/*"
               onChange={(e) => {
@@ -113,7 +115,7 @@ export default function AvatarFiles({
                 style={{ width: "150px", height: "150px", objectFit: "cover" }}
               />
             )}
-          </>
+          </div>
         )}
       />
 
