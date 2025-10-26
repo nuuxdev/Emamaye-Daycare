@@ -1,5 +1,5 @@
 import { TAvatarFiles, TSavedSteps } from "@/app/register/page";
-import { Dispatch, SetStateAction, useState, useEffect } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 
 export default function AvatarFiles({
@@ -22,22 +22,24 @@ export default function AvatarFiles({
   const [previews, setPreviews] = useState<{
     childAvatar?: string;
     guardianAvatar?: string;
-  }>({
-    childAvatar: defaultValues.childAvatar
-      ? URL.createObjectURL(defaultValues.childAvatar)
-      : undefined,
-    guardianAvatar: defaultValues.guardianAvatar
-      ? URL.createObjectURL(defaultValues.guardianAvatar)
-      : undefined,
-  });
+  }>(
+  //   {
+  //   childAvatar: defaultValues.childAvatar
+  //     ? URL.createObjectURL(defaultValues.childAvatar)
+  //     : undefined,
+  //   guardianAvatar: defaultValues.guardianAvatar
+  //     ? URL.createObjectURL(defaultValues.guardianAvatar)
+  //     : undefined,
+  // }
+);
 
   // Cleanup object URLs when files change or component unmounts
-  useEffect(() => {
-    return () => {
-      if (previews.childAvatar) URL.revokeObjectURL(previews.childAvatar);
-      if (previews.guardianAvatar) URL.revokeObjectURL(previews.guardianAvatar);
-    };
-  }, [previews]);
+  // useEffect(() => {
+  //   return () => {
+  //     if (previews.childAvatar) URL.revokeObjectURL(previews.childAvatar);
+  //     if (previews.guardianAvatar) URL.revokeObjectURL(previews.guardianAvatar);
+  //   };
+  // }, [previews]);
 
   const submitHandler = async (direction: "next" | "previous") => {
     const data = getValues();
@@ -82,7 +84,7 @@ export default function AvatarFiles({
                 field.onChange(file);
               }}
             />
-            {previews.childAvatar && (
+            {previews?.childAvatar && (
               <img
                 src={previews.childAvatar}
                 alt="Child Avatar Preview"
@@ -126,7 +128,7 @@ export default function AvatarFiles({
               }
             }
             />
-            {previews.guardianAvatar && (
+            {previews?.guardianAvatar && (
               <img
                 src={previews.guardianAvatar}
                 alt="Guardian Avatar Preview"
