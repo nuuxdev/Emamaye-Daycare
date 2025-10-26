@@ -89,7 +89,7 @@ export default function ChildInfo({
         <option value="preschooler">ታዳጊ</option>
       </select>
       <label htmlFor="paymentAmount">የክፍያ መጠን</label>
-      <input id="paymentAmount" type="number" {...register("paymentAmount", { required: true })} placeholder="በብር" />
+      <input id="paymentAmount" type="number" {...register("paymentAmount", { required: true, valueAsNumber: true })} placeholder="በብር" />
 
       <button
         type="button"

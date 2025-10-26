@@ -64,25 +64,25 @@ export default function AvatarFiles({
         name="childAvatar"
         control={control}
         // rules={{ required: true }}
-        render={() => (
+        render={({field}) => (
           <div style={{display:"flex", flexDirection:"column", padding: "2rem", border: "2px solid" }}>
           <label htmlFor="childAvatar">የልጅ ፎቶ</label>
             <input
               id="childAvatar"
               type="file"
               accept="image/*"
-              // onChange={(e) => {
-              //   const file = e.target.files?.[0] || null;
+              onChange={(e) => {
+                const file = e.target.files?.[0] || null;
                 
-              //   const reader = new FileReader();
-              //   if (file) {
-              //     reader.onloadend = e => {
-              //       setPreviews((prev) => ({ ...prev, childAvatar: e.target?.result as string}));
-              //     }
-              //     reader.readAsDataURL(file);
-              //   }
-              //   field.onChange(file);
-              // }}
+                // const reader = new FileReader();
+                // if (file) {
+                //   reader.onloadend = e => {
+                //     setPreviews((prev) => ({ ...prev, childAvatar: e.target?.result as string}));
+                //   }
+                //   reader.readAsDataURL(file);
+                // }
+                field.onChange(file);
+              }}
             />
             {/* {previews?.childAvatar && (
               <img
@@ -98,17 +98,17 @@ export default function AvatarFiles({
         name="guardianAvatar"
         control={control}
         // rules={{ required: true }}
-        render={() => (
+        render={({field}) => (
           <div style={{display:"flex", flexDirection:"column", padding: "2rem", border: "2px solid" }}>
           <label htmlFor="guardianAvatar">የአሳዳጊ ፎቶ (ግዴታ ያልሆነ)</label>
             <input
               id="guardianAvatar"
               type="file"
               accept="image/*"
-              // onChange={
-              //   (e) => {
-              //   const file = e.target.files?.[0] || null;
-              //   field.onChange(file);
+              onChange={
+                (e) => {
+                const file = e.target.files?.[0] || null;
+                field.onChange(file);
               //   if (file) {
               //     const url = URL.createObjectURL(file);
               //     setPreviews((prev) => ({ ...prev, guardianAvatar: url }));
@@ -125,8 +125,8 @@ export default function AvatarFiles({
             //       reader.readAsDataURL(file);
             //     }
             //     field.onChange(file);
-            //   }
-            // }
+              }
+            }
             />
             {/* {previews?.guardianAvatar && (
               <img
