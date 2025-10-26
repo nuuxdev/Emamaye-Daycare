@@ -1,5 +1,5 @@
 import { TAvatarFiles, TSavedSteps } from "@/app/register/page";
-import { Dispatch, SetStateAction, useState } from "react";
+import { Dispatch, SetStateAction } from "react";
 import { useForm, Controller } from "react-hook-form";
 
 export default function AvatarFiles({
@@ -19,10 +19,10 @@ export default function AvatarFiles({
     defaultValues,
   });
 
-  const [previews, setPreviews] = useState<{
-    childAvatar?: string;
-    guardianAvatar?: string;
-  }>(
+  // const [previews, setPreviews] = useState<{
+  //   childAvatar?: string;
+  //   guardianAvatar?: string;
+  // }>(
   //   {
   //   childAvatar: defaultValues.childAvatar
   //     ? URL.createObjectURL(defaultValues.childAvatar)
@@ -31,7 +31,7 @@ export default function AvatarFiles({
   //     ? URL.createObjectURL(defaultValues.guardianAvatar)
   //     : undefined,
   // }
-);
+// );
 
   // Cleanup object URLs when files change or component unmounts
   // useEffect(() => {
@@ -64,33 +64,33 @@ export default function AvatarFiles({
         name="childAvatar"
         control={control}
         // rules={{ required: true }}
-        render={({ field }) => (
+        render={() => (
           <div style={{display:"flex", flexDirection:"column", padding: "2rem", border: "2px solid" }}>
           <label htmlFor="childAvatar">የልጅ ፎቶ</label>
             <input
               id="childAvatar"
               type="file"
               accept="image/*"
-              onChange={(e) => {
-                const file = e.target.files?.[0] || null;
+              // onChange={(e) => {
+              //   const file = e.target.files?.[0] || null;
                 
-                const reader = new FileReader();
-                if (file) {
-                  reader.onloadend = e => {
-                    setPreviews((prev) => ({ ...prev, childAvatar: e.target?.result as string}));
-                  }
-                  reader.readAsDataURL(file);
-                }
-                field.onChange(file);
-              }}
+              //   const reader = new FileReader();
+              //   if (file) {
+              //     reader.onloadend = e => {
+              //       setPreviews((prev) => ({ ...prev, childAvatar: e.target?.result as string}));
+              //     }
+              //     reader.readAsDataURL(file);
+              //   }
+              //   field.onChange(file);
+              // }}
             />
-            {previews?.childAvatar && (
+            {/* {previews?.childAvatar && (
               <img
                 src={previews.childAvatar}
                 alt="Child Avatar Preview"
                 style={{ width: "150px", height: "150px", objectFit: "cover" }}
               />
-            )}
+            )} */}
           </div>
         )}
       />
@@ -98,14 +98,14 @@ export default function AvatarFiles({
         name="guardianAvatar"
         control={control}
         // rules={{ required: true }}
-        render={({ field }) => (
+        render={() => (
           <div style={{display:"flex", flexDirection:"column", padding: "2rem", border: "2px solid" }}>
           <label htmlFor="guardianAvatar">የአሳዳጊ ፎቶ (ግዴታ ያልሆነ)</label>
             <input
               id="guardianAvatar"
               type="file"
               accept="image/*"
-              onChange={
+              // onChange={
               //   (e) => {
               //   const file = e.target.files?.[0] || null;
               //   field.onChange(file);
@@ -114,27 +114,27 @@ export default function AvatarFiles({
               //     setPreviews((prev) => ({ ...prev, guardianAvatar: url }));
               //   }
               // }
-              (e) => {
-                const file = e.target.files?.[0] || null;
+            //   (e) => {
+            //     const file = e.target.files?.[0] || null;
                 
-                const reader = new FileReader();
-                if (file) {
-                  reader.onloadend = e => {
-                    setPreviews((prev) => ({ ...prev, guardianAvatar: e.target?.result as string}));
-                  }
-                  reader.readAsDataURL(file);
-                }
-                field.onChange(file);
-              }
-            }
+            //     const reader = new FileReader();
+            //     if (file) {
+            //       reader.onloadend = e => {
+            //         setPreviews((prev) => ({ ...prev, guardianAvatar: e.target?.result as string}));
+            //       }
+            //       reader.readAsDataURL(file);
+            //     }
+            //     field.onChange(file);
+            //   }
+            // }
             />
-            {previews?.guardianAvatar && (
+            {/* {previews?.guardianAvatar && (
               <img
                 src={previews.guardianAvatar}
                 alt="Guardian Avatar Preview"
                 style={{ width: "150px", height: "150px", objectFit: "cover" }}
               />
-            )}
+            )} */}
           </div>
         )}
       />
