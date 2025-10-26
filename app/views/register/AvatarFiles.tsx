@@ -61,7 +61,7 @@ export default function AvatarFiles({
       <Controller
         name="childAvatar"
         control={control}
-        rules={{ required: true }}
+        // rules={{ required: true }}
         render={({ field }) => (
           <div style={{display:"flex", flexDirection:"column", padding: "2rem", border: "2px solid" }}>
           <label htmlFor="childAvatar">የልጅ ፎቶ</label>
@@ -91,10 +91,10 @@ export default function AvatarFiles({
       <Controller
         name="guardianAvatar"
         control={control}
-        rules={{ required: true }}
+        // rules={{ required: true }}
         render={({ field }) => (
           <div style={{display:"flex", flexDirection:"column", padding: "2rem", border: "2px solid" }}>
-          <label htmlFor="guardianAvatar">የአሳዳጊ ፎቶ</label>
+          <label htmlFor="guardianAvatar">የአሳዳጊ ፎቶ (ግዴታ ያልሆነ)</label>
             <input
               id="guardianAvatar"
               type="file"

@@ -57,7 +57,7 @@ export default function ChildInfo({
       <label htmlFor="fullName">ሙሉ ስም</label>
       <input
         {...register("fullName", { required: true })}
-        placeholder="Full name"
+        placeholder="ምሳሌ፡ ዳግማዊት አስካለች"
       />
       <fieldset>
         <legend>ፆታ</legend>
@@ -88,7 +88,7 @@ export default function ChildInfo({
         <option value="toddler">ድክድክ</option>
         <option value="preschooler">ታዳጊ</option>
       </select>
-      <label htmlFor="paymentAmount">የክፍያ መጠን(ወርሃዊ)</label>
+      <label htmlFor="paymentAmount">የክፍያ መጠን</label>
       <input id="paymentAmount" type="number" {...register("paymentAmount", { required: true })} placeholder="በብር" />
 
       <button
