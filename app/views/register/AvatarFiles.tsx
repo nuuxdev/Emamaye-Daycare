@@ -71,11 +71,15 @@ export default function AvatarFiles({
               accept="image/*"
               onChange={(e) => {
                 const file = e.target.files?.[0] || null;
-                field.onChange(file);
+                
+                const reader = new FileReader();
                 if (file) {
-                  const url = URL.createObjectURL(file);
-                  setPreviews((prev) => ({ ...prev, childAvatar: url }));
+                  reader.onloadend = e => {
+                    setPreviews((prev) => ({ ...prev, childAvatar: e.target?.result as string}));
+                  }
+                  reader.readAsDataURL(file);
                 }
+                field.onChange(file);
               }}
             />
             {previews.childAvatar && (
@@ -99,14 +103,28 @@ export default function AvatarFiles({
               id="guardianAvatar"
               type="file"
               accept="image/*"
-              onChange={(e) => {
+              onChange={
+              //   (e) => {
+              //   const file = e.target.files?.[0] || null;
+              //   field.onChange(file);
+              //   if (file) {
+              //     const url = URL.createObjectURL(file);
+              //     setPreviews((prev) => ({ ...prev, guardianAvatar: url }));
+              //   }
+              // }
+              (e) => {
                 const file = e.target.files?.[0] || null;
-                field.onChange(file);
+                
+                const reader = new FileReader();
                 if (file) {
-                  const url = URL.createObjectURL(file);
-                  setPreviews((prev) => ({ ...prev, guardianAvatar: url }));
+                  reader.onloadend = e => {
+                    setPreviews((prev) => ({ ...prev, guardianAvatar: e.target?.result as string}));
+                  }
+                  reader.readAsDataURL(file);
                 }
-              }}
+                field.onChange(file);
+              }
+            }
             />
             {previews.guardianAvatar && (
               <img
