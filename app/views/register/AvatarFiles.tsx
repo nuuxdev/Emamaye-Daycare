@@ -1,5 +1,5 @@
 import { TAvatarFiles, TSavedSteps } from "@/app/register/page";
-import { Dispatch, SetStateAction, useState } from "react";
+import { Dispatch, SetStateAction } from "react";
 import { useForm, Controller } from "react-hook-form";
 
 export default function AvatarFiles({
@@ -18,28 +18,6 @@ export default function AvatarFiles({
   const { control, trigger, getValues } = useForm<TAvatarFiles>({
     defaultValues,
   });
-
-  const [previews, setPreviews] = useState<{
-    childAvatar?: string;
-    guardianAvatar?: string;
-  }>(
-  //   {
-  //   childAvatar: defaultValues.childAvatar
-  //     ? URL.createObjectURL(defaultValues.childAvatar)
-  //     : undefined,
-  //   guardianAvatar: defaultValues.guardianAvatar
-  //     ? URL.createObjectURL(defaultValues.guardianAvatar)
-  //     : undefined,
-  // }
-);
-
-  // Cleanup object URLs when files change or component unmounts
-  // useEffect(() => {
-  //   return () => {
-  //     if (previews.childAvatar) URL.revokeObjectURL(previews.childAvatar);
-  //     if (previews.guardianAvatar) URL.revokeObjectURL(previews.guardianAvatar);
-  //   };
-  // }, [previews]);
 
   const submitHandler = async (direction: "next" | "previous") => {
     const data = getValues();
@@ -74,26 +52,8 @@ export default function AvatarFiles({
               onChange={(e) => {
                 const file = e.target.files?.[0] || null;
                 field.onChange(file);
-                
-                if (file) {
-                  const cloneImage = new Blob([file], {type: file.type})
-                  const reader = new FileReader();
-
-                  reader.onloadend = e => {
-                    setPreviews((prev) => ({ ...prev, childAvatar: e.target?.result as string}));
-                  }
-                  reader.readAsDataURL(cloneImage);
-                }
-                
               }}
             />
-            {previews?.childAvatar && (
-              <img
-                src={previews.childAvatar}
-                alt="Child Avatar Preview"
-                style={{ width: "150px", height: "150px", objectFit: "cover" }}
-              />
-            )}
           </div>
         )}
       />
@@ -109,35 +69,12 @@ export default function AvatarFiles({
               type="file"
               accept="image/*"
               onChange={
-                // (e) => {
-                // const file = e.target.files?.[0] || null;
-                // field.onChange(file);
-                // if (file) {
-              //     const url = URL.createObjectURL(file);
-              //     setPreviews((prev) => ({ ...prev, guardianAvatar: url }));
-              //   }
-              // }
               (e) => {
                 const file = e.target.files?.[0] || null;
-                if (file) {
-                  const cloneImage = new Blob([file], {type: file.type})
-                  const reader = new FileReader();
-                  reader.onloadend = e => {
-                    setPreviews((prev) => ({ ...prev, guardianAvatar: e.target?.result as string}));
-                  }
-                  reader.readAsDataURL(cloneImage);
-                }
                 field.onChange(file);
               }
             }
             />
-            {previews?.guardianAvatar && (
-              <img
-                src={previews.guardianAvatar}
-                alt="Guardian Avatar Preview"
-                style={{ width: "150px", height: "150px", objectFit: "cover" }}
-              />
-            )}
           </div>
         )}
       />
