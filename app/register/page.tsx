@@ -75,6 +75,8 @@ export default function Register() {
     const childAvatar = savedSteps[2].childAvatar;
     const guardianAvatar = savedSteps[2].guardianAvatar;
     const postUrl = await generateUploadUrl();
+    console.log("POST URL", postUrl)
+    console.log("FILES", childAvatar,guardianAvatar)
     let childStorageId: Id<"_storage">;
     let guardianStorageId: Id<"_storage">;
     try {
@@ -85,6 +87,7 @@ export default function Register() {
         body: childAvatar,
       });
       childStorageId = (await childRes.json()).storageId;
+      console.log("CSId", childStorageId)
       setIsPending("uploading guardian's avatar...");
       const guardianRes = await fetch(postUrl, {
         method: "POST",
@@ -92,6 +95,7 @@ export default function Register() {
         body: guardianAvatar,
       });
       guardianStorageId = (await guardianRes.json()).storageId;
+      console.log("GSId", guardianStorageId)
     } catch (error) {
       console.error(error);
       toast.error("Failed to upload avatars");
