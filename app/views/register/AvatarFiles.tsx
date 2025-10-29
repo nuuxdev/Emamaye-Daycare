@@ -56,11 +56,11 @@ export default function AvatarFiles({
               accept="image/*"
               onChange={(e) => {
                 const file = e.target.files?.[0] || null;
-                field.onChange(file);
                 const reader = new FileReader();
                 if (file) {
                   reader.onloadend = e => {
                     setPreviews((prev) => ({ ...prev, childAvatar: e.target?.result as string}));
+                    field.onChange(file);
                   }
                   reader.readAsDataURL(file);
                 }
@@ -90,11 +90,11 @@ export default function AvatarFiles({
               onChange={
               (e) => {
                 const file = e.target.files?.[0] || null;
-                field.onChange(file);
                 const reader = new FileReader();
                 if (file) {
                   reader.onloadend = e => {
                     setPreviews((prev) => ({ ...prev, guardianAvatar: e.target?.result as string}));
+                    field.onChange(file);
                   }
                   reader.readAsDataURL(file);
                 }
