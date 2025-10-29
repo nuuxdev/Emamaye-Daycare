@@ -73,35 +73,22 @@ export default function Register() {
     setIsPending(true);
     if (step !== stepsData.length - 1) return;
     const childAvatar = savedSteps[2].childAvatar;
-    const guardianAvatar = savedSteps[2].guardianAvatar;
-    const postUrl = await generateUploadUrl();
-    console.log("POST URL", postUrl)
-    console.log("FILES", childAvatar,guardianAvatar)
-    let childStorageId: Id<"_storage">;
-    let guardianStorageId: Id<"_storage">;
+    const guardianAvatar = savedSteps[2].guardianAvatar;    
     try {
-      setIsPending("uploading child's avatar...");
-      const childRes = await fetch(postUrl, {
-        method: "POST",
-        headers: { "Content-Type": childAvatar!.type },
-        body: childAvatar,
-      });
-      childStorageId = (await childRes.json()).storageId;
-      console.log("CSId", childStorageId)
-      setIsPending("uploading guardian's avatar...");
-      const guardianRes = await fetch(postUrl, {
-        method: "POST",
-        headers: { "Content-Type": guardianAvatar!.type },
-        body: guardianAvatar,
-      });
-      guardianStorageId = (await guardianRes.json()).storageId;
-      console.log("GSId", guardianStorageId)
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to upload avatars");
-      return;
-    }
-    const dateOfBirth = savedSteps[0].dateOfBirth;
+        const uploadImage = async (imageFile: File | null) => {
+        if(imageFile){
+          const postUrl = await generateUploadUrl();
+          const result = await fetch(postUrl, {
+          method: "POST",
+          headers: { "Content-Type": imageFile.type },
+          body: imageFile,
+        });
+        const { storageId } = await result.json();
+        return storageId as Id<"_storage">
+        }
+        return
+        }
+      const dateOfBirth = savedSteps[0].dateOfBirth;
     const [month, date, year] = dateOfBirth.split("-");
     const dateInEt = new CalendarDate(
       new EthiopicCalendar(),
@@ -110,15 +97,20 @@ export default function Register() {
       parseInt(date),
     );
     const dateInGreg = toCalendar(dateInEt, new GregorianCalendar());
+    
+    setIsPending('Uploading Child Avatar');
+    const childStorageId = await uploadImage(childAvatar);
+    setIsPending('Uploading Guardian Avatar');
+    const guardianStorageId = await uploadImage(guardianAvatar);
     const childData = {
       ...savedSteps[0],
       paymentAmount: savedSteps[0].paymentAmount!,
-      avatar: childStorageId as Id<"_storage">,
+      avatar: childStorageId,
       dateOfBirth: dateInGreg.toString(),
     };
     const guardianData = {
       ...savedSteps[1],
-      avatar: guardianStorageId as Id<"_storage">,
+      avatar: guardianStorageId,
     };
     setIsPending(true);
     await addChild({
@@ -126,6 +118,12 @@ export default function Register() {
       guardianData,
     });
     setIsPending(false);
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to Register Child");
+      return;
+    }
+    
   };
 
   const stepsData = [

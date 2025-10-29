@@ -12,14 +12,14 @@ export const addChild = mutation({
       dateOfBirth: v.string(),
       ageGroup: VAgeGroup,
       paymentAmount: v.number(),
-      avatar: v.id("_storage"),
+      avatar: v.optional(v.id("_storage")),
     }),
     guardianData: v.object({
       fullName: v.string(),
       relationToChild: VRelationToChild,
       address: v.string(),
       phoneNumber: v.string(),
-      avatar: v.id("_storage"),
+      avatar: v.optional(v.id("_storage")),
     }),
   },
   handler: async (ctx, args): Promise<string> => {
@@ -28,26 +28,34 @@ export const addChild = mutation({
 
     const user = await ctx.db.get(userId);
     if (!user) throw new Error("User not found");
-    const guardianAvatarUrl = await ctx.storage.getUrl(
-      args.guardianData.avatar,
-    );
+    
+    const getGuadianAvatarUrl = async () =>{
+      if(args.guardianData.avatar){
+        return await ctx.storage.getUrl(args.guardianData.avatar) || undefined
+      }
+      return
+    }
     const guardianId = await ctx.db.insert("guardians", {
       fullName: args.guardianData.fullName,
       relationToChild: args.guardianData.relationToChild,
       address: args.guardianData.address,
       phoneNumber: args.guardianData.phoneNumber,
-      avatar: guardianAvatarUrl ?? "",
+      avatar: await getGuadianAvatarUrl(),
     });
 
-    const childAvatarUrl = await ctx.storage.getUrl(args.childData.avatar);
-
+const getChildAvatarUrl = async () =>{
+      if(args.childData.avatar){
+        return await ctx.storage.getUrl(args.childData.avatar) || undefined
+      }
+      return
+    }
     const childId = await ctx.db.insert("children", {
       fullName: args.childData.fullName,
       gender: args.childData.gender,
       dateOfBirth: args.childData.dateOfBirth,
       ageGroup: args.childData.ageGroup,
       paymentAmount: args.childData.paymentAmount,
-      avatar: childAvatarUrl ?? "",
+      avatar: await getChildAvatarUrl(),
       primaryGuardian: guardianId,
     });
     if (!childId) throw new Error("Child not added");
