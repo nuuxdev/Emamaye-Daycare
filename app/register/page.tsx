@@ -74,7 +74,6 @@ export default function Register() {
     if (step !== stepsData.length - 1) return;
     const childAvatar = savedSteps[2].childAvatar;
     const guardianAvatar = savedSteps[2].guardianAvatar;
-    console.log(childAvatar,guardianAvatar)
     const postUrl = await generateUploadUrl();
     let childStorageId: Id<"_storage">;
     let guardianStorageId: Id<"_storage">;
@@ -95,7 +94,7 @@ export default function Register() {
       guardianStorageId = (await guardianRes.json()).storageId;
     } catch (error) {
       console.error(error);
-      toast.error(JSON.stringify(error));
+      toast.error("Failed to upload avatars");
       return;
     }
     const dateOfBirth = savedSteps[0].dateOfBirth;
