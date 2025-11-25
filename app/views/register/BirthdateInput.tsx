@@ -85,23 +85,23 @@ export default function BirthdateInput({
       const childOptions = scroller.children[0].childNodes;
       const options = {
         root: scroller,
-        rootMargin: "-20% 0%",
-        threshold: 1.0,
+        rootMargin: "-45% 0% -45% 0%", // Adjusted for better center detection
+        threshold: 0.1, // Lower threshold to catch items passing through center
       };
       const callback = (entries: IntersectionObserverEntry[]) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            if(navigator.vibrate){
+            if (navigator.vibrate) {
               navigator.vibrate(1);
             }
             const index = Array.from(
               entry.target.parentElement!.children,
             ).indexOf(entry.target);
-            if (entry.target.className === "months") {
+            if (entry.target.className.includes("months")) {
               setCurrentMonth(index + 1);
-            } else if (entry.target.className === "dates") {
+            } else if (entry.target.className.includes("dates")) {
               setCurrentDate(days[index]);
-            } else if (entry.target.className === "years") {
+            } else if (entry.target.className.includes("years")) {
               setCurrentYear(years[index]);
             }
           }
@@ -144,18 +144,21 @@ export default function BirthdateInput({
   };
 
   return (
-    <div style={{display:"flex", flexDirection: "column"}}>
-      <label htmlFor="dateOfBirth">የልደት ቀን</label>
+    <div className="mb-1">
+      <label htmlFor="dateOfBirth" className="mb-1" style={{ display: "block", marginLeft: "1rem" }}>የልደት ቀን</label>
       <input
-        style={{ flex: "1" }}
+        className="neo-input"
+        style={{ cursor: "pointer" }}
         onClick={() => dialogRef.current?.showModal()}
         onBeforeInput={() => dialogRef.current?.showModal()}
         type="text"
         id="dateOfBirth"
         placeholder="ወር-ቀን-አመት"
         {...register("dateOfBirth", { required: true })}
+        readOnly
       />
       <dialog ref={dialogRef}>
+        <h3 className="text-center mb-1">ቀን ይምረጡ</h3>
         <div className="scroller-wrapper">
           <div className="scroller">
             <ul style={{ listStyle: "none" }}>
@@ -196,16 +199,16 @@ export default function BirthdateInput({
             </ul>
           </div>
         </div>
-        <div style={{ display: "flex", gap: "1rem", marginBlock: "3rem" }}>
+        <div style={{ display: "flex", gap: "1rem", marginTop: "2rem" }}>
           <button
-            style={{ flex: "1" }}
+            className="neo-btn w-full"
             type="button"
             onClick={() => handleClose("cancel")}
           >
             Cancel
           </button>
           <button
-            style={{ flex: "1" }}
+            className="neo-btn primary w-full"
             type="button"
             onClick={() => handleClose("set")}
           >

@@ -52,63 +52,100 @@ export default function ChildInfo({
   };
 
   return (
-    <form style={{ display: "grid", gap: "1rem" }}>
+    <form className="neo-box grid-gap-1" style={{ maxWidth: "500px", margin: "0 auto" }}>
       <h2>የልጅ መረጃዎች</h2>
-      <label htmlFor="fullName">ሙሉ ስም</label>
-      <input
-        {...register("fullName", { required: true })}
-        placeholder="ምሳሌ፡ ዳግማዊት አስካለች"
-      />
-      <fieldset>
-        <legend>ፆታ</legend>
+
+      <div className="mb-1">
+        <label htmlFor="fullName" className="mb-1" style={{ display: "block", marginLeft: "1rem" }}>ሙሉ ስም</label>
         <input
-          type="radio"
-          id="male"
-          value="male"
-          {...register("gender", { required: true })}
+          className="neo-input"
+          id="fullName"
+          {...register("fullName", { required: true })}
+          placeholder="ምሳሌ፡ ዳግማዊት አስካለች"
         />
-        <label htmlFor="male">ወንድ</label>
-        <input
-          type="radio"
-          id="female"
-          value="female"
-          {...register("gender", { required: true })}
-        />
-        <label htmlFor="female">ሴት</label>
+      </div>
+
+      <fieldset style={{ border: "none", padding: 0 }}>
+        <legend className="mb-1" style={{ marginLeft: "1rem" }}>ፆታ</legend>
+        <div className="neo-radio-group">
+          <label htmlFor="male">
+            <input
+              type="radio"
+              id="male"
+              value="male"
+              {...register("gender", { required: true })}
+            />
+            ወንድ
+          </label>
+          <label htmlFor="female">
+            <input
+              type="radio"
+              id="female"
+              value="female"
+              {...register("gender", { required: true })}
+            />
+            ሴት
+          </label>
+        </div>
       </fieldset>
+
       <BirthdateInput register={register} setValue={setValue} />
-      <label htmlFor="ageGroup">የእድሜ መደብ</label>
-      <select
-      id="ageGroup"
-        {...register("ageGroup", { required: true })}
-        onChange={(e) => setPaymentAmount(e.target.value as TAgeGroup)}
-      >
-        <option value="">እዚህ ጋር ይምረጡ </option>
-        <option value="infant">ጨቅላ</option>
-        <option value="toddler">ድክድክ</option>
-        <option value="preschooler">ታዳጊ</option>
-      </select>
-      <label htmlFor="paymentAmount">የክፍያ መጠን</label>
-      <input id="paymentAmount" type="number" {...register("paymentAmount", { required: true, valueAsNumber: true })} placeholder="በብር" />
 
-      <button
-        type="button"
-        onClick={() => {
-          submitHandler("previous");
-        }}
-        disabled={step === 0}
-      >
-        ቀዳሚ
-      </button>
+      <div className="mb-1">
+        <label htmlFor="ageGroup" className="mb-1" style={{ display: "block", marginLeft: "1rem" }}>የእድሜ መደብ</label>
+        <div style={{ position: "relative" }}>
+          <select
+            id="ageGroup"
+            className="neo-input"
+            style={{ appearance: "none", cursor: "pointer" }}
+            {...register("ageGroup", { required: true })}
+            onChange={(e) => setPaymentAmount(e.target.value as TAgeGroup)}
+          >
+            <option value="">እዚህ ጋር ይምረጡ</option>
+            <option value="infant">ጨቅላ</option>
+            <option value="toddler">ድክድክ</option>
+            <option value="preschooler">ታዳጊ</option>
+          </select>
+          <div style={{ position: "absolute", right: "1.5rem", top: "50%", transform: "translateY(-50%)", pointerEvents: "none", opacity: 0.5 }}>
+            ▼
+          </div>
+        </div>
+      </div>
 
-      <button
-        type="button"
-        onClick={() => {
-          submitHandler("next");
-        }}
-      >
-        ቀጣይ
-      </button>
+      <div className="mb-1">
+        <label htmlFor="paymentAmount" className="mb-1" style={{ display: "block", marginLeft: "1rem" }}>የክፍያ መጠን</label>
+        <input
+          id="paymentAmount"
+          type="number"
+          className="neo-input"
+          {...register("paymentAmount", { required: true, valueAsNumber: true })}
+          placeholder="በብር"
+          readOnly
+        />
+      </div>
+
+      <div style={{ display: "flex", gap: "1rem", marginTop: "1rem" }}>
+        <button
+          type="button"
+          className="neo-btn w-full"
+          onClick={() => {
+            submitHandler("previous");
+          }}
+          disabled={step === 0}
+        >
+          ቀዳሚ
+        </button>
+
+        <button
+          type="button"
+          className="neo-btn primary w-full"
+          onClick={() => {
+            submitHandler("next");
+          }}
+        >
+          ቀጣይ
+        </button>
+      </div>
     </form>
   );
 }
