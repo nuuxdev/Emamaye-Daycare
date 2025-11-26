@@ -53,7 +53,7 @@ export default function ChildInfo({
 
   return (
     <form className="grid-gap-1" style={{ maxWidth: "100%", margin: "0 auto" }}>
-      <h2 style={{ fontSize: '1.5rem', marginBottom: '1.5rem', textAlign: 'center' }}>Child Information</h2>
+      <h2 style={{ fontSize: '1.25rem', marginBottom: '1rem', textAlign: 'center' }}>Child Information</h2>
 
       <div className="mb-1">
         <label htmlFor="fullName" className="mb-1" style={{ display: "block", marginLeft: "0.5rem", fontWeight: 600, color: 'var(--foreground)' }}>Full Name</label>
@@ -65,8 +65,8 @@ export default function ChildInfo({
         />
       </div>
 
-      <fieldset style={{ border: "none", padding: 0, margin: '1.5rem 0' }}>
-        <legend className="mb-1" style={{ marginLeft: "0.5rem", fontWeight: 600, color: 'var(--foreground)', marginBottom: '1rem' }}>Gender</legend>
+      <fieldset style={{ border: "none", padding: 0, margin: '1rem 0' }}>
+        <legend className="mb-1" style={{ marginLeft: "0.5rem", fontWeight: 600, color: 'var(--foreground)', marginBottom: '0.75rem' }}>Gender</legend>
         <div className="neo-radio-group" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
           <label htmlFor="male" style={{ justifyContent: 'center' }}>
             <input
@@ -91,7 +91,7 @@ export default function ChildInfo({
 
       <BirthdateInput register={register} setValue={setValue} />
 
-      <div className="mb-1" style={{ marginTop: '1.5rem' }}>
+      <div className="mb-1" style={{ marginTop: '1rem' }}>
         <label htmlFor="ageGroup" className="mb-1" style={{ display: "block", marginLeft: "0.5rem", fontWeight: 600, color: 'var(--foreground)' }}>Age Group</label>
         <div style={{ position: "relative" }}>
           <select

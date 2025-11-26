@@ -120,8 +120,8 @@
     align-items: center;
     justify-content: center;
     min-height: 100vh;
-    padding: 2rem;
-    gap: 2rem;
+    padding: 0.5rem;
+    gap: 1rem;
   }
 }
 

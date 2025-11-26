@@ -42,7 +42,7 @@ export default function AvatarFiles({
 
   return (
     <form className="grid-gap-1" style={{ maxWidth: "100%", margin: "0 auto" }}>
-      <h2 style={{ fontSize: '1.5rem', marginBottom: '1.5rem', textAlign: 'center' }}>Upload Photos</h2>
+      <h2 style={{ fontSize: '1.25rem', marginBottom: '1rem', textAlign: 'center' }}>Upload Photos</h2>
 
       <Controller
         name="childAvatar"

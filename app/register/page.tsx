@@ -184,34 +184,40 @@ export default function Register() {
     <>
       {/* Conditional header - hide in Telegram */}
       {!isTelegram && (
-        <header style={{ padding: '2rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <Link href="/" className="neo-btn" style={{ padding: '0.8rem 1.2rem', borderRadius: '12px' }}>
-            &lt;- Back
+        <header
+          className="neo-box"
+          style={{
+            maxWidth: '600px',
+            margin: '0.5rem',
+            padding: '1rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '1rem',
+
+          }}
+        >
+          <Link href="/" className="neo-btn" style={{ padding: '0.6rem 1rem', borderRadius: '12px', flexShrink: 0 }}>
+            ← Back
           </Link>
+          <h1 style={{ margin: 0 }}>
+            Registration
+          </h1>
+          {/* Spacer for symmetry */}
+          <div style={{ width: '85px', flexShrink: 0 }}></div>
         </header>
       )}
       <main className="animate-fade-in">
         <div className="neo-box" style={{ width: '100%', maxWidth: '600px', padding: '0' }}>
 
-          {/* Header Section */}
-          <div style={{ padding: '2.5rem 2.5rem 1.5rem', borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
-            <h1 className="text-center" style={{ margin: 0, fontSize: '2rem', background: 'linear-gradient(45deg, var(--primary-color), var(--secondary-color))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-              Register
-            </h1>
-            <p className="text-center" style={{ opacity: 0.6, marginTop: '0.5rem' }}>
-              Join the Emamaye family
-            </p>
-          </div>
-
           {/* Stepper */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', padding: '2rem 3rem', position: 'relative' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', padding: '1.25rem 1rem', position: 'relative' }}>
             {/* Progress Line */}
-            <div style={{ position: 'absolute', top: '50%', left: '3rem', right: '3rem', height: '4px', background: 'rgba(0,0,0,0.05)', transform: 'translateY(-50%)', zIndex: 0, borderRadius: '4px' }}>
+            <div style={{ position: 'absolute', top: '50%', left: '1rem', right: '1rem', height: '2px', background: 'rgba(0,0,0,0.05)', transform: 'translateY(-50%)', zIndex: 0, borderRadius: '2px' }}>
               <div style={{
                 height: '100%',
                 width: `${(step / (stepsData.length - 1)) * 100}%`,
                 background: 'var(--primary-color)',
-                borderRadius: '4px',
+                borderRadius: '2px',
                 transition: 'width 0.4s ease'
               }} />
             </div>
@@ -220,8 +226,8 @@ export default function Register() {
               <div
                 key={index}
                 style={{
-                  width: '32px',
-                  height: '32px',
+                  width: '28px',
+                  height: '28px',
                   borderRadius: '50%',
                   background: index <= step ? 'var(--primary-color)' : 'var(--background)',
                   color: index <= step ? 'white' : 'var(--foreground)',
@@ -229,6 +235,7 @@ export default function Register() {
                   alignItems: 'center',
                   justifyContent: 'center',
                   fontWeight: 'bold',
+                  fontSize: '0.875rem',
                   zIndex: 1,
                   boxShadow: index <= step ? '0 4px 10px rgba(255, 51, 102, 0.4)' : 'var(--shadow-dark)',
                   transition: 'all 0.4s ease',
@@ -241,7 +248,7 @@ export default function Register() {
           </div>
 
           {/* Content Area */}
-          <div style={{ padding: '0 2.5rem 2.5rem' }}>
+          <div style={{ padding: '0 1rem 1.5rem' }}>
             {stepsData[step]}
           </div>
         </div>
