@@ -50,7 +50,7 @@ export default function AvatarFiles({
         // rules={{ required: true }}
         render={({ field }) => (
           <div className="mb-1">
-            <label htmlFor="childAvatar" className="mb-1" style={{ display: "block", marginLeft: "0.5rem", fontWeight: 600, color: 'var(--foreground)' }}>Child's Photo</label>
+            <label htmlFor="childAvatar" className="mb-1" style={{ display: "block", marginLeft: "0.5rem", fontWeight: 600, color: 'var(--foreground)' }}>Child&apos;s Photo</label>
             <div style={{
               background: "var(--background)",
               boxShadow: "var(--shadow-inset-dark), var(--shadow-inset-light)",
@@ -109,7 +109,7 @@ export default function AvatarFiles({
         // rules={{ required: true }}
         render={({ field }) => (
           <div className="mb-1">
-            <label htmlFor="guardianAvatar" className="mb-1" style={{ display: "block", marginLeft: "0.5rem", fontWeight: 600, color: 'var(--foreground)' }}>Guardian's Photo (Optional)</label>
+            <label htmlFor="guardianAvatar" className="mb-1" style={{ display: "block", marginLeft: "0.5rem", fontWeight: 600, color: 'var(--foreground)' }}>Guardian&apos;s Photo (Optional)</label>
             <div style={{
               background: "var(--background)",
               boxShadow: "var(--shadow-inset-dark), var(--shadow-inset-light)",
