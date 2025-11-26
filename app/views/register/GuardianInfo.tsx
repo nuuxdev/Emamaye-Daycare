@@ -36,22 +36,22 @@ export default function GuardianInfo({
   };
 
   return (
-    <form className="neo-box grid-gap-1" style={{ maxWidth: "500px", margin: "0 auto" }}>
-      <h2>የወላጅ መረጃዎች</h2>
+    <form className="grid-gap-1" style={{ maxWidth: "100%", margin: "0 auto" }}>
+      <h2 style={{ fontSize: '1.5rem', marginBottom: '1.5rem', textAlign: 'center' }}>Guardian Information</h2>
 
       <div className="mb-1">
-        <label htmlFor="fullName" className="mb-1" style={{ display: "block", marginLeft: "1rem" }}>ሙሉ ስም</label>
+        <label htmlFor="fullName" className="mb-1" style={{ display: "block", marginLeft: "0.5rem", fontWeight: 600, color: 'var(--foreground)' }}>Full Name</label>
         <input
           id="fullName"
           type="text"
           className="neo-input"
           {...register("fullName", { required: true })}
-          placeholder="ምሳሌ: Abebe Kebede"
+          placeholder="e.g. Abebe Kebede"
         />
       </div>
 
       <div className="mb-1">
-        <label htmlFor="relationToChild" className="mb-1" style={{ display: "block", marginLeft: "1rem" }}>ዝምድና</label>
+        <label htmlFor="relationToChild" className="mb-1" style={{ display: "block", marginLeft: "0.5rem", fontWeight: 600, color: 'var(--foreground)' }}>Relation to Child</label>
         <div style={{ position: "relative" }}>
           <select
             id="relationToChild"
@@ -59,13 +59,13 @@ export default function GuardianInfo({
             style={{ appearance: "none", cursor: "pointer" }}
             {...register("relationToChild", { required: true })}
           >
-            <option value="">እዚህ ጋር ይምረጡ</option>
-            <option value="mother">እናት</option>
-            <option value="father">አባት</option>
-            <option value="grandparent">አያት</option>
-            <option value="aunt">አክስት</option>
-            <option value="uncle">አጎት</option>
-            <option value="other">ሌላ</option>
+            <option value="">Select Relation</option>
+            <option value="mother">Mother</option>
+            <option value="father">Father</option>
+            <option value="grandparent">Grandparent</option>
+            <option value="aunt">Aunt</option>
+            <option value="uncle">Uncle</option>
+            <option value="other">Other</option>
           </select>
           <div style={{ position: "absolute", right: "1.5rem", top: "50%", transform: "translateY(-50%)", pointerEvents: "none", opacity: 0.5 }}>
             ▼
@@ -74,27 +74,27 @@ export default function GuardianInfo({
       </div>
 
       <div className="mb-1">
-        <label htmlFor="address" className="mb-1" style={{ display: "block", marginLeft: "1rem" }}>አድራሻ</label>
+        <label htmlFor="address" className="mb-1" style={{ display: "block", marginLeft: "0.5rem", fontWeight: 600, color: 'var(--foreground)' }}>Address</label>
         <input
           id="address"
           className="neo-input"
           {...register("address", { required: true })}
-          placeholder="ምሳሌ: debre abay"
+          placeholder="e.g. Bole, Addis Ababa"
         />
       </div>
 
       <div className="mb-1">
-        <label htmlFor="phoneNumber" className="mb-1" style={{ display: "block", marginLeft: "1rem" }}>ስልክ ቁጥር</label>
+        <label htmlFor="phoneNumber" className="mb-1" style={{ display: "block", marginLeft: "0.5rem", fontWeight: 600, color: 'var(--foreground)' }}>Phone Number</label>
         <input
           id="phoneNumber"
           type="tel"
           className="neo-input"
           {...register("phoneNumber", { required: true })}
-          placeholder="ምሳሌ: 0911121314"
+          placeholder="e.g. 0911121314"
         />
       </div>
 
-      <div style={{ display: "flex", gap: "1rem", marginTop: "1rem" }}>
+      <div style={{ display: "flex", gap: "1rem", marginTop: "2rem" }}>
         <button
           type="button"
           className="neo-btn w-full"
@@ -102,7 +102,7 @@ export default function GuardianInfo({
             submitHandler("previous");
           }}
         >
-          ቀዳሚ
+          Previous
         </button>
 
         <button
@@ -112,7 +112,7 @@ export default function GuardianInfo({
             submitHandler("next");
           }}
         >
-          ቀጣይ
+          Next
         </button>
       </div>
     </form>

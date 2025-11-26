@@ -39,6 +39,27 @@ export default function RootLayout({
           <TelegramProvider />
           <Toaster />
           <ConvexClientProvider>{children}</ConvexClientProvider>
+
+          {/* SVG Filters for Button Effects */}
+          <svg xmlns="http://www.w3.org/2000/svg" version="1.1" height="0" width="0" style={{ position: 'absolute', width: 0, height: 0 }}>
+            <defs>
+              <filter id="turbulence" x="0%" y="0" width="100%" height="100%" filterUnits="objectBoundingBox" primitiveUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
+                <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" result="turbulence" seed="2" stitchTiles="stitch" />
+                <feColorMatrix in="turbulence" type="saturate" values="0" result="grayscaleNoise" />
+                <feComponentTransfer>
+                  <feFuncA type="table" tableValues="0 1" />
+                </feComponentTransfer>
+                <feBlend in="SourceGraphic" in2="grayscaleNoise" mode="soft-light" />
+              </filter>
+              <filter id="displacement">
+                <feDisplacementMap in="SourceGraphic" scale="4" />
+              </filter>
+              <filter id="combined">
+                <feTurbulence type="fractalNoise" baseFrequency=".6" numOctaves="4" />
+                <feDisplacementMap in="SourceGraphic" scale="1" />
+              </filter>
+            </defs>
+          </svg>
         </body>
       </html>
     </ConvexAuthNextjsServerProvider>

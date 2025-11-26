@@ -41,8 +41,8 @@ export default function AvatarFiles({
   };
 
   return (
-    <form className="neo-box grid-gap-1" style={{ maxWidth: "500px", margin: "0 auto" }}>
-      <h2>ጉርድ ፎቶዎች</h2>
+    <form className="grid-gap-1" style={{ maxWidth: "100%", margin: "0 auto" }}>
+      <h2 style={{ fontSize: '1.5rem', marginBottom: '1.5rem', textAlign: 'center' }}>Upload Photos</h2>
 
       <Controller
         name="childAvatar"
@@ -50,7 +50,7 @@ export default function AvatarFiles({
         // rules={{ required: true }}
         render={({ field }) => (
           <div className="mb-1">
-            <label htmlFor="childAvatar" className="mb-1" style={{ display: "block", marginLeft: "1rem" }}>የልጅ ፎቶ</label>
+            <label htmlFor="childAvatar" className="mb-1" style={{ display: "block", marginLeft: "0.5rem", fontWeight: 600, color: 'var(--foreground)' }}>Child's Photo</label>
             <div style={{
               background: "var(--background)",
               boxShadow: "var(--shadow-inset-dark), var(--shadow-inset-light)",
@@ -58,8 +58,20 @@ export default function AvatarFiles({
               padding: "2rem",
               textAlign: "center",
               cursor: "pointer",
-              transition: "all 0.3s ease"
-            }}>
+              transition: "all 0.3s ease",
+              border: "2px dashed rgba(0,0,0,0.1)",
+              position: 'relative',
+              overflow: 'hidden'
+            }}
+              onDragOver={(e) => { e.preventDefault(); e.currentTarget.style.borderColor = 'var(--primary-color)'; }}
+              onDragLeave={(e) => { e.preventDefault(); e.currentTarget.style.borderColor = 'rgba(0,0,0,0.1)'; }}
+              onDrop={(e) => {
+                e.preventDefault();
+                e.currentTarget.style.borderColor = 'rgba(0,0,0,0.1)';
+                const file = e.dataTransfer.files?.[0];
+                if (file) field.onChange(file);
+              }}
+            >
               <input
                 id="childAvatar"
                 type="file"
@@ -68,33 +80,24 @@ export default function AvatarFiles({
                 onChange={(e) => {
                   const file = e.target.files?.[0] || null;
                   field.onChange(file);
-                  // const reader = new FileReader();
-                  // if (file) {
-                  //   reader.onloadend = e => {
-                  //     setPreviews((prev) => ({ ...prev, childAvatar: e.target?.result as string}));
-                  //   }
-                  //   reader.readAsDataURL(file);
-                  // }
                 }}
               />
-              <label htmlFor="childAvatar" style={{ cursor: "pointer", display: "block" }}>
+              <label htmlFor="childAvatar" style={{ cursor: "pointer", display: "block", height: '100%', width: '100%' }}>
                 {field.value ? (
-                  <div style={{ color: "var(--primary-color)", fontWeight: 600 }}>
-                    ✓ {(field.value as File).name}
+                  <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
+                    <div style={{ fontSize: '2rem', color: 'var(--primary-color)' }}>✓</div>
+                    <div style={{ color: "var(--primary-color)", fontWeight: 600 }}>
+                      {(field.value as File).name}
+                    </div>
+                    <div style={{ fontSize: '0.8rem', opacity: 0.6 }}>Click to change</div>
                   </div>
                 ) : (
-                  <div style={{ opacity: 0.6 }}>
-                    📷 ክሊክ ለማድረግ ፎቶ ለመምረጥ
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', opacity: 0.6 }}>
+                    <div style={{ fontSize: '2rem' }}>📷</div>
+                    <div>Click or Drag & Drop Photo</div>
                   </div>
                 )}
               </label>
-              {/* {previews?.childAvatar && (
-                <img
-                  src={previews.childAvatar}
-                  alt="Child Avatar Preview"
-                  style={{ width: "150px", height: "150px", objectFit: "cover" }}
-                />
-              )} */}
             </div>
           </div>
         )}
@@ -106,7 +109,7 @@ export default function AvatarFiles({
         // rules={{ required: true }}
         render={({ field }) => (
           <div className="mb-1">
-            <label htmlFor="guardianAvatar" className="mb-1" style={{ display: "block", marginLeft: "1rem" }}>የአሳዳጊ ፎቶ (ግዴታ ያልሆነ)</label>
+            <label htmlFor="guardianAvatar" className="mb-1" style={{ display: "block", marginLeft: "0.5rem", fontWeight: 600, color: 'var(--foreground)' }}>Guardian's Photo (Optional)</label>
             <div style={{
               background: "var(--background)",
               boxShadow: "var(--shadow-inset-dark), var(--shadow-inset-light)",
@@ -114,8 +117,20 @@ export default function AvatarFiles({
               padding: "2rem",
               textAlign: "center",
               cursor: "pointer",
-              transition: "all 0.3s ease"
-            }}>
+              transition: "all 0.3s ease",
+              border: "2px dashed rgba(0,0,0,0.1)",
+              position: 'relative',
+              overflow: 'hidden'
+            }}
+              onDragOver={(e) => { e.preventDefault(); e.currentTarget.style.borderColor = 'var(--primary-color)'; }}
+              onDragLeave={(e) => { e.preventDefault(); e.currentTarget.style.borderColor = 'rgba(0,0,0,0.1)'; }}
+              onDrop={(e) => {
+                e.preventDefault();
+                e.currentTarget.style.borderColor = 'rgba(0,0,0,0.1)';
+                const file = e.dataTransfer.files?.[0];
+                if (file) field.onChange(file);
+              }}
+            >
               <input
                 id="guardianAvatar"
                 type="file"
@@ -126,45 +141,38 @@ export default function AvatarFiles({
                     const file = e.target.files?.[0] || null;
                     if (file) {
                       field.onChange(file);
-                      // const reader = new FileReader();
-                      // reader.onloadend = e => {
-                      //   setPreviews((prev) => ({ ...prev, guardianAvatar: e.target?.result as string}));
-                      // }
-                      // reader.readAsDataURL(file);
                     }
                   }
                 }
               />
-              <label htmlFor="guardianAvatar" style={{ cursor: "pointer", display: "block" }}>
+              <label htmlFor="guardianAvatar" style={{ cursor: "pointer", display: "block", height: '100%', width: '100%' }}>
                 {field.value ? (
-                  <div style={{ color: "var(--primary-color)", fontWeight: 600 }}>
-                    ✓ {(field.value as File).name}
+                  <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
+                    <div style={{ fontSize: '2rem', color: 'var(--primary-color)' }}>✓</div>
+                    <div style={{ color: "var(--primary-color)", fontWeight: 600 }}>
+                      {(field.value as File).name}
+                    </div>
+                    <div style={{ fontSize: '0.8rem', opacity: 0.6 }}>Click to change</div>
                   </div>
                 ) : (
-                  <div style={{ opacity: 0.6 }}>
-                    📷 ክሊክ ለማድረግ ፎቶ ለመምረጥ
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', opacity: 0.6 }}>
+                    <div style={{ fontSize: '2rem' }}>📷</div>
+                    <div>Click or Drag & Drop Photo</div>
                   </div>
                 )}
               </label>
-              {/* {previews?.guardianAvatar && (
-                <img
-                  src={previews.guardianAvatar}
-                  alt="Guardian Avatar Preview"
-                  style={{ width: "150px", height: "150px", objectFit: "cover" }}
-                />
-              )} */}
             </div>
           </div>
         )}
       />
 
-      <div style={{ display: "flex", gap: "1rem", marginTop: "1rem" }}>
+      <div style={{ display: "flex", gap: "1rem", marginTop: "2rem" }}>
         <button
           type="button"
           className="neo-btn w-full"
           onClick={() => submitHandler("previous")}
         >
-          ቀዳሚ
+          Previous
         </button>
 
         <button
@@ -172,7 +180,7 @@ export default function AvatarFiles({
           className="neo-btn primary w-full"
           onClick={() => submitHandler("next")}
         >
-          ቀጣይ
+          Next
         </button>
       </div>
     </form>

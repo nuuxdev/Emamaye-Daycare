@@ -73,57 +73,57 @@ export default function Register() {
     setIsPending(true);
     if (step !== stepsData.length - 1) return;
     const childAvatar = savedSteps[2].childAvatar;
-    const guardianAvatar = savedSteps[2].guardianAvatar;    
+    const guardianAvatar = savedSteps[2].guardianAvatar;
     try {
-        const uploadImage = async (imageFile: File | null) => {
-        if(imageFile){
+      const uploadImage = async (imageFile: File | null) => {
+        if (imageFile) {
           const postUrl = await generateUploadUrl();
           const result = await fetch(postUrl, {
-          method: "POST",
-          headers: { "Content-Type": imageFile.type },
-          body: imageFile,
-        });
-        const { storageId } = await result.json();
-        return storageId as Id<"_storage">
+            method: "POST",
+            headers: { "Content-Type": imageFile.type },
+            body: imageFile,
+          });
+          const { storageId } = await result.json();
+          return storageId as Id<"_storage">
         }
         return
-        }
+      }
       const dateOfBirth = savedSteps[0].dateOfBirth;
-    const [month, date, year] = dateOfBirth.split("-");
-    const dateInEt = new CalendarDate(
-      new EthiopicCalendar(),
-      parseInt(year),
-      parseInt(month),
-      parseInt(date),
-    );
-    const dateInGreg = toCalendar(dateInEt, new GregorianCalendar());
-    
-    setIsPending('Uploading Child Avatar');
-    const childStorageId = await uploadImage(childAvatar);
-    setIsPending('Uploading Guardian Avatar');
-    const guardianStorageId = await uploadImage(guardianAvatar);
-    const childData = {
-      ...savedSteps[0],
-      paymentAmount: savedSteps[0].paymentAmount!,
-      avatar: childStorageId,
-      dateOfBirth: dateInGreg.toString(),
-    };
-    const guardianData = {
-      ...savedSteps[1],
-      avatar: guardianStorageId,
-    };
-    setIsPending(true);
-    await addChild({
-      childData,
-      guardianData,
-    });
-    setIsPending(false);
+      const [month, date, year] = dateOfBirth.split("-");
+      const dateInEt = new CalendarDate(
+        new EthiopicCalendar(),
+        parseInt(year),
+        parseInt(month),
+        parseInt(date),
+      );
+      const dateInGreg = toCalendar(dateInEt, new GregorianCalendar());
+
+      setIsPending('Uploading Child Avatar');
+      const childStorageId = await uploadImage(childAvatar);
+      setIsPending('Uploading Guardian Avatar');
+      const guardianStorageId = await uploadImage(guardianAvatar);
+      const childData = {
+        ...savedSteps[0],
+        paymentAmount: savedSteps[0].paymentAmount!,
+        avatar: childStorageId,
+        dateOfBirth: dateInGreg.toString(),
+      };
+      const guardianData = {
+        ...savedSteps[1],
+        avatar: guardianStorageId,
+      };
+      setIsPending(true);
+      await addChild({
+        childData,
+        guardianData,
+      });
+      setIsPending(false);
     } catch (error) {
       console.error(error);
       toast.error("Failed to Register Child");
       return;
     }
-    
+
   };
 
   const stepsData = [
@@ -158,13 +158,66 @@ export default function Register() {
 
   return (
     <>
-      <header>
-        <Link href="/">&lt;-</Link>
-        Register
+      <header style={{ padding: '2rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+        <Link href="/" className="neo-btn" style={{ padding: '0.8rem 1.2rem', borderRadius: '12px' }}>
+          &lt;- Back
+        </Link>
       </header>
-      <main>
-        <h1>Register</h1>
-        {stepsData[step]}
+      <main className="animate-fade-in">
+        <div className="neo-box" style={{ width: '100%', maxWidth: '600px', padding: '0' }}>
+
+          {/* Header Section */}
+          <div style={{ padding: '2.5rem 2.5rem 1.5rem', borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
+            <h1 className="text-center" style={{ margin: 0, fontSize: '2rem', background: 'linear-gradient(45deg, var(--primary-color), var(--secondary-color))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+              Register
+            </h1>
+            <p className="text-center" style={{ opacity: 0.6, marginTop: '0.5rem' }}>
+              Join the Emamaye family
+            </p>
+          </div>
+
+          {/* Stepper */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', padding: '2rem 3rem', position: 'relative' }}>
+            {/* Progress Line */}
+            <div style={{ position: 'absolute', top: '50%', left: '3rem', right: '3rem', height: '4px', background: 'rgba(0,0,0,0.05)', transform: 'translateY(-50%)', zIndex: 0, borderRadius: '4px' }}>
+              <div style={{
+                height: '100%',
+                width: `${(step / (stepsData.length - 1)) * 100}%`,
+                background: 'var(--primary-color)',
+                borderRadius: '4px',
+                transition: 'width 0.4s ease'
+              }} />
+            </div>
+
+            {stepsData.map((_, index) => (
+              <div
+                key={index}
+                style={{
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '50%',
+                  background: index <= step ? 'var(--primary-color)' : 'var(--background)',
+                  color: index <= step ? 'white' : 'var(--foreground)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontWeight: 'bold',
+                  zIndex: 1,
+                  boxShadow: index <= step ? '0 4px 10px rgba(255, 51, 102, 0.4)' : 'var(--shadow-dark)',
+                  transition: 'all 0.4s ease',
+                  border: index <= step ? 'none' : '2px solid rgba(255,255,255,0.5)'
+                }}
+              >
+                {index + 1}
+              </div>
+            ))}
+          </div>
+
+          {/* Content Area */}
+          <div style={{ padding: '0 2.5rem 2.5rem' }}>
+            {stepsData[step]}
+          </div>
+        </div>
       </main>
     </>
   );
