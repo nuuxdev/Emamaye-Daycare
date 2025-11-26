@@ -3,7 +3,8 @@ import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { useMutation } from "convex/react";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import useTelegram from "@/hooks/useTelegram";
 import ChildInfo from "../views/register/ChildInfo";
 import GuardianInfo from "../views/register/GuardianInfo";
 import Avatars from "../views/register/AvatarFiles";
@@ -42,6 +43,7 @@ export type TAvatarFiles = {
 export type TSavedSteps = [TChildInfo, TGuardianInfo, TAvatarFiles];
 
 export default function Register() {
+  const { isTelegram, setPageTitle, showBackButton, hideBackButton } = useTelegram();
   const [step, setStep] = useState(0);
   const [savedSteps, saveSteps] = useState<TSavedSteps>([
     {
@@ -68,6 +70,28 @@ export default function Register() {
     setIsPending,
   } = useBetterMutation(api.children.addChild);
   const generateUploadUrl = useMutation(api.images.generateUploadUrl);
+
+  // Manage Telegram back button
+  useEffect(() => {
+    setPageTitle("Registration");
+
+    if (isTelegram) {
+      if (step > 0) {
+        showBackButton(() => {
+          setStep((prev) => prev - 1);
+        });
+      } else {
+        hideBackButton();
+      }
+    }
+
+    // Cleanup on unmount
+    return () => {
+      if (isTelegram) {
+        hideBackButton();
+      }
+    };
+  }, [step, isTelegram, setPageTitle, showBackButton, hideBackButton]);
 
   const submitHandler = async () => {
     setIsPending(true);
@@ -158,11 +182,14 @@ export default function Register() {
 
   return (
     <>
-      <header style={{ padding: '2rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
-        <Link href="/" className="neo-btn" style={{ padding: '0.8rem 1.2rem', borderRadius: '12px' }}>
-          &lt;- Back
-        </Link>
-      </header>
+      {/* Conditional header - hide in Telegram */}
+      {!isTelegram && (
+        <header style={{ padding: '2rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <Link href="/" className="neo-btn" style={{ padding: '0.8rem 1.2rem', borderRadius: '12px' }}>
+            &lt;- Back
+          </Link>
+        </header>
+      )}
       <main className="animate-fade-in">
         <div className="neo-box" style={{ width: '100%', maxWidth: '600px', padding: '0' }}>
 

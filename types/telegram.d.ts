@@ -1,6 +1,6 @@
 // types/telegram.d.ts
 
-export {};
+export { };
 
 declare global {
   interface Window {
@@ -14,6 +14,14 @@ declare global {
         isExpanded?: boolean;
         viewportHeight?: number;
         viewportStableHeight?: number;
+        headerColor?: string;
+        BackButton?: {
+          isVisible?: boolean;
+          show: () => void;
+          hide: () => void;
+          onClick: (cb: () => void) => void;
+          offClick: (cb: () => void) => void;
+        };
         MainButton?: {
           text?: string;
           color?: string;
@@ -33,6 +41,7 @@ declare global {
         ready: () => void;
         expand: () => void;
         close: () => void;
+        setHeaderColor: (color: string) => void;
         showAlert: (msg: string, cb?: () => void) => void;
         showConfirm: (msg: string, cb: (ok: boolean) => void) => void;
         sendData: (data: string) => void;

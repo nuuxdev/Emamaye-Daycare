@@ -11,9 +11,27 @@ export default function TelegramProvider() {
     document.body.appendChild(script);
 
     script.onload = () => {
-      console.log("✅ Telegram WebApp SDK loaded");
-      console.log(window.Telegram?.WebApp?.version, navigator.userAgent);
-      window.Telegram?.WebApp?.ready?.();
+      const tg = window.Telegram?.WebApp;
+      if (tg) {
+        console.log("✅ Telegram WebApp SDK loaded");
+        console.log(tg.version, navigator.userAgent);
+        tg.ready();
+        tg.expand();
+
+        // Set header color to match app theme
+        if (tg.setHeaderColor) {
+          tg.setHeaderColor("#e0e5ec"); // Match --background color
+        }
+      }
+    };
+
+    script.onerror = () => {
+      console.error("❌ Failed to load Telegram WebApp SDK");
+    };
+
+    return () => {
+      // Cleanup script if component unmounts
+      document.body.removeChild(script);
     };
   }, []);
 
