@@ -3,6 +3,7 @@ import { Dispatch, SetStateAction } from "react";
 import { useForm } from "react-hook-form";
 import BirthdateInput from "./BirthdateInput";
 import { TAgeGroup } from "@/convex/types/children";
+import Select from "@/components/Select";
 
 export default function ChildInfo({
   saveSteps,
@@ -17,9 +18,12 @@ export default function ChildInfo({
 }) {
   const defaultValues: TChildInfo = savedSteps[step] as TChildInfo;
 
-  const { register, trigger, getValues, setValue } = useForm<TChildInfo>({
+  const { register, trigger, getValues, setValue, watch } = useForm<TChildInfo>({
     defaultValues,
   });
+
+  const ageGroup = watch("ageGroup");
+
 
   const submitHandler = async (direction: "next" | "previous") => {
     const data = getValues();
@@ -52,83 +56,85 @@ export default function ChildInfo({
   };
 
   return (
-    <form className="grid-gap-1" style={{ maxWidth: "100%", margin: "0 auto" }}>
-      <h2 style={{ fontSize: '1.25rem', marginBottom: '1rem', textAlign: 'center' }}>Child Information</h2>
+    <form className="grid-gap-1 form-container">
+      <h2 className="text-center mb-1">የልጅ መረጃ</h2>
 
       <div className="mb-1">
-        <label htmlFor="fullName" className="mb-1" style={{ display: "block", marginLeft: "0.5rem", fontWeight: 600, color: 'var(--foreground)' }}>Full Name</label>
+        <label htmlFor="fullName" className="mb-1 label-text">ሙሉ ስም</label>
         <input
           className="neo-input"
           id="fullName"
           {...register("fullName", { required: true })}
-          placeholder="e.g. Dagim Askal"
+          placeholder="ምሳሌ፡ ዳግም አስካል"
         />
       </div>
 
-      <fieldset style={{ border: "none", padding: 0, margin: '1rem 0' }}>
-        <legend className="mb-1" style={{ marginLeft: "0.5rem", fontWeight: 600, color: 'var(--foreground)', marginBottom: '0.75rem' }}>Gender</legend>
-        <div className="neo-radio-group" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-          <label htmlFor="male" style={{ justifyContent: 'center' }}>
+      <fieldset className="fieldset-reset">
+        <legend className="mb-1 label-text">ጾታ</legend>
+        <div className="neo-radio-group grid-2-col">
+          <label htmlFor="male" className="justify-center">
             <input
               type="radio"
               id="male"
               value="male"
               {...register("gender", { required: true })}
             />
-            Male
+            ወንድ
           </label>
-          <label htmlFor="female" style={{ justifyContent: 'center' }}>
+          <label htmlFor="female" className="justify-center">
             <input
               type="radio"
               id="female"
               value="female"
               {...register("gender", { required: true })}
             />
-            Female
+            ሴት
           </label>
         </div>
       </fieldset>
 
       <BirthdateInput register={register} setValue={setValue} />
 
-      <div className="mb-1" style={{ marginTop: '1rem' }}>
-        <label htmlFor="ageGroup" className="mb-1" style={{ display: "block", marginLeft: "0.5rem", fontWeight: 600, color: 'var(--foreground)' }}>Age Group</label>
-        <div style={{ position: "relative" }}>
-          <select
-            id="ageGroup"
-            className="neo-input"
-            style={{ appearance: "none", cursor: "pointer" }}
-            {...register("ageGroup", { required: true })}
-            onChange={(e) => setPaymentAmount(e.target.value as TAgeGroup)}
-          >
-            <option value="">Select Age Group</option>
-            <option value="infant">Infant (0-1 yr)</option>
-            <option value="toddler">Toddler (1-3 yrs)</option>
-            <option value="preschooler">Preschooler (3-6 yrs)</option>
-          </select>
-          <div style={{ position: "absolute", right: "1.5rem", top: "50%", transform: "translateY(-50%)", pointerEvents: "none", opacity: 0.5 }}>
-            ▼
-          </div>
-        </div>
+      <Select
+        id="ageGroup"
+        label="የእድሜ ክልል"
+        register={register}
+        setValue={setValue}
+        options={[
+          { value: "infant", label: "ጨቅላ (0-1 ዓመት)" },
+          { value: "toddler", label: "ታዳጊ (1-3 ዓመት)" },
+          { value: "preschooler", label: "ቅድመ ትምህርት (3-6 ዓመት)" },
+        ]}
+        defaultValue={defaultValues?.ageGroup}
+        value={ageGroup}
+        placeholder="የእድሜ ክልል ይምረጡ"
+      />
+
+      {/* Watch for changes to update payment amount */}
+      <div className="hidden">
+        {/* This is a hack to trigger the effect when ageGroup changes via the custom Select */}
+        <input type="hidden" {...register("ageGroup", {
+          onChange: (e) => setPaymentAmount(e.target.value as TAgeGroup)
+        })} />
       </div>
 
+
       <div className="mb-1">
-        <label htmlFor="paymentAmount" className="mb-1" style={{ display: "block", marginLeft: "0.5rem", fontWeight: 600, color: 'var(--foreground)' }}>Payment Amount</label>
-        <div style={{ position: 'relative' }}>
+        <label htmlFor="paymentAmount" className="mb-1 label-text">የክፍያ መጠን</label>
+        <div className="relative">
           <input
             id="paymentAmount"
             type="number"
-            className="neo-input"
+            className="neo-input pl-3"
             {...register("paymentAmount", { required: true, valueAsNumber: true })}
-            placeholder="Amount in ETB"
+            placeholder="መጠን በብር"
             readOnly
-            style={{ paddingLeft: '3rem' }}
           />
-          <span style={{ position: 'absolute', left: '1.2rem', top: '50%', transform: 'translateY(-50%)', fontWeight: 600, opacity: 0.6 }}>ETB</span>
+          <span className="input-prefix">ብር</span>
         </div>
       </div>
 
-      <div style={{ display: "flex", gap: "1rem", marginTop: "2rem" }}>
+      <div className="flex-gap-1 mt-2">
         <button
           type="button"
           className="neo-btn w-full"
@@ -137,7 +143,7 @@ export default function ChildInfo({
           }}
           disabled={step === 0}
         >
-          Previous
+          ወደኋላ
         </button>
 
         <button
@@ -147,7 +153,7 @@ export default function ChildInfo({
             submitHandler("next");
           }}
         >
-          Next
+          ቀጣይ
         </button>
       </div>
     </form>

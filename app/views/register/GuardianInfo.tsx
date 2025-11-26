@@ -1,6 +1,7 @@
 import { TGuardianInfo, TSavedSteps } from "@/app/register/page";
 import { Dispatch, SetStateAction } from "react";
 import { useForm } from "react-hook-form";
+import Select from "@/components/Select";
 
 export default function GuardianInfo({
   saveSteps,
@@ -15,7 +16,7 @@ export default function GuardianInfo({
 }) {
   const defaultValues: TGuardianInfo = savedSteps[step] as TGuardianInfo;
 
-  const { register, trigger, getValues } = useForm<TGuardianInfo>({
+  const { register, trigger, getValues, setValue } = useForm<TGuardianInfo>({
     defaultValues,
   });
 
@@ -36,65 +37,59 @@ export default function GuardianInfo({
   };
 
   return (
-    <form className="grid-gap-1" style={{ maxWidth: "100%", margin: "0 auto" }}>
-      <h2 style={{ fontSize: '1.25rem', marginBottom: '1rem', textAlign: 'center' }}>Guardian Information</h2>
+    <form className="grid-gap-1 form-container">
+      <h2 className="text-center mb-1">የወላጅ መረጃ</h2>
 
       <div className="mb-1">
-        <label htmlFor="fullName" className="mb-1" style={{ display: "block", marginLeft: "0.5rem", fontWeight: 600, color: 'var(--foreground)' }}>Full Name</label>
+        <label htmlFor="fullName" className="mb-1 label-text">ሙሉ ስም</label>
         <input
           id="fullName"
           type="text"
           className="neo-input"
           {...register("fullName", { required: true })}
-          placeholder="e.g. Abebe Kebede"
+          placeholder="ምሳሌ፡ አበበ ከበደ"
         />
       </div>
 
-      <div className="mb-1">
-        <label htmlFor="relationToChild" className="mb-1" style={{ display: "block", marginLeft: "0.5rem", fontWeight: 600, color: 'var(--foreground)' }}>Relation to Child</label>
-        <div style={{ position: "relative" }}>
-          <select
-            id="relationToChild"
-            className="neo-input"
-            style={{ appearance: "none", cursor: "pointer" }}
-            {...register("relationToChild", { required: true })}
-          >
-            <option value="">Select Relation</option>
-            <option value="mother">Mother</option>
-            <option value="father">Father</option>
-            <option value="grandparent">Grandparent</option>
-            <option value="aunt">Aunt</option>
-            <option value="uncle">Uncle</option>
-            <option value="other">Other</option>
-          </select>
-          <div style={{ position: "absolute", right: "1.5rem", top: "50%", transform: "translateY(-50%)", pointerEvents: "none", opacity: 0.5 }}>
-            ▼
-          </div>
-        </div>
-      </div>
+      <Select
+        id="relationToChild"
+        label="ዝምድና"
+        register={register}
+        setValue={setValue}
+        options={[
+          { value: "mother", label: "እናት" },
+          { value: "father", label: "አባት" },
+          { value: "grandparent", label: "አያት" },
+          { value: "aunt", label: "አክስት" },
+          { value: "uncle", label: "አጎት" },
+          { value: "other", label: "ሌላ" },
+        ]}
+        defaultValue={defaultValues?.relationToChild}
+        placeholder="ዝምድና ይምረጡ"
+      />
 
       <div className="mb-1">
-        <label htmlFor="address" className="mb-1" style={{ display: "block", marginLeft: "0.5rem", fontWeight: 600, color: 'var(--foreground)' }}>Address</label>
+        <label htmlFor="address" className="mb-1 label-text">አድራሻ</label>
         <input
           id="address"
           className="neo-input"
           {...register("address", { required: true })}
-          placeholder="e.g. Bole, Addis Ababa"
+          placeholder="ምሳሌ፡ ቦሌ፣ አዲስ አበባ"
         />
       </div>
 
       <div className="mb-1">
-        <label htmlFor="phoneNumber" className="mb-1" style={{ display: "block", marginLeft: "0.5rem", fontWeight: 600, color: 'var(--foreground)' }}>Phone Number</label>
+        <label htmlFor="phoneNumber" className="mb-1 label-text">ስልክ ቁጥር</label>
         <input
           id="phoneNumber"
           type="tel"
           className="neo-input"
           {...register("phoneNumber", { required: true })}
-          placeholder="e.g. 0911121314"
+          placeholder="ምሳሌ፡ 0911121314"
         />
       </div>
 
-      <div style={{ display: "flex", gap: "1rem", marginTop: "2rem" }}>
+      <div className="flex-gap-1 mt-2">
         <button
           type="button"
           className="neo-btn w-full"
@@ -102,7 +97,7 @@ export default function GuardianInfo({
             submitHandler("previous");
           }}
         >
-          Previous
+          ወደኋላ
         </button>
 
         <button
@@ -112,7 +107,7 @@ export default function GuardianInfo({
             submitHandler("next");
           }}
         >
-          Next
+          ቀጣይ
         </button>
       </div>
     </form>

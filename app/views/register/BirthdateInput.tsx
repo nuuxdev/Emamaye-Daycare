@@ -158,7 +158,7 @@ export default function BirthdateInput({
         readOnly
       />
       <dialog ref={dialogRef}>
-        <h3 className="text-center mb-1">ቀን ይምረጡ</h3>
+        <h3 className="dialog-title">ቀን ይምረጡ</h3>
         <div className="scroller-wrapper">
           <div className="scroller">
             <ul style={{ listStyle: "none" }}>
@@ -199,9 +199,9 @@ export default function BirthdateInput({
             </ul>
           </div>
         </div>
-        <div style={{ display: "flex", gap: "1rem", marginTop: "2rem" }}>
+        <div className="dialog-actions">
           <button
-            className="neo-btn w-full"
+            className="neo-btn secondary w-full"
             type="button"
             onClick={() => handleClose("cancel")}
           >

@@ -41,8 +41,8 @@ export default function AvatarFiles({
   };
 
   return (
-    <form className="grid-gap-1" style={{ maxWidth: "100%", margin: "0 auto" }}>
-      <h2 style={{ fontSize: '1.25rem', marginBottom: '1rem', textAlign: 'center' }}>Upload Photos</h2>
+    <form className="grid-gap-1 form-container">
+      <h2 className="text-center mb-1">ፎቶ ይጫኑ</h2>
 
       <Controller
         name="childAvatar"
@@ -50,19 +50,9 @@ export default function AvatarFiles({
         // rules={{ required: true }}
         render={({ field }) => (
           <div className="mb-1">
-            <label htmlFor="childAvatar" className="mb-1" style={{ display: "block", marginLeft: "0.5rem", fontWeight: 600, color: 'var(--foreground)' }}>Child&apos;s Photo</label>
-            <div style={{
-              background: "var(--background)",
-              boxShadow: "var(--shadow-inset-dark), var(--shadow-inset-light)",
-              borderRadius: "20px",
-              padding: "2rem",
-              textAlign: "center",
-              cursor: "pointer",
-              transition: "all 0.3s ease",
-              border: "2px dashed rgba(0,0,0,0.1)",
-              position: 'relative',
-              overflow: 'hidden'
-            }}
+            <label htmlFor="childAvatar" className="mb-1 label-text">የልጅ ፎቶ</label>
+            <div
+              className="file-upload-box"
               onDragOver={(e) => { e.preventDefault(); e.currentTarget.style.borderColor = 'var(--primary-color)'; }}
               onDragLeave={(e) => { e.preventDefault(); e.currentTarget.style.borderColor = 'rgba(0,0,0,0.1)'; }}
               onDrop={(e) => {
@@ -82,19 +72,19 @@ export default function AvatarFiles({
                   field.onChange(file);
                 }}
               />
-              <label htmlFor="childAvatar" style={{ cursor: "pointer", display: "block", height: '100%', width: '100%' }}>
+              <label htmlFor="childAvatar" className="file-upload-label">
                 {field.value ? (
-                  <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
-                    <div style={{ fontSize: '2rem', color: 'var(--primary-color)' }}>✓</div>
-                    <div style={{ color: "var(--primary-color)", fontWeight: 600 }}>
+                  <div className="animate-fade-in file-upload-success">
+                    <div className="success-icon">✓</div>
+                    <div className="file-name">
                       {(field.value as File).name}
                     </div>
-                    <div style={{ fontSize: '0.8rem', opacity: 0.6 }}>Click to change</div>
+                    <div style={{ fontSize: '0.8rem', opacity: 0.6 }}>ለመቀየር ይጫኑ</div>
                   </div>
                 ) : (
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', opacity: 0.6 }}>
-                    <div style={{ fontSize: '2rem' }}>📷</div>
-                    <div>Click or Drag & Drop Photo</div>
+                  <div className="file-upload-placeholder">
+                    <div className="camera-icon">📷</div>
+                    <div>ይጫኑ ወይም ጎትተው ያስገቡ</div>
                   </div>
                 )}
               </label>
@@ -109,19 +99,9 @@ export default function AvatarFiles({
         // rules={{ required: true }}
         render={({ field }) => (
           <div className="mb-1">
-            <label htmlFor="guardianAvatar" className="mb-1" style={{ display: "block", marginLeft: "0.5rem", fontWeight: 600, color: 'var(--foreground)' }}>Guardian&apos;s Photo (Optional)</label>
-            <div style={{
-              background: "var(--background)",
-              boxShadow: "var(--shadow-inset-dark), var(--shadow-inset-light)",
-              borderRadius: "20px",
-              padding: "2rem",
-              textAlign: "center",
-              cursor: "pointer",
-              transition: "all 0.3s ease",
-              border: "2px dashed rgba(0,0,0,0.1)",
-              position: 'relative',
-              overflow: 'hidden'
-            }}
+            <label htmlFor="guardianAvatar" className="mb-1 label-text">የወላጅ ፎቶ (አማራጭ)</label>
+            <div
+              className="file-upload-box"
               onDragOver={(e) => { e.preventDefault(); e.currentTarget.style.borderColor = 'var(--primary-color)'; }}
               onDragLeave={(e) => { e.preventDefault(); e.currentTarget.style.borderColor = 'rgba(0,0,0,0.1)'; }}
               onDrop={(e) => {
@@ -145,19 +125,19 @@ export default function AvatarFiles({
                   }
                 }
               />
-              <label htmlFor="guardianAvatar" style={{ cursor: "pointer", display: "block", height: '100%', width: '100%' }}>
+              <label htmlFor="guardianAvatar" className="file-upload-label">
                 {field.value ? (
-                  <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
-                    <div style={{ fontSize: '2rem', color: 'var(--primary-color)' }}>✓</div>
-                    <div style={{ color: "var(--primary-color)", fontWeight: 600 }}>
+                  <div className="animate-fade-in file-upload-success">
+                    <div className="success-icon">✓</div>
+                    <div className="file-name">
                       {(field.value as File).name}
                     </div>
-                    <div style={{ fontSize: '0.8rem', opacity: 0.6 }}>Click to change</div>
+                    <div style={{ fontSize: '0.8rem', opacity: 0.6 }}>ለመቀየር ይጫኑ</div>
                   </div>
                 ) : (
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', opacity: 0.6 }}>
-                    <div style={{ fontSize: '2rem' }}>📷</div>
-                    <div>Click or Drag & Drop Photo</div>
+                  <div className="file-upload-placeholder">
+                    <div className="camera-icon">📷</div>
+                    <div>ይጫኑ ወይም ጎትተው ያስገቡ</div>
                   </div>
                 )}
               </label>
@@ -166,13 +146,13 @@ export default function AvatarFiles({
         )}
       />
 
-      <div style={{ display: "flex", gap: "1rem", marginTop: "2rem" }}>
+      <div className="flex-gap-1 mt-2">
         <button
           type="button"
           className="neo-btn w-full"
           onClick={() => submitHandler("previous")}
         >
-          Previous
+          ወደኋላ
         </button>
 
         <button
@@ -180,7 +160,7 @@ export default function AvatarFiles({
           className="neo-btn primary w-full"
           onClick={() => submitHandler("next")}
         >
-          Next
+          ቀጣይ
         </button>
       </div>
     </form>

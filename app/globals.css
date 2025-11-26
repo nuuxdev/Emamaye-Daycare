@@ -212,6 +212,23 @@
       background: rgba(0, 0, 0, 0.05);
     }
 
+    &.secondary {
+      background: white;
+      color: #333;
+      border: 1px solid #e5e7eb;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+
+      &:hover:not(:disabled) {
+        background: #f9fafb;
+        border-color: #d1d5db;
+      }
+
+      &:active:not(:disabled) {
+        background: #f3f4f6;
+        transform: translateY(1px);
+      }
+    }
+
     &.primary {
       padding: 0.5rem 2rem;
       text-transform: capitalize;
@@ -359,17 +376,72 @@
     backdrop-filter: var(--acrylic-blur);
     -webkit-backdrop-filter: var(--acrylic-blur);
     border: 1px solid var(--glass-border);
-    border-radius: 32px;
+    border-radius: 24px;
+    /* Slightly reduced radius */
     box-shadow: var(--glass-shadow);
-    padding: 2.5rem;
+    padding: 1.5rem;
+    /* Reduced padding for mobile */
     max-width: 90vw;
-    width: 400px;
+    width: min(350px, 90vw);
+    /* Reduced max width */
     color: var(--foreground);
     animation: dialog-pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    margin: auto;
 
     &::backdrop {
       background: rgba(0, 0, 0, 0.3);
       backdrop-filter: blur(4px);
+    }
+  }
+
+  /* Select List Styles */
+  .select-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    max-height: 50vh;
+    overflow-y: auto;
+    margin: 1rem 0;
+    padding-right: 0.5rem;
+  }
+
+  .select-option {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem 1rem;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.05);
+    }
+
+    /* Custom Radio Style */
+    input[type="radio"] {
+      appearance: none;
+      width: 1.2rem;
+      height: 1.2rem;
+      border: 2px solid var(--primary-color);
+      border-radius: 50%;
+      display: grid;
+      place-content: center;
+      margin: 0;
+
+      &::before {
+        content: "";
+        width: 0.6rem;
+        height: 0.6rem;
+        border-radius: 50%;
+        transform: scale(0);
+        transition: 0.2s transform ease-in-out;
+        box-shadow: inset 1em 1em var(--primary-color);
+      }
+
+      &:checked::before {
+        transform: scale(1);
+      }
     }
   }
 
@@ -385,7 +457,7 @@
     }
   }
 
-  /* Date Picker Wheel Styles */
+  /* Date Picker & Select Wheel Styles */
   .scroller-wrapper {
     display: flex;
     gap: 1rem;
@@ -443,6 +515,18 @@
       color: var(--primary-color);
     }
   }
+
+  /* Dialog Actions */
+  .dialog-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+  }
+
+  .dialog-title {
+    text-align: center;
+    margin-bottom: 1rem;
+  }
 }
 
 @layer utilities {
@@ -474,7 +558,8 @@
   }
 
   .mb-1 {
-    margin-bottom: 1.2rem;
+    margin-bottom: 0.8rem;
+    /* Reduced from 1.2rem */
   }
 
   .animate-fade-in {
@@ -491,5 +576,140 @@
       opacity: 1;
       transform: translateY(0);
     }
+  }
+
+  .form-container {
+    max-width: 100%;
+    margin: 0 auto;
+  }
+
+  .label-text {
+    display: block;
+    margin-left: 0.5rem;
+    font-weight: 600;
+    color: var(--foreground);
+  }
+
+  .fieldset-reset {
+    border: none;
+    padding: 0;
+    margin: 1rem 0;
+  }
+
+  .grid-2-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .justify-center {
+    justify-content: center;
+  }
+
+  .relative {
+    position: relative;
+  }
+
+  .pl-3 {
+    padding-left: 3rem;
+  }
+
+  .input-prefix {
+    position: absolute;
+    left: 1.2rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-weight: 600;
+    opacity: 0.6;
+  }
+
+  .flex-gap-1 {
+    display: flex;
+    gap: 1rem;
+  }
+
+  .hidden {
+    display: none;
+  }
+
+  /* File Upload Styles */
+  .file-upload-box {
+    background: var(--background);
+    box-shadow: var(--shadow-inset-dark), var(--shadow-inset-light);
+    border-radius: 20px;
+    padding: 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px dashed rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .file-upload-label {
+    cursor: pointer;
+    display: block;
+    height: 100%;
+    width: 100%;
+  }
+
+  .file-upload-success {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .success-icon {
+    font-size: 2rem;
+    color: var(--primary-color);
+  }
+
+  .file-name {
+    color: var(--primary-color);
+    font-weight: 600;
+  }
+
+  .file-upload-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    opacity: 0.6;
+  }
+
+  .camera-icon {
+    font-size: 2rem;
+  }
+
+  /* Preview Form Styles */
+  .review-box {
+    background: var(--background);
+    box-shadow: var(--shadow-inset-dark), var(--shadow-inset-light);
+    border-radius: 20px;
+    padding: 1.5rem;
+  }
+
+  .review-title {
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
+    color: var(--primary-color);
+  }
+
+  .review-grid {
+    display: grid;
+    gap: 0.5rem;
+    opacity: 0.8;
+  }
+
+  .submit-btn {
+    margin-top: 1rem;
+    padding: 1.25rem 2rem;
+    font-size: 1.1rem;
+  }
+
+  .max-w-500 {
+    max-width: 500px;
+    margin: 0 auto;
   }
 }
