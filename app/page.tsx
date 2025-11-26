@@ -7,13 +7,12 @@ export default function Home() {
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
-    border: "1px solid currentColor",
   };
   return (
     <>
-      <header>Emamaye Daycare Pro</header>
+      <header style={{ textAlign: "center" }}><h2>Emamaye Daycare Pro</h2></header>
       <main>
-        <h1>Emamaye Daycare Pro</h1>
+
         <div
           style={{
             display: "grid",
@@ -22,16 +21,16 @@ export default function Home() {
             aspectRatio: "1/1",
           }}
         >
-          <Link href="/children" style={cardStyle}>
+          <Link href="/children" style={cardStyle} className="neo-box">
             Children
           </Link>
-          <Link href="/attendance" style={cardStyle}>
+          <Link href="/attendance" style={cardStyle} className="neo-box">
             Attendance
           </Link>
-          <Link href="/register" style={cardStyle}>
+          <Link href="/register" style={cardStyle} className="neo-box">
             Register
           </Link>
-          <Link href="/payment" style={cardStyle}>
+          <Link href="/payment" style={cardStyle} className="neo-box">
             Payment
           </Link>
         </div>

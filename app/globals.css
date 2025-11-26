@@ -22,6 +22,13 @@
     /* Reduced opacity for cleaner look */
     --shadow-inset-light: inset -4px -4px 8px rgba(255, 255, 255, 0.8);
     --shadow-inset-dark: inset 4px 4px 8px rgba(163, 177, 198, 0.3);
+    /* input shadow variable */
+    --input-shadow: 11.2114px -11.2114px 22.4229px rgba(255, 255, 255, 0.85),
+      -3.73714px 7.47429px 11.2114px rgba(0, 0, 0, 0.06),
+      -3.73714px 11.2114px 37.3714px rgba(0, 0, 0, 0.12),
+      inset 9.34286px -9.34286px 22.4229px rgba(255, 255, 255, 0.9),
+      inset -3.73714px 7.47429px 14.9486px rgba(0, 0, 0, 0.06),
+      inset -3.73714px 11.2114px 44.8457px rgba(0, 0, 0, 0.12);
 
     /* Fluent / Glassmorphism */
     --glass-bg: rgba(255, 255, 255, 0.65);
@@ -127,9 +134,11 @@
 
 @layer components {
 
+
+
   /* Neomorphic Utilities */
   .neo-box {
-    background: rgba(238, 242, 246, 0.7);
+    background: var(--background);
     /* Semi-transparent for glass effect */
     backdrop-filter: var(--acrylic-blur);
     -webkit-backdrop-filter: var(--acrylic-blur);
@@ -140,36 +149,23 @@
     transition: transform var(--transition-smooth);
   }
 
-  .neo-input {
+  input:not([type="radio"]) {
+    --_outline-size: 0px;
+    --_bg-opacity: 0.01;
     width: 100%;
     padding: 16px 24px;
     border-radius: 16px;
-    background: rgba(255, 255, 255, 0.01);
+    background: rgba(255, 255, 255, var(--_bg-opacity));
     border: 1px solid rgba(255, 255, 255, 0.2);
-    box-shadow:
-      11.2114px -11.2114px 22.4229px rgba(255, 255, 255, 0.85),
-      -3.73714px 7.47429px 11.2114px rgba(0, 0, 0, 0.06),
-      -3.73714px 11.2114px 37.3714px rgba(0, 0, 0, 0.12),
-      inset 9.34286px -9.34286px 22.4229px rgba(255, 255, 255, 0.9),
-      inset -3.73714px 7.47429px 14.9486px rgba(0, 0, 0, 0.06),
-      inset -3.73714px 11.2114px 44.8457px rgba(0, 0, 0, 0.12);
+    box-shadow: var(--input-shadow);
     color: var(--foreground);
-    transition: all var(--transition-fast);
     font-weight: 500;
-    outline: none;
+    transition: all 50ms ease-out;
+    outline: var(--_outline-size) solid var(--primary-color);
 
     &:focus {
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid var(--primary-color);
-      /* Thicker border */
-      box-shadow:
-        0 0 0 1px var(--primary-color),
-        11.2114px -11.2114px 22.4229px rgba(255, 255, 255, 0.95),
-        -3.73714px 7.47429px 11.2114px rgba(0, 0, 0, 0.08),
-        -3.73714px 11.2114px 37.3714px rgba(0, 0, 0, 0.15),
-        inset 9.34286px -9.34286px 22.4229px rgba(255, 255, 255, 0.95),
-        inset -3.73714px 7.47429px 14.9486px rgba(0, 0, 0, 0.08),
-        inset -3.73714px 11.2114px 44.8457px rgba(0, 0, 0, 0.15);
+      --_bg-opacity: 0.5;
+      --_outline-size: 2px;
     }
 
     &::placeholder {
@@ -177,7 +173,81 @@
     }
   }
 
-  .neo-btn {
+  .neo-radio-group {
+    display: flex;
+    gap: 1.5rem;
+
+    label {
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      padding: 1rem 1.5rem;
+      border-radius: 16px;
+      transition: all var(--transition-fast);
+
+      /* Neomorphic style matching inputs */
+      background: rgba(255, 255, 255, 0.01);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow:
+        11.2114px -11.2114px 22.4229px rgba(255, 255, 255, 0.85),
+        -3.73714px 7.47429px 11.2114px rgba(0, 0, 0, 0.06),
+        -3.73714px 11.2114px 37.3714px rgba(0, 0, 0, 0.12),
+        inset 9.34286px -9.34286px 22.4229px rgba(255, 255, 255, 0.9),
+        inset -3.73714px 7.47429px 14.9486px rgba(0, 0, 0, 0.06),
+        inset -3.73714px 11.2114px 44.8457px rgba(0, 0, 0, 0.12);
+
+      font-weight: 500;
+      position: relative;
+      overflow: hidden;
+
+
+
+      /* Active/Checked State Animation */
+      &:has(input:checked) {
+        background: rgba(255, 255, 255, 0.1);
+        /* Thicker colored border */
+        color: var(--primary-color);
+        /* Keep the shadow as requested */
+        box-shadow:
+          11.2114px -11.2114px 22.4229px rgba(255, 255, 255, 0.85),
+          -3.73714px 7.47429px 11.2114px rgba(0, 0, 0, 0.06),
+          -3.73714px 11.2114px 37.3714px rgba(0, 0, 0, 0.12),
+          inset 9.34286px -9.34286px 22.4229px rgba(255, 255, 255, 0.9),
+          inset -3.73714px 7.47429px 14.9486px rgba(0, 0, 0, 0.06),
+          inset -3.73714px 11.2114px 44.8457px rgba(0, 0, 0, 0.12);
+      }
+    }
+
+    input[type="radio"] {
+      appearance: none;
+      width: 1.4em;
+      height: 1.4em;
+      border-radius: 50%;
+      background: var(--background);
+      box-shadow: var(--shadow-inset-dark), var(--shadow-inset-light);
+      position: relative;
+      margin: 0;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+      &:checked {
+        background: var(--primary-color);
+        box-shadow: 0 0 10px var(--primary-color);
+        transform: scale(1.1);
+
+        &::after {
+          content: '';
+          position: absolute;
+          inset: 30%;
+          background: white;
+          border-radius: 50%;
+          animation: radio-pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+      }
+    }
+  }
+
+  button {
     padding: 1rem 2.5rem;
     border-radius: 16px;
     background: var(--background);
@@ -192,13 +262,6 @@
     gap: 0.5rem;
     border: 1px solid rgba(255, 255, 255, 0.1);
 
-    &:hover:not(:disabled) {
-      /* transform: translateY(-2px); Removed hover transform */
-      color: var(--primary-color);
-      box-shadow:
-        8px 8px 16px rgba(163, 177, 198, 0.5),
-        -8px -8px 16px rgba(255, 255, 255, 0.9);
-    }
 
     &:active:not(:disabled) {
       transform: translateY(0);
@@ -213,15 +276,9 @@
     }
 
     &.secondary {
-      background: white;
-      color: #333;
+      background-color: white;
       border: 1px solid #e5e7eb;
       box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-
-      &:hover:not(:disabled) {
-        background: #f9fafb;
-        border-color: #d1d5db;
-      }
 
       &:active:not(:disabled) {
         background: #f3f4f6;
@@ -284,81 +341,7 @@
     }
   }
 
-  .neo-radio-group {
-    display: flex;
-    gap: 1.5rem;
 
-    label {
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 0.8rem;
-      padding: 1rem 1.5rem;
-      border-radius: 16px;
-      transition: all var(--transition-fast);
-
-      /* Neomorphic style matching inputs */
-      background: rgba(255, 255, 255, 0.01);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      box-shadow:
-        11.2114px -11.2114px 22.4229px rgba(255, 255, 255, 0.85),
-        -3.73714px 7.47429px 11.2114px rgba(0, 0, 0, 0.06),
-        -3.73714px 11.2114px 37.3714px rgba(0, 0, 0, 0.12),
-        inset 9.34286px -9.34286px 22.4229px rgba(255, 255, 255, 0.9),
-        inset -3.73714px 7.47429px 14.9486px rgba(0, 0, 0, 0.06),
-        inset -3.73714px 11.2114px 44.8457px rgba(0, 0, 0, 0.12);
-
-      font-weight: 500;
-      position: relative;
-      overflow: hidden;
-
-
-
-      /* Active/Checked State Animation */
-      &:has(input:checked) {
-        background: rgba(255, 255, 255, 0.1);
-        border: 1px solid var(--primary-color);
-        /* Thicker colored border */
-        color: var(--primary-color);
-        /* Keep the shadow as requested */
-        box-shadow:
-          0 0 0 1px var(--primary-color),
-          11.2114px -11.2114px 22.4229px rgba(255, 255, 255, 0.85),
-          -3.73714px 7.47429px 11.2114px rgba(0, 0, 0, 0.06),
-          -3.73714px 11.2114px 37.3714px rgba(0, 0, 0, 0.12),
-          inset 9.34286px -9.34286px 22.4229px rgba(255, 255, 255, 0.9),
-          inset -3.73714px 7.47429px 14.9486px rgba(0, 0, 0, 0.06),
-          inset -3.73714px 11.2114px 44.8457px rgba(0, 0, 0, 0.12);
-      }
-    }
-
-    input[type="radio"] {
-      appearance: none;
-      width: 1.4em;
-      height: 1.4em;
-      border-radius: 50%;
-      background: var(--background);
-      box-shadow: var(--shadow-inset-dark), var(--shadow-inset-light);
-      position: relative;
-      margin: 0;
-      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-
-      &:checked {
-        background: var(--primary-color);
-        box-shadow: 0 0 10px var(--primary-color);
-        transform: scale(1.1);
-
-        &::after {
-          content: '';
-          position: absolute;
-          inset: 30%;
-          background: white;
-          border-radius: 50%;
-          animation: radio-pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-      }
-    }
-  }
 
   @keyframes radio-pop {
     0% {
@@ -510,7 +493,7 @@
     transition: all 0.3s ease;
     cursor: pointer;
 
-    &:hover {
+    &.selected {
       opacity: 0.8;
       color: var(--primary-color);
     }

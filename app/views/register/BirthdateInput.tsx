@@ -91,6 +91,9 @@ export default function BirthdateInput({
       const callback = (entries: IntersectionObserverEntry[]) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
+            entry.target.classList.add("selected");
+            entry.target.nextElementSibling?.classList.remove("selected");
+            entry.target.previousElementSibling?.classList.remove("selected");
             if (navigator.vibrate) {
               navigator.vibrate(1);
             }

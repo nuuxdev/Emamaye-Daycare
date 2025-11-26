@@ -137,7 +137,7 @@ export default function ChildInfo({
       <div className="flex-gap-1 mt-2">
         <button
           type="button"
-          className="neo-btn w-full"
+          className="secondary w-full"
           onClick={() => {
             submitHandler("previous");
           }}
@@ -148,7 +148,7 @@ export default function ChildInfo({
 
         <button
           type="button"
-          className="neo-btn primary w-full"
+          className="primary w-full"
           onClick={() => {
             submitHandler("next");
           }}

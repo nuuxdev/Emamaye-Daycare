@@ -92,7 +92,7 @@ export default function GuardianInfo({
       <div className="flex-gap-1 mt-2">
         <button
           type="button"
-          className="neo-btn w-full"
+          className="secondary w-full"
           onClick={() => {
             submitHandler("previous");
           }}
