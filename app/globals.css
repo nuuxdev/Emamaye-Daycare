@@ -67,6 +67,16 @@
   fieldset {
     border: none;
   }
+  ::selection {
+  background: #f36f3633;
+  color: currentColor;
+}
+
+::-moz-selection {
+  background: #f36f3633;
+  color: currentColor;
+}
+
 }
 
 @layer base {
