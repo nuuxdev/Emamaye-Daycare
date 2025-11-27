@@ -68,12 +68,12 @@
     border: none;
   }
   ::selection {
-  background: #f36f3633;
+  background: #ff336633;
   color: currentColor;
 }
 
 ::-moz-selection {
-  background: #f36f3633;
+  background: #ff336633;
   color: currentColor;
 }
 
