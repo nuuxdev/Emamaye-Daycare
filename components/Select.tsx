@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, Fragment } from "react";
 import { FieldValues, Path, PathValue, UseFormRegister, UseFormSetValue } from "react-hook-form";
 
 type Option = {
@@ -82,17 +82,20 @@ export default function Select<T extends FieldValues>({
                 <h3 className="dialog-title">{label}</h3>
 
                 <div className="select-list">
-                    {options.map((option) => (
-                        <label key={option.value} className="select-option" onClick={() => handleSelect(option.value)}>
-                            <input
-                                type="radio"
-                                name={`${id}-option`}
-                                value={option.value}
-                                checked={selected === option.value}
-                                readOnly
-                            />
-                            <span>{option.label}</span>
-                        </label>
+                    {options.map((option, index) => (
+                        <Fragment key={option.value}>
+                            <label className="select-option" onClick={() => handleSelect(option.value)}>
+                                <input
+                                    type="radio"
+                                    name={`${id}-option`}
+                                    value={option.value}
+                                    checked={selected === option.value}
+                                    readOnly
+                                />
+                                <span>{option.label}</span>
+                            </label>
+                            {index < options.length - 1 && <hr />}
+                        </Fragment>
                     ))}
                 </div>
             </dialog>

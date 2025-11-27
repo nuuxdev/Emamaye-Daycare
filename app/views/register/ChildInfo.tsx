@@ -1,5 +1,5 @@
 import { TChildInfo, TSavedSteps } from "@/app/register/page";
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import BirthdateInput from "./BirthdateInput";
 import { TAgeGroup } from "@/convex/types/children";
@@ -54,6 +54,12 @@ export default function ChildInfo({
         break;
     }
   };
+
+  useEffect(() => {
+    if (ageGroup) {
+      setPaymentAmount(ageGroup);
+    }
+  }, [ageGroup, setValue]);
 
   return (
     <form className="grid-gap-1 form-container">
@@ -113,9 +119,7 @@ export default function ChildInfo({
       {/* Watch for changes to update payment amount */}
       <div className="hidden">
         {/* This is a hack to trigger the effect when ageGroup changes via the custom Select */}
-        <input type="hidden" {...register("ageGroup", {
-          onChange: (e) => setPaymentAmount(e.target.value as TAgeGroup)
-        })} />
+        <input type="hidden" {...register("ageGroup")} />
       </div>
 
 
