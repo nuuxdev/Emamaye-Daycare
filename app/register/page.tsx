@@ -2,7 +2,6 @@
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { useMutation } from "convex/react";
-import Link from "next/link";
 import { useState, useEffect } from "react";
 import useTelegram from "@/hooks/useTelegram";
 import ChildInfo from "../views/register/ChildInfo";

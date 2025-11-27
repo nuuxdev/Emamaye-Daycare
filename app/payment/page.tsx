@@ -1,4 +1,3 @@
-import Link from "next/link";
 import GlassHeader from "@/components/GlassHeader";
 
 export default function Payment() {
