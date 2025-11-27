@@ -196,7 +196,7 @@ export default function Register() {
 
           }}
         >
-          <Link href="/" className="neo-btn" style={{ padding: '0.6rem 1rem', borderRadius: '12px', flexShrink: 0 }}>
+          <Link href="/" className="neo-btn" style={{ padding: '0.6rem 1rem', borderRadius: '16px', flexShrink: 0 }}>
             ← Back
           </Link>
           <h1 style={{ margin: 0 }}>
@@ -210,7 +210,7 @@ export default function Register() {
         <div className="neo-box" style={{ width: '100%', maxWidth: '600px', padding: '0' }}>
 
           {/* Stepper */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', padding: '1.25rem 1rem', position: 'relative' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', padding: '1.25rem 1rem', position: 'relative', width: '100%' }}>
             {/* Progress Line */}
             <div style={{ position: 'absolute', top: '50%', left: '1rem', right: '1rem', height: '2px', background: 'rgba(0,0,0,0.05)', transform: 'translateY(-50%)', zIndex: 0, borderRadius: '2px' }}>
               <div style={{
