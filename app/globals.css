@@ -71,12 +71,16 @@
   ::selection {
   background: #ff336633;
   color: currentColor;
-}
+  }
 
-::-moz-selection {
+  ::-moz-selection {
   background: #ff336633;
   color: currentColor;
-}
+  }
+
+  body:has(dialog[open]){
+    overflow:hidden;
+  }
 
 }
 
