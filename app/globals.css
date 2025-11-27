@@ -541,7 +541,7 @@
     align-items: center;
     padding: 1rem;
     padding-bottom: 1.5rem;
-    gap: 0.5rem;
+    gap: 1rem;
     pointer-events: none;
     width: 100%;
     max-width: 600px;
@@ -574,6 +574,7 @@
     color: var(--primary-color);
     font-weight: 700;
     margin: 0;
+    flex: 1
   }
 
   /* Interactive pills (links/buttons) */
