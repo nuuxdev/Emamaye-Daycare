@@ -20,9 +20,9 @@ export default function GlassHeader({ title, backHref, action }: GlassHeaderProp
                 <div style={{ width: "40px" }}></div>
             )}
 
-            <h2 className="glass-pill title">
+            <h5 className="glass-pill title">
                 {title}
-            </h2>
+            </h5>
 
             {action ? (
                 <div className="glass-pill">{action}</div>
