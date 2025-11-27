@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import GlassHeader from "@/components/GlassHeader";
 
 export default function Home() {
   const cardStyle = {
@@ -10,7 +11,7 @@ export default function Home() {
   };
   return (
     <>
-      <header style={{ textAlign: "center" }}><h2>Emamaye Daycare Pro</h2></header>
+      <GlassHeader title="Emamaye Daycare Pro" />
       <main>
 
         <div

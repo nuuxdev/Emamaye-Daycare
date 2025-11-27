@@ -1,12 +1,10 @@
 import Link from "next/link";
+import GlassHeader from "@/components/GlassHeader";
 
 export default function Payment() {
   return (
     <>
-      <header>
-        <Link href="/">&lt;-</Link>
-        Payment
-      </header>
+      <GlassHeader title="Payment" backHref="/" />
       <main>
         <h1>Payment</h1>
       </main>

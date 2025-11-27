@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
+import GlassHeader from "@/components/GlassHeader";
 
 export default function ChildInfo() {
   const { childId } = useParams();
@@ -13,10 +14,7 @@ export default function ChildInfo() {
   });
   return (
     <>
-      <header>
-        <Link href="/children">&lt;-</Link>
-        Child Info
-      </header>
+      <GlassHeader title="Child Info" backHref="/children" />
       <main>
         <h4>ChildId: {childId}</h4>
         <img

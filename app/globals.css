@@ -63,6 +63,10 @@
     outline: 2px solid var(--primary-color);
     outline-offset: 2px;
   }
+
+  fieldset {
+    border: none;
+  }
 }
 
 @layer base {
@@ -138,6 +142,8 @@
     min-height: 100vh;
     padding: 0.5rem;
     gap: 1rem;
+    /* for the fixed header space  */
+    margin-top: 6rem;
   }
 }
 
@@ -524,6 +530,57 @@
     text-align: center;
     margin-bottom: 1rem;
   }
+
+  /* Glassy Header Styles */
+  .glass-header-wrapper {
+    position: fixed;
+    top: 0;
+    z-index: 50;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    padding-bottom: 1.5rem;
+    gap: 0.5rem;
+    pointer-events: none;
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    backdrop-filter: var(--acrylic-blur);
+    -webkit-backdrop-filter: var(--acrylic-blur);
+    mask-image: linear-gradient(to bottom, black 0%, black 75%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, black 0%, black 75%, transparent 100%);
+  }
+
+  .glass-pill {
+    background: var(--glass-bg);
+    backdrop-filter: var(--acrylic-blur);
+    -webkit-backdrop-filter: var(--acrylic-blur);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--glass-shadow);
+    border-radius: 9999px;
+    padding: 0.5rem 1.5rem;
+    pointer-events: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    color: var(--foreground);
+    font-weight: 500;
+    transition: transform var(--transition-fast);
+  }
+
+  .glass-pill.title {
+    color: var(--primary-color);
+    font-weight: 700;
+    margin: 0;
+  }
+
+  /* Interactive pills (links/buttons) */
+  a.glass-pill:active,
+  button.glass-pill:active {
+    transform: scale(0.98);
+  }
 }
 
 @layer utilities {
@@ -585,12 +642,6 @@
     margin-left: 0.5rem;
     font-weight: 600;
     color: var(--foreground);
-  }
-
-  .fieldset-reset {
-    border: none;
-    padding: 0;
-    margin: 1rem 0;
   }
 
   .grid-2-col {

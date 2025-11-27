@@ -7,6 +7,7 @@ import { JSX, useEffect, useState } from "react";
 import AttendanceCard from "../views/attendance/Card";
 import AttendanceList from "../views/attendance/List";
 import { TStatus } from "@/convex/types/attendance";
+import GlassHeader from "@/components/GlassHeader";
 
 export default function Attendance() {
   const [attendanceDate, setAttendanceDate] = useState(
@@ -78,16 +79,19 @@ export default function Attendance() {
   };
   return (
     <>
-      <header>
-        <Link href="/">&lt;-</Link>
-        Attendance
-        <input
-          type="date"
-          value={attendanceDate}
-          onChange={(e) => setAttendanceDate(e.target.value)}
-          max={new Date().toISOString().slice(0, 10)}
-        />
-      </header>
+      <GlassHeader
+        title="Attendance"
+        backHref="/"
+        action={
+          <input
+            type="date"
+            value={attendanceDate}
+            onChange={(e) => setAttendanceDate(e.target.value)}
+            max={new Date().toISOString().slice(0, 10)}
+            style={{ border: 'none', background: 'transparent', color: 'inherit', fontFamily: 'inherit' }}
+          />
+        }
+      />
       <main>
         <div style={{ display: "grid", gap: "1rem" }}>
           <h1>Children List</h1>

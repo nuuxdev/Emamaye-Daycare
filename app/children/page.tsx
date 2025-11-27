@@ -4,6 +4,7 @@ import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { TAgeGroup } from "@/convex/types/children";
 import { useEffect, useState } from "react";
+import GlassHeader from "@/components/GlassHeader";
 
 const ageGroupsTabs: (TAgeGroup | "all")[] = [
   "all",
@@ -29,10 +30,7 @@ export default function ChildrenList() {
   }, [tab, children]);
   return (
     <>
-      <header>
-        <Link href="/">&lt;-</Link>
-        Children
-      </header>
+      <GlassHeader title="Children" backHref="/" />
       <main>
         <div style={{ display: "flex", gap: "1rem" }}>
           {ageGroupsTabs.map((ageGroupTab) => (

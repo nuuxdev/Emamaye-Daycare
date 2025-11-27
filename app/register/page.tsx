@@ -11,6 +11,7 @@ import Avatars from "../views/register/AvatarFiles";
 import PreviewForm from "../views/register/PreviewForm";
 import useBetterMutation from "@/hooks/useBetterMutation";
 import { toast } from "sonner";
+import GlassHeader from "@/components/GlassHeader";
 import { TAgeGroup, TGender } from "@/convex/types/children";
 import {
   CalendarDate,
@@ -182,30 +183,7 @@ export default function Register() {
 
   return (
     <>
-      {/* Conditional header - hide in Telegram */}
-      {!isTelegram && (
-        <header
-          className="neo-box"
-          style={{
-            maxWidth: '600px',
-            margin: '0.5rem',
-            padding: '1rem',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '1rem',
-
-          }}
-        >
-          <Link href="/" className="neo-btn" style={{ padding: '0.6rem 1rem', borderRadius: '16px', flexShrink: 0 }}>
-            ← Back
-          </Link>
-          <h1 style={{ margin: 0 }}>
-            Registration
-          </h1>
-          {/* Spacer for symmetry */}
-          <div style={{ width: '85px', flexShrink: 0 }}></div>
-        </header>
-      )}
+      <GlassHeader title="Registration" backHref="/" />
       <main className="animate-fade-in">
         <div className="neo-box" style={{ width: '100%', maxWidth: '600px', padding: '0' }}>
 
