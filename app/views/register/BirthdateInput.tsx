@@ -85,8 +85,8 @@ export default function BirthdateInput({
       const childOptions = scroller.children[0].childNodes;
       const options = {
         root: scroller,
-        rootMargin: "-20% 0%",
-        threshold: 1.0,
+        rootMargin: "-50% 0px -50% 0px",
+        threshold: 0,
       };
       const callback = (entries: IntersectionObserverEntry[]) => {
         entries.forEach((entry) => {
