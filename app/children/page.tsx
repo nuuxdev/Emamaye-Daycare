@@ -32,14 +32,14 @@ export default function ChildrenList() {
     <>
       <GlassHeader title="Children" backHref="/" />
       <main>
-        <div style={{ display: "flex", gap: "1rem" }}>
+        <div style={{ display: "flex", gap: "1rem", width: "100%", overflow-x: "scroll"}}>
           {ageGroupsTabs.map((ageGroupTab) => (
             <button
               key={ageGroupTab}
               disabled={tab === ageGroupTab}
               onClick={() => setTab(ageGroupTab)}
               className="secondary"
-              style={{ textTransform: "capitalize", flex: "1" }}
+              style={{ textTransform: "capitalize", padding: "0.5rem 0.25rem" }}
             >
               {ageGroupTab}
             </button>
