@@ -1,7 +1,8 @@
 "use client";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import useTelegram from "@/hooks/useTelegram";
 import ChildInfo from "../views/register/ChildInfo";
 import GuardianInfo from "../views/register/GuardianInfo";
@@ -46,6 +47,8 @@ export type TSavedSteps = [TChildInfo, TGuardianInfo, TAvatarFiles];
 export default function Register() {
   const { isTelegram, setPageTitle, showBackButton, hideBackButton } = useTelegram();
   const [step, setStep] = useState(0);
+  const router = useRouter();
+  const dialogRef = useRef<HTMLDialogElement>(null);
   const [savedSteps, saveSteps] = useState<TSavedSteps>([
     {
       fullName: "",
@@ -93,6 +96,35 @@ export default function Register() {
     };
   }, [step, isTelegram, setPageTitle, showBackButton, hideBackButton]);
 
+  const handleReset = () => {
+    saveSteps([
+      {
+        fullName: "",
+        gender: "" as TGender,
+        dateOfBirth: "",
+        ageGroup: "" as TAgeGroup,
+        paymentAmount: null,
+      },
+      {
+        fullName: "",
+        relationToChild: "" as TRelationToChild,
+        address: "",
+        phoneNumber: "",
+      },
+      {
+        childAvatar: null,
+        guardianAvatar: null,
+      },
+    ]);
+    setStep(0);
+    dialogRef.current?.close();
+    setIsPending(false);
+  };
+
+  const handleHome = () => {
+    router.push("/");
+  };
+
   const submitHandler = async () => {
     setIsPending(true);
     if (step !== stepsData.length - 1) return;
@@ -133,10 +165,12 @@ export default function Register() {
         childData,
         guardianData,
       });
-      setIsPending(false);
+      // Show success dialog instead of just stopping pending state
+      dialogRef.current?.showModal();
     } catch (error) {
       console.error(error);
       toast.error("Failed to Register Child");
+      setIsPending(false); // Only stop pending on error
       return;
     }
 
@@ -184,7 +218,7 @@ export default function Register() {
             <div style={{ position: 'absolute', top: '50%', left: '1rem', right: '1rem', height: '2px', background: 'rgba(0,0,0,0.05)', transform: 'translateY(-50%)', zIndex: 0, borderRadius: '2px' }}>
               <div style={{
                 height: '100%',
-                width: `${(step / (stepsData.length - 1)) * 100}%`,
+                width: `${(step / (stepsData.length - 1)) * 100}% `,
                 background: 'var(--primary-color)',
                 borderRadius: '2px',
                 transition: 'width 0.4s ease'
@@ -248,6 +282,21 @@ export default function Register() {
           {stepsData[step]}
         </div>
       </main>
+
+      <dialog ref={dialogRef}>
+        <div className="dialog-title">
+          <h2 style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>ምዝገባው ተሳክቷል!</h2>
+          <p style={{ opacity: 0.8 }}>የልጁ መረጃ በተሳካ ሁኔታ ተመዝግቧል።</p>
+        </div>
+        <div className="dialog-actions" style={{ flexDirection: 'column', gap: '0.75rem' }}>
+          <button className="neo-btn primary w-full" onClick={handleHome}>
+            ወደ ዋናው ገጽ ይመለሱ
+          </button>
+          <button className="secondary w-full" onClick={handleReset}>
+            ሌላ ልጅ ያስመዝግቡ
+          </button>
+        </div>
+      </dialog>
     </>
   );
 }
