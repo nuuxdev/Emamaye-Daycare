@@ -38,6 +38,7 @@ export default function ChildrenList() {
               key={ageGroupTab}
               disabled={tab === ageGroupTab}
               onClick={() => setTab(ageGroupTab)}
+              className="secondary"
               style={{ textTransform: "capitalize", flex: "1" }}
             >
               {ageGroupTab}
@@ -47,6 +48,7 @@ export default function ChildrenList() {
         <div style={{ display: "grid", gap: "1rem" }}>
           {children === undefined && <p>Loading...</p>}
           {filteredChildren?.map((child) => (
+      <>
             <details key={child._id}>
               <summary
                 style={{ display: "flex", gap: "1rem", alignItems: "start" }}
@@ -115,6 +117,8 @@ export default function ChildrenList() {
                 </div>
               </div>
             </details>
+            <hr />
+      </>
           ))}
         </div>
       </main>
