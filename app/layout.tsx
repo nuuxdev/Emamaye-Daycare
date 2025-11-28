@@ -33,6 +33,9 @@ export default function RootLayout({
   return (
     <ConvexAuthNextjsServerProvider>
       <html lang="en">
+        <head>
+          <link rel="manifest" href="/manifest.json" />
+        </head>
         <body
           className={`${geistSans.variable} ${ptSerif.variable} antialiased`}
         >
