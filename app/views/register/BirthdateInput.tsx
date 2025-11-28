@@ -162,7 +162,7 @@ export default function BirthdateInput({
           readOnly
         />
        <div style={{ position: "absolute", right: "1.5rem", top: "50%", transform: "translateY(-50%)", pointerEvents: "none", opacity: 0.5 }}>
-                    ▼
+                    📆
        </div>
     </div>
       <dialog ref={dialogRef}>
