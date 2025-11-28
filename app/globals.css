@@ -68,18 +68,19 @@
   fieldset {
     border: none;
   }
+
   ::selection {
-  background: #ff336633;
-  color: currentColor;
+    background: #ff336633;
+    color: currentColor;
   }
 
   ::-moz-selection {
-  background: #ff336633;
-  color: currentColor;
+    background: #ff336633;
+    color: currentColor;
   }
 
-  body:has(dialog[open]){
-    overflow:hidden;
+  body:has(dialog[open]) {
+    overflow: hidden;
   }
 
 }
@@ -122,6 +123,14 @@
     background: transparent;
   }
 
+  label:not(:has(input[type="radio"])),
+  legend {
+    display: block;
+    margin-left: 0.5rem;
+    font-weight: 600;
+    color: var(--foreground);
+  }
+
   a {
     text-decoration: none;
     color: var(--primary-color);
@@ -158,7 +167,7 @@
     padding: 0.5rem;
     gap: 1rem;
     /* for the fixed header space  */
-    margin-top: 6rem;
+    padding-top: 6rem;
   }
 }
 
@@ -548,7 +557,7 @@
   /* Glassy Header Styles */
   .glass-header-wrapper {
     position: fixed;
-    top: 0;
+    inset-inline: 0;
     z-index: 50;
     display: flex;
     justify-content: space-between;
@@ -607,7 +616,7 @@
 
   .grid-gap-1 {
     display: grid;
-    gap: 1.5rem;
+    gap: 1rem;
   }
 
   .text-center {
@@ -648,8 +657,7 @@
   }
 
   .form-container {
-    max-width: 100%;
-    margin: 0 auto;
+    width: 100%;
   }
 
   .label-text {
@@ -812,8 +820,8 @@
 
   .signin-icon-wrapper {
     position: relative;
-    width: 8rem;
-    height: 8rem;
+    width: 5rem;
+    aspect-ratio: 1;
     z-index: 1;
   }
 

@@ -184,10 +184,10 @@ export default function Register() {
     <>
       <GlassHeader title="Registration" backHref="/" />
       <main className="animate-fade-in">
-        <div className="neo-box" style={{ width: '100%', maxWidth: '600px', padding: '0' }}>
+        <div className="neo-box" style={{ maxWidth: '600px' }}>
 
           {/* Stepper */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', padding: '1.25rem 1rem', position: 'relative', width: '100%' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', position: 'relative', width: '100%' }}>
             {/* Progress Line */}
             <div style={{ position: 'absolute', top: '50%', left: '1rem', right: '1rem', height: '2px', background: 'rgba(0,0,0,0.05)', transform: 'translateY(-50%)', zIndex: 0, borderRadius: '2px' }}>
               <div style={{
@@ -225,9 +225,7 @@ export default function Register() {
           </div>
 
           {/* Content Area */}
-          <div style={{ padding: '0 1rem 1.5rem' }}>
-            {stepsData[step]}
-          </div>
+          {stepsData[step]}
         </div>
       </main>
     </>

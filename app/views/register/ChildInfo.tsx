@@ -66,7 +66,7 @@ export default function ChildInfo({
       <h2 className="text-center mb-1">የልጅ መረጃ</h2>
 
       <div className="mb-1">
-        <label htmlFor="fullName" className="mb-1 label-text">ሙሉ ስም</label>
+        <label htmlFor="fullName" className="label-text">ሙሉ ስም</label>
         <input
           className="neo-input"
           id="fullName"
@@ -76,7 +76,7 @@ export default function ChildInfo({
       </div>
 
       <fieldset className="fieldset-reset">
-        <legend className="mb-1 label-text">ጾታ</legend>
+        <legend className="label-text">ጾታ</legend>
         <div className="neo-radio-group grid-2-col">
           <label htmlFor="male" className="justify-center">
             <input

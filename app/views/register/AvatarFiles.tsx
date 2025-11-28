@@ -50,7 +50,7 @@ export default function AvatarFiles({
         // rules={{ required: true }}
         render={({ field }) => (
           <div className="mb-1">
-            <label htmlFor="childAvatar" className="mb-1 label-text">የልጅ ፎቶ</label>
+            <label htmlFor="childAvatar">የልጅ ፎቶ</label>
             <div
               className="file-upload-box"
               onDragOver={(e) => { e.preventDefault(); e.currentTarget.style.borderColor = 'var(--primary-color)'; }}
@@ -99,7 +99,7 @@ export default function AvatarFiles({
         // rules={{ required: true }}
         render={({ field }) => (
           <div className="mb-1">
-            <label htmlFor="guardianAvatar" className="mb-1 label-text">የወላጅ ፎቶ (አማራጭ)</label>
+            <label htmlFor="guardianAvatar">የወላጅ ፎቶ (አማራጭ)</label>
             <div
               className="file-upload-box"
               onDragOver={(e) => { e.preventDefault(); e.currentTarget.style.borderColor = 'var(--primary-color)'; }}
@@ -149,8 +149,10 @@ export default function AvatarFiles({
       <div className="flex-gap-1 mt-2">
         <button
           type="button"
-          className="neo-btn w-full"
-          onClick={() => submitHandler("previous")}
+          className="secondary w-full"
+          onClick={() => {
+            submitHandler("previous");
+          }}
         >
           ወደኋላ
         </button>

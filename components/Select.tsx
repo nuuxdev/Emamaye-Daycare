@@ -60,7 +60,7 @@ export default function Select<T extends FieldValues>({
 
     return (
         <div className="mb-1">
-            <label htmlFor={id} className="mb-1" style={{ display: "block", marginLeft: "1rem" }}>
+            <label htmlFor={id} className="label-text">
                 {label}
             </label>
             <div className="relative">

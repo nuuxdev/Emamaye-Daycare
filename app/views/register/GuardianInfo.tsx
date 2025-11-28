@@ -41,7 +41,7 @@ export default function GuardianInfo({
       <h2 className="text-center mb-1">የወላጅ መረጃ</h2>
 
       <div className="mb-1">
-        <label htmlFor="fullName" className="mb-1 label-text">ሙሉ ስም</label>
+        <label htmlFor="fullName">ሙሉ ስም</label>
         <input
           id="fullName"
           type="text"
@@ -69,7 +69,7 @@ export default function GuardianInfo({
       />
 
       <div className="mb-1">
-        <label htmlFor="address" className="mb-1 label-text">አድራሻ</label>
+        <label htmlFor="address">አድራሻ</label>
         <input
           id="address"
           className="neo-input"
@@ -79,7 +79,7 @@ export default function GuardianInfo({
       </div>
 
       <div className="mb-1">
-        <label htmlFor="phoneNumber" className="mb-1 label-text">ስልክ ቁጥር</label>
+        <label htmlFor="phoneNumber">ስልክ ቁጥር</label>
         <input
           id="phoneNumber"
           type="tel"
