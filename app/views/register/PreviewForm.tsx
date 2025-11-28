@@ -1,4 +1,25 @@
 import { TSavedSteps } from "@/app/register/page";
+import { useEffect, useState } from "react";
+
+const AvatarPreview = ({ file }: { file: File | null }) => {
+  const [preview, setPreview] = useState<string>("/profile.png");
+
+  useEffect(() => {
+    if (!file) {
+      setPreview("/profile.png");
+      return;
+    }
+
+    const objectUrl = URL.createObjectURL(file);
+    setPreview(objectUrl);
+
+    return () => {
+      URL.revokeObjectURL(objectUrl);
+    };
+  }, [file]);
+
+  return <img src={preview} alt="Avatar" className="avatar-img" />;
+};
 
 export default function PreviewForm({
   savedSteps,
@@ -18,11 +39,7 @@ export default function PreviewForm({
         <div className="neo-box">
           <div className="preview-header">
             <div className="avatar-preview-container small">
-              <img
-                src={savedSteps[2].childAvatar ? URL.createObjectURL(savedSteps[2].childAvatar) : "/profile.png"}
-                alt="Child"
-                className="avatar-img"
-              />
+              <AvatarPreview file={savedSteps[2].childAvatar} />
             </div>
             <div>
               <div className="font-bold" style={{ fontSize: '1.125rem' }}>{savedSteps[0].fullName}</div>
@@ -53,11 +70,7 @@ export default function PreviewForm({
         <div className="neo-box preview-card">
           <div className="preview-header">
             <div className="avatar-preview-container small">
-              <img
-                src={savedSteps[2].guardianAvatar ? URL.createObjectURL(savedSteps[2].guardianAvatar) : "/profile.png"}
-                alt="Guardian"
-                className="avatar-img"
-              />
+              <AvatarPreview file={savedSteps[2].guardianAvatar} />
             </div>
             <div>
               <div className="font-bold" style={{ fontSize: '1.125rem' }}>{savedSteps[1].fullName}</div>

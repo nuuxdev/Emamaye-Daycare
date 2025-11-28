@@ -1,6 +1,27 @@
 import { TAvatarFiles, TSavedSteps } from "@/app/register/page";
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
+
+const AvatarPreview = ({ file }: { file: File | null }) => {
+  const [preview, setPreview] = useState<string>("/profile.png");
+
+  useEffect(() => {
+    if (!file) {
+      setPreview("/profile.png");
+      return;
+    }
+
+    const objectUrl = URL.createObjectURL(file);
+    setPreview(objectUrl);
+
+    // Cleanup function to revoke the URL when component unmounts or file changes
+    return () => {
+      URL.revokeObjectURL(objectUrl);
+    };
+  }, [file]);
+
+  return <img src={preview} alt="Avatar" className="avatar-img" />;
+};
 
 export default function AvatarFiles({
   saveSteps,
@@ -18,11 +39,6 @@ export default function AvatarFiles({
   const { control, trigger, getValues } = useForm<TAvatarFiles>({
     defaultValues,
   });
-
-  //  const [previews, setPreviews] = useState<{
-  //   childAvatar?: string;
-  //   guardianAvatar?: string;
-  // }>()
 
   const submitHandler = async (direction: "next" | "previous") => {
     const data = getValues();
@@ -54,11 +70,7 @@ export default function AvatarFiles({
               <label htmlFor="childAvatar" className="input-label">የልጅ ፎቶ</label>
               <div className="neo-box">
                 <div className="avatar-preview-container">
-                  <img
-                    src={field.value ? URL.createObjectURL(field.value) : "/profile.png"}
-                    alt="Child Avatar"
-                    className="avatar-img"
-                  />
+                  <AvatarPreview file={field.value} />
                 </div>
 
                 <input
@@ -94,11 +106,7 @@ export default function AvatarFiles({
               <label htmlFor="guardianAvatar" className="input-label">የወላጅ ፎቶ (አማራጭ)</label>
               <div className="neo-box">
                 <div className="avatar-preview-container">
-                  <img
-                    src={field.value ? URL.createObjectURL(field.value) : "/profile.png"}
-                    alt="Guardian Avatar"
-                    className="avatar-img"
-                  />
+                  <AvatarPreview file={field.value} />
                 </div>
 
                 <input
