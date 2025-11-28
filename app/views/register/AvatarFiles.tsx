@@ -1,30 +1,136 @@
 import { TAvatarFiles, TSavedSteps } from "@/app/register/page";
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { toast } from "sonner";
+import { ServerAvatar } from "@/app/components/ServerAvatar";
 
-const AvatarPreview = ({ file }: { file: File | null }) => {
-  const [preview, setPreview] = useState<string>("/profile.png");
+const CircularProgress = ({ progress }: { progress: number }) => {
+  const radius = 40;
+  const circumference = 2 * Math.PI * radius;
+  const strokeDashoffset = circumference - (progress / 100) * circumference;
 
-  useEffect(() => {
-    if (!file) {
-      setPreview("/profile.png");
-      return;
+  return (
+    <div className="absolute inset-0 flex items-center justify-center bg-white/80 z-10 rounded-full">
+      <svg className="transform -rotate-90 w-24 h-24">
+        <circle
+          cx="48"
+          cy="48"
+          r={radius}
+          stroke="#e0e0e0"
+          strokeWidth="8"
+          fill="transparent"
+        />
+        <circle
+          cx="48"
+          cy="48"
+          r={radius}
+          stroke="var(--primary-color)"
+          strokeWidth="8"
+          fill="transparent"
+          strokeDasharray={circumference}
+          strokeDashoffset={strokeDashoffset}
+          style={{ transition: "stroke-dashoffset 0.1s linear" }}
+        />
+      </svg>
+      <span className="absolute text-sm font-bold text-primary">{Math.round(progress)}%</span>
+    </div>
+  );
+};
+
+const ImageUploader = ({
+  label,
+  storageId,
+  onUploadComplete,
+  generateUploadUrl
+}: {
+  label: string;
+  storageId?: Id<"_storage">;
+  onUploadComplete: (storageId: Id<"_storage">, file: File) => void;
+  generateUploadUrl: () => Promise<string>;
+}) => {
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [isUploading, setIsUploading] = useState(false);
+
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    setUploadProgress(0);
+
+    try {
+      const postUrl = await generateUploadUrl();
+
+      const xhr = new XMLHttpRequest();
+      xhr.open("POST", postUrl);
+      xhr.setRequestHeader("Content-Type", file.type);
+
+      xhr.upload.onprogress = (event) => {
+        if (event.lengthComputable) {
+          const progress = (event.loaded / event.total) * 100;
+          setUploadProgress(progress);
+        }
+      };
+
+      xhr.onload = () => {
+        if (xhr.status === 200) {
+          const response = JSON.parse(xhr.responseText);
+          onUploadComplete(response.storageId, file);
+          setIsUploading(false);
+        } else {
+          console.error("Upload failed");
+          toast.error("Upload failed");
+          setIsUploading(false);
+        }
+      };
+
+      xhr.onerror = () => {
+        console.error("Upload error");
+        toast.error("Upload error");
+        setIsUploading(false);
+      };
+
+      xhr.send(file);
+    } catch (error) {
+      console.error("Error starting upload", error);
+      toast.error("Error starting upload");
+      setIsUploading(false);
     }
+  };
 
-    const objectUrl = URL.createObjectURL(file);
-    setPreview(objectUrl);
+  return (
+    <div className="mb-1">
+      <label className="input-label">{label}</label>
+      <div className="neo-box avatar-card relative">
+        <div className="avatar-preview-container relative">
+          <ServerAvatar storageId={storageId} />
+          {isUploading && <CircularProgress progress={uploadProgress} />}
+        </div>
 
-    // Cleanup function to revoke the URL when component unmounts or file changes
-    return () => {
-      URL.revokeObjectURL(objectUrl);
-    };
-  }, [file]);
+        <input
+          type="file"
+          accept="image/*"
+          style={{ display: "none" }}
+          id={`file-${label}`}
+          onChange={handleFileSelect}
+          disabled={isUploading}
+        />
 
-  return <img src={preview} alt="Avatar" className="avatar-img" />;
+        <button
+          type="button"
+          className="secondary"
+          onClick={() => document.getElementById(`file-${label}`)?.click()}
+          disabled={isUploading}
+        >
+          {isUploading ? "እየጫነ ነው..." : "ያስገቡ"}
+          {!isUploading && <span style={{ fontSize: '1.1rem' }}>↑</span>}
+        </button>
+      </div>
+    </div>
+  );
 };
 
 export default function AvatarFiles({
@@ -39,93 +145,39 @@ export default function AvatarFiles({
   step: number;
 }) {
   const defaultValues: TAvatarFiles = savedSteps[step] as TAvatarFiles;
-  const [isUploading, setIsUploading] = useState(false);
 
-  const { control, trigger, getValues } = useForm<TAvatarFiles>({
+  // We need to keep track of storageIds in the form state or just use savedSteps directly?
+  // Using react-hook-form is good for validation if we needed it, but here we are managing storageIds.
+  // Let's sync with react-hook-form for consistency with other steps, but we primarily care about storageIds.
+
+  const { control, setValue, getValues } = useForm<TAvatarFiles>({
     defaultValues,
   });
 
   const generateUploadUrl = useMutation(api.images.generateUploadUrl);
 
-  const uploadImage = async (imageFile: File) => {
-    const postUrl = await generateUploadUrl();
-    const result = await fetch(postUrl, {
-      method: "POST",
-      headers: { "Content-Type": imageFile.type },
-      body: imageFile,
-    });
-    const { storageId } = await result.json();
-    return storageId as Id<"_storage">;
-  };
-
   const submitHandler = async (direction: "next" | "previous") => {
     const data = getValues();
 
     if (direction === "next") {
-      const valid = await trigger();
-      if (!valid) return;
+      // Validate that we have storageIds if required
+      // For now, let's assume child avatar is required? 
+      // The previous logic checked for childAvatar file.
 
-      // Upload images if they exist and haven't been uploaded yet (or if they changed - for simplicity we re-upload if file object is present)
-      // Actually, we should check if we already have a storageId for this file? 
-      // But the file object doesn't carry the storageId. 
-      // Let's just upload if there is a file.
-
-      setIsUploading(true);
-      try {
-        let childStorageId = data.childStorageId;
-        let guardianStorageId = data.guardianStorageId;
-
-        if (data.childAvatar) {
-          // Only upload if it's a new file or we don't have an ID. 
-          // Since we can't easily track "new file" vs "old file" without more state, 
-          // and the user might have re-selected, let's upload.
-          // Optimization: If we wanted to avoid re-uploading the same file on back/next navigation, 
-          // we would need to check if data.childAvatar is the same reference as savedSteps[step].childAvatar 
-          // AND we have a savedSteps[step].childStorageId.
-
-          const isSameChildFile = data.childAvatar === (savedSteps[step] as TAvatarFiles).childAvatar;
-          const hasChildId = !!(savedSteps[step] as TAvatarFiles).childStorageId;
-
-          if (!isSameChildFile || !hasChildId) {
-            childStorageId = await uploadImage(data.childAvatar);
-          } else {
-            childStorageId = (savedSteps[step] as TAvatarFiles).childStorageId;
-          }
-        }
-
-        if (data.guardianAvatar) {
-          const isSameGuardianFile = data.guardianAvatar === (savedSteps[step] as TAvatarFiles).guardianAvatar;
-          const hasGuardianId = !!(savedSteps[step] as TAvatarFiles).guardianStorageId;
-
-          if (!isSameGuardianFile || !hasGuardianId) {
-            guardianStorageId = await uploadImage(data.guardianAvatar);
-          } else {
-            guardianStorageId = (savedSteps[step] as TAvatarFiles).guardianStorageId;
-          }
-        }
-
-        const savedStateCopy = [...savedSteps] as TSavedSteps;
-        savedStateCopy[step] = {
-          ...data,
-          childStorageId,
-          guardianStorageId
-        };
-        saveSteps(savedStateCopy);
-        setStep((prev) => prev + 1);
-      } catch (error) {
-        console.error("Upload failed", error);
-        toast.error("Failed to upload images. Please try again.");
-      } finally {
-        setIsUploading(false);
+      if (!data.childStorageId) {
+        toast.error("Please upload a child photo");
+        return;
       }
 
+      setStep((prev) => prev + 1);
     } else if (direction === "previous") {
-      // Just save current state (files) without uploading
-      const savedStateCopy = [...savedSteps] as TSavedSteps;
-      savedStateCopy[step] = data;
-      saveSteps(savedStateCopy);
       setStep((prev) => prev - 1);
     }
+
+    // Save state
+    const savedStateCopy = [...savedSteps] as TSavedSteps;
+    savedStateCopy[step] = data;
+    saveSteps(savedStateCopy);
   };
 
   return (
@@ -135,75 +187,52 @@ export default function AvatarFiles({
       <div className="avatar-files-container">
         {/* Child Avatar */}
         <Controller
-          name="childAvatar"
+          name="childStorageId"
           control={control}
           render={({ field }) => (
-            <div className="mb-1">
-              <label htmlFor="childAvatar" className="input-label">የልጅ ፎቶ</label>
-              <div className="neo-box">
-                <div className="avatar-preview-container">
-                  <AvatarPreview file={field.value} />
-                </div>
+            <ImageUploader
+              label="የልጅ ፎቶ"
+              storageId={field.value}
+              generateUploadUrl={generateUploadUrl}
+              onUploadComplete={(id, file) => {
+                field.onChange(id);
+                setValue("childAvatar", file); // Keep file for consistency if needed, though we rely on ID
 
-                <input
-                  id="childAvatarInput"
-                  type="file"
-                  accept="image/*"
-                  style={{ display: "none" }}
-                  onChange={(e) => {
-                    const file = e.target.files?.[0] || null;
-                    field.onChange(file);
-                  }}
-                />
-
-                <button
-                  type="button"
-                  className="secondary"
-                  onClick={() => document.getElementById('childAvatarInput')?.click()}
-                  disabled={isUploading}
-                >
-                  ያስገቡ
-                  <span style={{ fontSize: '1.1rem' }}>↑</span>
-                </button>
-              </div>
-            </div>
+                // Update savedSteps immediately to persist the ID
+                const savedStateCopy = [...savedSteps] as TSavedSteps;
+                savedStateCopy[step] = {
+                  ...getValues(),
+                  childStorageId: id,
+                  childAvatar: file
+                };
+                saveSteps(savedStateCopy);
+              }}
+            />
           )}
         />
 
         {/* Guardian Avatar */}
         <Controller
-          name="guardianAvatar"
+          name="guardianStorageId"
           control={control}
           render={({ field }) => (
-            <div className="mb-1">
-              <label htmlFor="guardianAvatar" className="input-label">የወላጅ ፎቶ (አማራጭ)</label>
-              <div className="neo-box">
-                <div className="avatar-preview-container">
-                  <AvatarPreview file={field.value} />
-                </div>
+            <ImageUploader
+              label="የወላጅ ፎቶ (አማራጭ)"
+              storageId={field.value}
+              generateUploadUrl={generateUploadUrl}
+              onUploadComplete={(id, file) => {
+                field.onChange(id);
+                setValue("guardianAvatar", file);
 
-                <input
-                  id="guardianAvatarInput"
-                  type="file"
-                  accept="image/*"
-                  style={{ display: "none" }}
-                  onChange={(e) => {
-                    const file = e.target.files?.[0] || null;
-                    field.onChange(file);
-                  }}
-                />
-
-                <button
-                  type="button"
-                  className="secondary"
-                  onClick={() => document.getElementById('guardianAvatarInput')?.click()}
-                  disabled={isUploading}
-                >
-                  ያስገቡ
-                  <span style={{ fontSize: '1.1rem' }}>↑</span>
-                </button>
-              </div>
-            </div>
+                const savedStateCopy = [...savedSteps] as TSavedSteps;
+                savedStateCopy[step] = {
+                  ...getValues(),
+                  guardianStorageId: id,
+                  guardianAvatar: file
+                };
+                saveSteps(savedStateCopy);
+              }}
+            />
           )}
         />
       </div>
@@ -215,7 +244,6 @@ export default function AvatarFiles({
           onClick={() => {
             submitHandler("previous");
           }}
-          disabled={isUploading}
         >
           ወደኋላ
         </button>
@@ -224,9 +252,8 @@ export default function AvatarFiles({
           type="button"
           className="neo-btn primary w-full"
           onClick={() => submitHandler("next")}
-          disabled={isUploading}
         >
-          {isUploading ? "ፎቶዎች በመጫን ላይ..." : "ቀጣይ"}
+          ቀጣይ
         </button>
       </div>
     </form>

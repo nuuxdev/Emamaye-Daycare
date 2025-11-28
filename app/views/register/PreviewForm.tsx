@@ -1,26 +1,5 @@
 import { TSavedSteps } from "@/app/register/page";
-import { api } from "@/convex/_generated/api";
-import { Id } from "@/convex/_generated/dataModel";
-import { useQuery } from "convex/react";
-
-const ServerAvatar = ({ storageId }: { storageId?: Id<"_storage"> }) => {
-  const imageUrl = useQuery(api.images.getImageUrl, storageId ? { storageId } : "skip");
-
-  if (!storageId) {
-    return <img src="/profile.png" alt="Avatar" className="avatar-img" />;
-  }
-
-  if (imageUrl === undefined) {
-    return (
-      <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div className="spinner" style={{ width: '24px', height: '24px', border: '3px solid #f3f3f3', borderTop: '3px solid var(--primary-color)', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
-        <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
-      </div>
-    );
-  }
-
-  return <img src={imageUrl || "/profile.png"} alt="Avatar" className="avatar-img" />;
-};
+import { ServerAvatar } from "@/app/components/ServerAvatar";
 
 export default function PreviewForm({
   savedSteps,
