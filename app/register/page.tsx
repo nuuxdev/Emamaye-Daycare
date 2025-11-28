@@ -184,7 +184,7 @@ export default function Register() {
     <>
       <GlassHeader title="Registration" backHref="/" />
       <main className="animate-fade-in">
-        <div className="neo-box" style={{ maxWidth: '600px' }}>
+        <div className="neo-box centered-container" style={{ maxWidth: '600px' }}>
 
           {/* Stepper */}
           <div style={{ display: 'flex', justifyContent: 'space-between', position: 'relative', width: '100%' }}>
@@ -199,29 +199,57 @@ export default function Register() {
               }} />
             </div>
 
-            {stepsData.map((_, index) => (
-              <div
-                key={index}
-                style={{
-                  width: '28px',
-                  height: '28px',
-                  borderRadius: '50%',
-                  background: index <= step ? 'var(--primary-color)' : 'var(--background)',
-                  color: index <= step ? 'white' : 'var(--foreground)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontWeight: 'bold',
-                  fontSize: '0.875rem',
-                  zIndex: 1,
-                  boxShadow: index <= step ? '0 4px 10px rgba(255, 51, 102, 0.4)' : 'var(--shadow-dark)',
-                  transition: 'all 0.4s ease',
-                  border: index <= step ? 'none' : '2px solid rgba(255,255,255,0.5)'
-                }}
-              >
-                {index + 1}
-              </div>
-            ))}
+            {stepsData.map((_, index) => {
+              const isCompleted = (index: number) => {
+                if (index === 0) return !!savedSteps[0].fullName && !!savedSteps[0].dateOfBirth;
+                if (index === 1) return !!savedSteps[1].fullName && !!savedSteps[1].phoneNumber;
+                if (index === 2) return !!savedSteps[2].childAvatar; // Optional: require avatar?
+                return false;
+              };
+
+              // Allow navigation if the step is the current one, 
+              // OR if it's a previous step (always allowed to go back),
+              // OR if it's a future step BUT all previous steps are completed.
+              // Simpler rule based on user request "Only make the filled ones to be navigatable":
+              // We can interpret "filled" as "completed".
+              // But usually you can always go back. 
+              // And you can go to a future step only if all intermediate steps are done.
+              // Let's allow clicking if:
+              // 1. It's less than or equal to current step (history)
+              // 2. It's a future step and the immediate previous step is complete (next available) - actually user said "filled ones".
+              // If I jump from 0 to 2, 1 must be filled.
+
+              const canNavigate = index <= step || (index > step && Array.from({ length: index }, (_, i) => i).every(i => isCompleted(i)));
+
+              return (
+                <div
+                  key={index}
+                  onClick={() => {
+                    if (canNavigate) setStep(index);
+                  }}
+                  style={{
+                    width: '28px',
+                    height: '28px',
+                    borderRadius: '50%',
+                    background: index <= step ? 'var(--primary-color)' : 'var(--background)',
+                    color: index <= step ? 'white' : 'var(--foreground)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontWeight: 'bold',
+                    fontSize: '0.875rem',
+                    zIndex: 1,
+                    boxShadow: index <= step ? '0 4px 10px rgba(255, 51, 102, 0.4)' : 'var(--shadow-dark)',
+                    transition: 'all 0.4s ease',
+                    border: index <= step ? 'none' : '2px solid rgba(255,255,255,0.5)',
+                    cursor: canNavigate ? 'pointer' : 'not-allowed',
+                    opacity: canNavigate ? 1 : 0.6
+                  }}
+                >
+                  {index + 1}
+                </div>
+              );
+            })}
           </div>
 
           {/* Content Area */}
