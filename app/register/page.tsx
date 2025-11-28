@@ -1,7 +1,6 @@
 "use client";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import { useMutation } from "convex/react";
 import { useState, useEffect } from "react";
 import useTelegram from "@/hooks/useTelegram";
 import ChildInfo from "../views/register/ChildInfo";
@@ -38,6 +37,8 @@ export type TGuardianInfo = {
 export type TAvatarFiles = {
   childAvatar: File | null;
   guardianAvatar: File | null;
+  childStorageId?: Id<"_storage">;
+  guardianStorageId?: Id<"_storage">;
 };
 
 export type TSavedSteps = [TChildInfo, TGuardianInfo, TAvatarFiles];
@@ -69,7 +70,6 @@ export default function Register() {
     isPending,
     setIsPending,
   } = useBetterMutation(api.children.addChild);
-  const generateUploadUrl = useMutation(api.images.generateUploadUrl);
 
   // Manage Telegram back button
   useEffect(() => {
@@ -96,22 +96,18 @@ export default function Register() {
   const submitHandler = async () => {
     setIsPending(true);
     if (step !== stepsData.length - 1) return;
-    const childAvatar = savedSteps[2].childAvatar;
-    const guardianAvatar = savedSteps[2].guardianAvatar;
+
+    // Images should already be uploaded by the AvatarFiles step
+    const childStorageId = savedSteps[2].childStorageId;
+    const guardianStorageId = savedSteps[2].guardianStorageId;
+
+    if (!childStorageId) {
+      toast.error("Child avatar is missing. Please go back and upload.");
+      setIsPending(false);
+      return;
+    }
+
     try {
-      const uploadImage = async (imageFile: File | null) => {
-        if (imageFile) {
-          const postUrl = await generateUploadUrl();
-          const result = await fetch(postUrl, {
-            method: "POST",
-            headers: { "Content-Type": imageFile.type },
-            body: imageFile,
-          });
-          const { storageId } = await result.json();
-          return storageId as Id<"_storage">
-        }
-        return
-      }
       const dateOfBirth = savedSteps[0].dateOfBirth;
       const [month, date, year] = dateOfBirth.split("-");
       const dateInEt = new CalendarDate(
@@ -122,10 +118,6 @@ export default function Register() {
       );
       const dateInGreg = toCalendar(dateInEt, new GregorianCalendar());
 
-      setIsPending('Uploading Child Avatar');
-      const childStorageId = await uploadImage(childAvatar);
-      setIsPending('Uploading Guardian Avatar');
-      const guardianStorageId = await uploadImage(guardianAvatar);
       const childData = {
         ...savedSteps[0],
         paymentAmount: savedSteps[0].paymentAmount!,
@@ -136,7 +128,7 @@ export default function Register() {
         ...savedSteps[1],
         avatar: guardianStorageId,
       };
-      setIsPending(true);
+
       await addChild({
         childData,
         guardianData,

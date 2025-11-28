@@ -1,24 +1,25 @@
 import { TSavedSteps } from "@/app/register/page";
-import { useEffect, useState } from "react";
+import { api } from "@/convex/_generated/api";
+import { Id } from "@/convex/_generated/dataModel";
+import { useQuery } from "convex/react";
 
-const AvatarPreview = ({ file }: { file: File | null }) => {
-  const [preview, setPreview] = useState<string>("/profile.png");
+const ServerAvatar = ({ storageId }: { storageId?: Id<"_storage"> }) => {
+  const imageUrl = useQuery(api.images.getImageUrl, storageId ? { storageId } : "skip");
 
-  useEffect(() => {
-    if (!file) {
-      setPreview("/profile.png");
-      return;
-    }
+  if (!storageId) {
+    return <img src="/profile.png" alt="Avatar" className="avatar-img" />;
+  }
 
-    const objectUrl = URL.createObjectURL(file);
-    setPreview(objectUrl);
+  if (imageUrl === undefined) {
+    return (
+      <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div className="spinner" style={{ width: '24px', height: '24px', border: '3px solid #f3f3f3', borderTop: '3px solid var(--primary-color)', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
+        <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
+      </div>
+    );
+  }
 
-    return () => {
-      URL.revokeObjectURL(objectUrl);
-    };
-  }, [file]);
-
-  return <img src={preview} alt="Avatar" className="avatar-img" />;
+  return <img src={imageUrl || "/profile.png"} alt="Avatar" className="avatar-img" />;
 };
 
 export default function PreviewForm({
@@ -36,10 +37,10 @@ export default function PreviewForm({
       {/* Child Info Card */}
       <div className="mb-1">
         <h3 className="card-title">የልጅ መረጃዎች</h3>
-        <div className="neo-box">
+        <div className="neo-box preview-card">
           <div className="preview-header">
             <div className="avatar-preview-container small">
-              <AvatarPreview file={savedSteps[2].childAvatar} />
+              <ServerAvatar storageId={savedSteps[2].childStorageId} />
             </div>
             <div>
               <div className="font-bold" style={{ fontSize: '1.125rem' }}>{savedSteps[0].fullName}</div>
@@ -70,7 +71,7 @@ export default function PreviewForm({
         <div className="neo-box preview-card">
           <div className="preview-header">
             <div className="avatar-preview-container small">
-              <AvatarPreview file={savedSteps[2].guardianAvatar} />
+              <ServerAvatar storageId={savedSteps[2].guardianStorageId} />
             </div>
             <div>
               <div className="font-bold" style={{ fontSize: '1.125rem' }}>{savedSteps[1].fullName}</div>
