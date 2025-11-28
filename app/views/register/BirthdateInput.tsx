@@ -149,17 +149,22 @@ export default function BirthdateInput({
   return (
     <div className="mb-1">
       <label htmlFor="dateOfBirth" className="mb-1" style={{ display: "block", marginLeft: "1rem" }}>የልደት ቀን</label>
-      <input
-        className="neo-input"
-        style={{ cursor: "pointer" }}
-        onClick={() => dialogRef.current?.showModal()}
-        onBeforeInput={() => dialogRef.current?.showModal()}
-        type="text"
-        id="dateOfBirth"
-        placeholder="ወር-ቀን-አመት"
-        {...register("dateOfBirth", { required: true })}
-        readOnly
-      />
+      <div className="relative">
+        <input
+          className="neo-input"
+          style={{ cursor: "pointer" }}
+          onClick={() => dialogRef.current?.showModal()}
+          onBeforeInput={() => dialogRef.current?.showModal()}
+          type="text"
+          id="dateOfBirth"
+          placeholder="ወር-ቀን-አመት"
+          {...register("dateOfBirth", { required: true })}
+          readOnly
+        />
+       <div style={{ position: "absolute", right: "1.5rem", top: "50%", transform: "translateY(-50%)", pointerEvents: "none", opacity: 0.5 }}>
+                    ▼
+       </div>
+    </div>
       <dialog ref={dialogRef}>
         <h3 className="dialog-title">ቀን ይምረጡ</h3>
         <div className="scroller-wrapper">
