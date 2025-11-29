@@ -83,7 +83,7 @@ export default function Attendance() {
         title="Attendance"
         backHref="/"
         action={
-           <Link href="#" onClick={()=>setAttendanceDate(new Date().toISOString())} className="glass-pill" style={{ padding: '0.5rem', borderRadius: '50%', width: '40px', height: '40px' }}>
+           <Link href="#" onClick={()=>setAttendanceDate(new Date().toISOString())}>
                     📆
            </Link>
         }
