@@ -82,13 +82,9 @@ export default function Attendance() {
         title="Attendance"
         backHref="/"
         action={
-          <input
-            type="date"
-            value={attendanceDate}
-            onChange={(e) => setAttendanceDate(e.target.value)}
-            max={new Date().toISOString().slice(0, 10)}
-            style={{ border: 'none', background: 'transparent', color: 'inherit', fontFamily: 'inherit' }}
-          />
+           <Link href="#" onClick={()=>setAttendanceDate(new Date().toISOString())} className="glass-pill" style={{ padding: '0.5rem', borderRadius: '50%', width: '40px', height: '40px' }}>
+                    📆
+           </Link>
         }
       />
       <main>
