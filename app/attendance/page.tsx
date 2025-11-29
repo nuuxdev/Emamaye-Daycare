@@ -7,6 +7,7 @@ import AttendanceCard from "../views/attendance/Card";
 import AttendanceList from "../views/attendance/List";
 import { TStatus } from "@/convex/types/attendance";
 import GlassHeader from "@/components/GlassHeader";
+import Link from "next/link";
 
 export default function Attendance() {
   const [attendanceDate, setAttendanceDate] = useState(
