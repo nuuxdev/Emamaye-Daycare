@@ -31,7 +31,7 @@ export default function ChildrenList() {
   return (
     <>
       <GlassHeader title="Children" backHref="/" />
-      <main>
+      <main style={{justifyContent:"start"}}>
         <div style={{ display: "flex", gap: "1rem", width: "100%", overflowX: "scroll", paddingBlock: "1rem"}}>
           {ageGroupsTabs.map((ageGroupTab) => (
             <button
