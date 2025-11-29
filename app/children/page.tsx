@@ -45,11 +45,11 @@ export default function ChildrenList() {
             </button>
           ))}
         </div>
-        <div style={{ display: "grid", gap: "1rem" }}>
+        <div style={{ display: "grid", gap: "0.5rem" }}>
           {children === undefined && <p>Loading...</p>}
           {filteredChildren?.map((child) => (
       <>
-            <details key={child._id}>
+            <details key={child._id} style={{width:"100%"}}>
               <summary
                 style={{ display: "flex", gap: "1rem", alignItems: "start" }}
               >
