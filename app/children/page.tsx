@@ -38,7 +38,7 @@ export default function ChildrenList() {
               key={ageGroupTab}
               disabled={tab === ageGroupTab}
               onClick={() => setTab(ageGroupTab)}
-              className="secondary"
+              className={`secondary ${ageGroupTab}`}
               style={{ textTransform: "capitalize", padding: "0.5rem 1rem", minWidth: "100px" }}
             >
               {ageGroupTab}

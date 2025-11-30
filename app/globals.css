@@ -331,6 +331,20 @@
         background: #f3f4f6;
         transform: translateY(1px);
       }
+
+      &:disabled {
+        &.infant {
+          background-color: var(--color-infant);
+        }
+
+        &.toddler {
+          background-color: var(--color-toddler);
+        }
+
+        &.preschooler {
+          background-color: var(--color-preschooler);
+        }
+      }
     }
 
     &.primary {
