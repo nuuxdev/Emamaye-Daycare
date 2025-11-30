@@ -10,7 +10,7 @@ const years: number[] = [];
 for (let year = thisYear; year > thisYear - 5; year--) {
   years.push(year);
 }
-const months = [
+export const months = [
   "መስከረም",
   "ጥቅምት",
   "ህዳር",
@@ -29,8 +29,6 @@ const days: number[] = [];
 for (let day = 1; day <= 30; day++) {
   days.push(day);
 }
-
-
 
 export const InputDate = ({ register, onSelect }: { register: UseFormRegister<TChildInfo>, onSelect: (date: CalendarDate) => void }) => {
 
@@ -87,7 +85,6 @@ const Dialog = ({ dialogRef, onSelect }: { dialogRef: React.RefObject<HTMLDialog
         currentDate!,
       )
       onSelect(dateInEt);
-
       dialogRef.current?.close();
     }
   };

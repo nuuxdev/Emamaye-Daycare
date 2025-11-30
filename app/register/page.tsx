@@ -19,6 +19,7 @@ import {
   toCalendar,
 } from "@internationalized/date";
 import { TRelationToChild } from "@/convex/types/guardians";
+import { months } from "../views/register/Calendar";
 
 export type TChildInfo = {
   fullName: string;
@@ -145,7 +146,7 @@ export default function Register() {
       const dateInEt = new CalendarDate(
         new EthiopicCalendar(),
         parseInt(year),
-        parseInt(month),
+        months.indexOf(month) + 1,
         parseInt(date),
       );
       const dateInGreg = toCalendar(dateInEt, new GregorianCalendar());
