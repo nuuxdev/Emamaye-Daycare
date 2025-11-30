@@ -31,15 +31,15 @@ export default function ChildrenList() {
   return (
     <>
       <GlassHeader title="Children" backHref="/" />
-      <main style={{justifyContent:"start"}}>
-        <div style={{ display: "flex", gap: "1rem", width: "100%", overflowX: "scroll", paddingBlock: "1rem"}}>
+      <main style={{ justifyContent: "start" }}>
+        <div style={{ display: "flex", gap: "1rem", width: "100%", overflowX: "auto", paddingBlock: "1rem" }}>
           {ageGroupsTabs.map((ageGroupTab) => (
             <button
               key={ageGroupTab}
               disabled={tab === ageGroupTab}
               onClick={() => setTab(ageGroupTab)}
               className="secondary"
-              style={{ textTransform: "capitalize", padding: "0.5rem 1rem", minWidth: "100px"}}
+              style={{ textTransform: "capitalize", padding: "0.5rem 1rem", minWidth: "100px" }}
             >
               {ageGroupTab}
             </button>
@@ -48,77 +48,77 @@ export default function ChildrenList() {
         <div style={{ display: "grid", gap: "0.5rem" }}>
           {children === undefined && <p>Loading...</p>}
           {filteredChildren?.map((child) => (
-      <>
-            <details key={child._id} style={{width:"100%"}}>
-              <summary
-                style={{ display: "flex", gap: "1rem", alignItems: "start" }}
-              >
-                <Link
-                  href={`/children/${child._id}`}
-                  style={{
-                    width: "5rem",
-                    aspectRatio: "1/1",
-                    borderRadius: "50%",
-                    overflow: "hidden",
-                  }}
+            <>
+              <details key={child._id} style={{ width: "100%" }}>
+                <summary
+                  style={{ display: "flex", gap: "1rem", alignItems: "start" }}
                 >
-                  <img
-                    src={child.avatar}
-                    alt="child avatar"
+                  <Link
+                    href={`/children/${child._id}`}
                     style={{
-                      width: "100%",
-                      height: "100%",
-                      objectFit: "cover",
+                      width: "5rem",
+                      aspectRatio: "1/1",
+                      borderRadius: "50%",
+                      overflow: "hidden",
                     }}
-                  />
-                </Link>
+                  >
+                    <img
+                      src={child.avatar}
+                      alt="child avatar"
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
+                      }}
+                    />
+                  </Link>
 
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    width: "100%",
-                  }}
-                >
-                  <div>
-                    <p>{child.fullName}</p>
-                    <p>{child.gender}</p>
-                  </div>
                   <div
                     style={{
                       display: "flex",
-                      flexDirection: "column",
-                      alignItems: "end",
+                      justifyContent: "space-between",
+                      width: "100%",
                     }}
                   >
-                    <p className={`pill ${child.ageGroup}`}>{child.ageGroup}</p>
-                    {/* TODO: calculate age based on the calendar */}
-                    {/* <p>{calculateAge(parseDate(child.dateOfBirth))?.age}</p> */}
+                    <div>
+                      <p>{child.fullName}</p>
+                      <p>{child.gender}</p>
+                    </div>
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "end",
+                      }}
+                    >
+                      <p className={`pill ${child.ageGroup}`}>{child.ageGroup}</p>
+                      {/* TODO: calculate age based on the calendar */}
+                      {/* <p>{calculateAge(parseDate(child.dateOfBirth))?.age}</p> */}
+                    </div>
+                  </div>
+                </summary>
+                <div style={{ padding: "0.5rem 2rem" }}>
+                  <p>{child.primaryGuardianFullName}</p>
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      marginTop: "0.5rem",
+                    }}
+                  >
+                    <button>
+                      <Link href={`tel:${child.primaryGuardianPhoneNumber}`}>
+                        Call
+                      </Link>
+                    </button>
+                    <button>
+                      <Link href={`/children/${child._id}`}>Info</Link>
+                    </button>
                   </div>
                 </div>
-              </summary>
-              <div style={{ padding: "0.5rem 2rem" }}>
-                <p>{child.primaryGuardianFullName}</p>
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    marginTop: "0.5rem",
-                  }}
-                >
-                  <button>
-                    <Link href={`tel:${child.primaryGuardianPhoneNumber}`}>
-                      Call
-                    </Link>
-                  </button>
-                  <button>
-                    <Link href={`/children/${child._id}`}>Info</Link>
-                  </button>
-                </div>
-              </div>
-            </details>
-            <hr />
-      </>
+              </details>
+              <hr />
+            </>
           ))}
         </div>
       </main>
