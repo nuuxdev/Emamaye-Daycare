@@ -1,9 +1,11 @@
 import { TChildInfo, TSavedSteps } from "@/app/register/page";
 import { Dispatch, SetStateAction, useEffect } from "react";
 import { useForm } from "react-hook-form";
-import BirthdateInput from "./BirthdateInput";
+import { InputDate } from "./Calendar";
 import { TAgeGroup } from "@/convex/types/children";
 import Select from "@/components/Select";
+import { calculateAge, getAgeGroup, getPaymentAmount } from "@/utils/calculateAge";
+import { currentDate, currentMonth, currentYear } from "@/utils/calendar";
 
 export default function ChildInfo({
   saveSteps,
@@ -99,7 +101,20 @@ export default function ChildInfo({
         </div>
       </fieldset>
 
-      <BirthdateInput register={register} setValue={setValue} />
+      <InputDate register={register} onSelect={(dateInEt) => {
+        const age = calculateAge(
+          dateInEt
+        );
+        if (age) {
+          const ageGroup = getAgeGroup(age.ageInYears);
+          setValue("ageGroup", ageGroup);
+          setValue("paymentAmount", getPaymentAmount(ageGroup));
+        }
+        const dateString = currentDate! < 10 ? `0${currentDate}` : currentDate;
+        const monthString =
+          currentMonth! < 10 ? `0${currentMonth}` : currentMonth;
+        setValue("dateOfBirth", `${monthString}-${dateString}-${currentYear}`);
+      }} />
 
       <Select
         id="ageGroup"

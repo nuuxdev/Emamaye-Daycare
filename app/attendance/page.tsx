@@ -7,7 +7,8 @@ import AttendanceCard from "../views/attendance/Card";
 import AttendanceList from "../views/attendance/List";
 import { TStatus } from "@/convex/types/attendance";
 import GlassHeader from "@/components/GlassHeader";
-import Link from "next/link";
+import { SelectDate } from "../views/register/Calendar";
+import { GregorianCalendar, toCalendar } from "@internationalized/date";
 
 export default function Attendance() {
   const [attendanceDate, setAttendanceDate] = useState(
@@ -83,9 +84,7 @@ export default function Attendance() {
         title="Attendance"
         backHref="/"
         action={
-           <Link href="#" onClick={()=>setAttendanceDate(new Date().toISOString())}>
-                    📆
-           </Link>
+          <SelectDate onSelect={(dateInEt) => setAttendanceDate(toCalendar(dateInEt, new GregorianCalendar()).toString())} />
         }
       />
       <main>
