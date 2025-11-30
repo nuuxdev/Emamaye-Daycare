@@ -3,7 +3,7 @@ import Link from "next/link";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { TAgeGroup } from "@/convex/types/children";
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import GlassHeader from "@/components/GlassHeader";
 
 const ageGroupsTabs: (TAgeGroup | "all")[] = [
@@ -48,8 +48,8 @@ export default function ChildrenList() {
         <div style={{ display: "grid", gap: "0.5rem" }}>
           {children === undefined && <p>Loading...</p>}
           {filteredChildren?.map((child) => (
-            <>
-              <details key={child._id} style={{ width: "100%" }}>
+            <Fragment key={child._id}>
+              <details style={{ width: "100%" }}>
                 <summary
                   style={{ display: "flex", gap: "1rem", alignItems: "start" }}
                 >
@@ -118,7 +118,7 @@ export default function ChildrenList() {
                 </div>
               </details>
               <hr />
-            </>
+            </Fragment>
           ))}
         </div>
       </main>

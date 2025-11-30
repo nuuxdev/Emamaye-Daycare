@@ -581,7 +581,9 @@
     border: 1px solid var(--glass-border);
     box-shadow: var(--glass-shadow);
     border-radius: 9999px;
-    padding: 0.5rem 1.5rem;
+    padding: 0.5rem;
+    height: 48px;
+    width: 48px;
     pointer-events: auto;
     display: flex;
     align-items: center;
@@ -590,13 +592,14 @@
     color: var(--foreground);
     font-weight: 500;
     transition: transform var(--transition-fast);
-  }
 
-  .glass-pill.title {
-    color: var(--primary-color);
-    font-weight: 700;
-    margin: 0;
-    flex: 1
+    &.title {
+      color: var(--primary-color);
+      font-weight: 700;
+      margin: 0;
+      flex: 1
+    }
+
   }
 
   /* Interactive pills (links/buttons) */
