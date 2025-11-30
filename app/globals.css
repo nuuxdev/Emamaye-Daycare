@@ -3,6 +3,7 @@
 
 @layer variables {
   :root {
+    interpolate-size: allow-keywords;
     /* Core Colors - Vibrant & Fluent Inspired */
     --background: #eef2f6;
     /* Slightly lighter, cooler grey */
@@ -13,6 +14,10 @@
     --secondary-color: #0984e3;
     /* Vibrant Blue */
     --accent-color: #00cec9;
+    --success-color: #00b894;
+    --info-color: #00cec9;
+    --warning-color: yellow;
+    --error-color: #d63031;
     /* Teal */
     --white: #ffffff;
 
@@ -600,6 +605,11 @@
       flex: 1
     }
 
+    &.with-icon {
+      width: auto;
+      padding-inline: 1.25rem;
+    }
+
   }
 
   /* Interactive pills (links/buttons) */
@@ -607,6 +617,22 @@
   button.glass-pill:active {
     transform: scale(0.98);
   }
+
+  details {
+    overflow: hidden;
+
+    &::details-content {
+      height: 0;
+      transition: height var(--transition-fast), content-visibility var(--transition-fast);
+      transition-behavior: allow-discrete;
+    }
+
+    &[open]::details-content {
+      height: auto;
+    }
+  }
+
+
 }
 
 @layer utilities {
