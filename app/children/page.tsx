@@ -17,9 +17,9 @@ const ageGroupsTabs: (TAgeGroup | "all")[] = [
 ];
 
 const ageGroupIcons: Record<TAgeGroup, JSX.Element> = {
-  infant: <i style={{ minWidth: 0 }} className="hgi hgi-stroke hgi-baby-bottle"></i>,
-  toddler: <i style={{ minWidth: 0 }} className="hgi hgi-stroke hgi-rubber-duck"></i>,
-  preschooler: <i style={{ minWidth: 0 }} className="hgi hgi-stroke hgi-puzzle"></i>,
+  infant: <i className="hgi hgi-stroke hgi-baby-bottle"></i>,
+  toddler: <i className="hgi hgi-stroke hgi-rubber-duck"></i>,
+  preschooler: <i className="hgi hgi-stroke hgi-puzzle"></i>,
 };
 
 export default function ChildrenList() {
@@ -65,14 +65,11 @@ export default function ChildrenList() {
               className={`secondary ${ageGroupTab}`}
               style={{
                textTransform: "capitalize",
-               padding: "0.5rem 1rem",
-               minWidth: "100px",
-               width: "fit-content",
-               display: "inline-flex",
+               padding: "0.25rem 0.5rem"
                }}
               >
                 {ageGroupTab !== "all" ? ageGroupIcons[ageGroupTab] : ""}
-                <span style={{ minWidth: 0 }}>{ageGroupTab}</span>
+                <span>{ageGroupTab}</span>
           </button>
           ))}
         </div>
