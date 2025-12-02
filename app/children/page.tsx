@@ -9,8 +9,8 @@ import SearchPill from "@/components/SearchPill";
 import { parseDate } from "@internationalized/date";
 import { calculateAge } from "@/utils/calculateAge";
 
-const ageGroupsTabs: (TAgeGroup | "all")[] = [
-  "all",
+const ageGroupsTabs: (TAgeGroup | "all children")[] = [
+  "all children",
   "infant",
   "toddler",
   "preschooler",
@@ -28,12 +28,12 @@ export default function ChildrenList() {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchExpanded, setSearchExpanded] = useState(false);
 
-  const [tab, setTab] = useState<TAgeGroup | "all">("all");
+  const [tab, setTab] = useState<TAgeGroup | "all children">("all children");
   useEffect(() => {
     let result = children;
 
     // Filter by age group
-    if (tab !== "all") {
+    if (tab !== "all children") {
       result = result?.filter((child) => child.ageGroup === tab);
     }
 
@@ -65,10 +65,10 @@ export default function ChildrenList() {
               className={`secondary ${ageGroupTab}`}
               style={{
                textTransform: "capitalize",
-               padding: "0.25rem 0.5rem"
+               padding: "0.25rem 1rem"
                }}
               >
-                {ageGroupTab !== "all" ? ageGroupIcons[ageGroupTab] : ""}
+                {ageGroupTab !== "all children" ? ageGroupIcons[ageGroupTab] : ""}
                 <span>{ageGroupTab}</span>
           </button>
           ))}
