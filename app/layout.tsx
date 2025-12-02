@@ -36,6 +36,7 @@ export default function RootLayout({
         <head>
           <link rel="manifest" href="/manifest.json" />
           <meta name="theme-color" content="#ffffff" />
+          <link rel="stylesheet" href="https://use.hugeicons.com/font/icons.css" />
         </head>
         <body
           className={`${geistSans.variable} ${ptSerif.variable} antialiased`}

@@ -578,7 +578,6 @@
     inset-inline: 0;
     z-index: 50;
     display: flex;
-    justify-content: space-between;
     align-items: center;
     padding: 1rem;
     padding-bottom: 1.5rem;
@@ -611,17 +610,73 @@
     color: var(--foreground);
     font-weight: 500;
     transition: transform var(--transition-fast);
+    cursor: pointer;
 
     &.title {
       color: var(--primary-color);
       font-weight: 700;
       margin: 0;
-      flex: 1
+      flex: 1;
+      cursor: auto;
+      overflow: hidden;
+      transition: flex 300ms ease;
     }
 
     &.with-icon {
       width: auto;
       padding-inline: 1.25rem;
+    }
+
+    &.search {
+      position: relative;
+      flex-grow: 0;
+      transition: flex-grow 300ms ease;
+      padding: 0;
+      overflow: hidden;
+
+      >* {
+        height: 100%;
+        background: transparent;
+        border-radius: 9999px;
+        border: none;
+      }
+
+      >input {
+        width: 100%;
+        padding: 0 3.5rem 0 1.25rem;
+        font-weight: 500;
+        color: var(--foreground);
+        outline: none;
+
+        &::placeholder {
+          color: rgba(45, 52, 54, 0.5);
+        }
+      }
+
+      >div[role="button"] {
+        position: absolute;
+        right: 0;
+        height: 100%;
+        aspect-ratio: 1/1;
+        border-radius: 9999px;
+        background: var(--glass-bg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform var(--transition-fast);
+
+        &:active {
+          transform: scale(0.95);
+        }
+      }
+
+      &.grow {
+        flex-grow: 10;
+
+        >* {
+          border: 3px solid white;
+        }
+      }
     }
 
   }
@@ -644,6 +699,10 @@
     &[open]::details-content {
       height: auto;
     }
+  }
+
+  i {
+    font-size: 1.75rem;
   }
 
 

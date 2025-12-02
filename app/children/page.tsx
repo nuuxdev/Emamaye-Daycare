@@ -5,6 +5,7 @@ import { api } from "@/convex/_generated/api";
 import { TAgeGroup } from "@/convex/types/children";
 import { Fragment, useEffect, useState } from "react";
 import GlassHeader from "@/components/GlassHeader";
+import SearchPill from "@/components/SearchPill";
 
 const ageGroupsTabs: (TAgeGroup | "all")[] = [
   "all",
@@ -16,21 +17,36 @@ const ageGroupsTabs: (TAgeGroup | "all")[] = [
 export default function ChildrenList() {
   const children = useQuery(api.children.getChildrenWithPrimaryGuardian);
   const [filteredChildren, setFilteredChildren] = useState(children);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchExpanded, setSearchExpanded] = useState(false);
 
   const [tab, setTab] = useState<TAgeGroup | "all">("all");
   useEffect(() => {
-    if (tab === "all") {
-      setFilteredChildren(children);
-    } else {
-      const filteredChildren = children?.filter(
-        (child) => child.ageGroup === tab,
-      );
-      setFilteredChildren(filteredChildren);
+    let result = children;
+
+    // Filter by age group
+    if (tab !== "all") {
+      result = result?.filter((child) => child.ageGroup === tab);
     }
-  }, [tab, children]);
+
+    // Filter by search query
+    if (searchQuery.trim()) {
+      result = result?.filter((child) =>
+        child.fullName.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    setFilteredChildren(result);
+  }, [tab, children, searchQuery]);
+
   return (
     <>
-      <GlassHeader title="Children" backHref="/" />
+      <GlassHeader
+        title="Children"
+        backHref="/"
+        isCompact={searchExpanded}
+        action={<SearchPill onSearch={setSearchQuery} onExpandChange={setSearchExpanded} />}
+      />
       <main style={{ justifyContent: "start", maxWidth: "570px", marginInline: "auto" }}>
         <div style={{ marginInline: "auto", display: "flex", gap: "1rem", width: "100%", overflowX: "auto", paddingBlock: "1rem" }}>
           {ageGroupsTabs.map((ageGroupTab) => (
