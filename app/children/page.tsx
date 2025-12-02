@@ -183,6 +183,7 @@ export default function ChildrenList() {
               <hr />
             </Fragment>
           ))}
+          {filteredChildren?.length === 0 && <p>No children found</p>}
         </div>
       </main>
     </>

@@ -334,15 +334,15 @@
 
       &:disabled {
         &.infant {
-          background-color: var(--color-infant);
+          color: var(--color-infant);
         }
 
         &.toddler {
-          background-color: var(--color-toddler);
+          color: var(--color-toddler);
         }
 
         &.preschooler {
-          background-color: var(--color-preschooler);
+          color: var(--color-preschooler);
         }
       }
     }
@@ -632,7 +632,7 @@
       flex-grow: 0;
       transition: flex-grow 300ms ease;
       padding: 0;
-      overflow: hidden;
+      /* overflow: hidden; */
 
       >* {
         height: 100%;
@@ -642,7 +642,9 @@
       }
 
       >input {
-        width: 100%;
+        width: 0;
+        opacity: 0;
+        transition: width var(--transition-fast), opacity var(--transition-fast);
         padding: 0 3.5rem 0 1.25rem;
         font-weight: 500;
         color: var(--foreground);
@@ -676,6 +678,12 @@
         >* {
           border: 3px solid white;
         }
+
+        >input {
+          width: 100%;
+          opacity: 1;
+        }
+
       }
     }
 

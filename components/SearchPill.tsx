@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 type SearchPillProps = {
     onSearch: (query: string) => void;
@@ -10,6 +10,7 @@ type SearchPillProps = {
 export default function SearchPill({ onSearch, onExpandChange, debounceMs = 300 }: SearchPillProps) {
     const [isExpanded, setIsExpanded] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
+    const inputRef = useRef<HTMLInputElement>(null);
 
     // Debounce logic
     useEffect(() => {
@@ -24,9 +25,11 @@ export default function SearchPill({ onSearch, onExpandChange, debounceMs = 300 
         const newExpandedState = !isExpanded;
         setIsExpanded(newExpandedState);
         onExpandChange?.(newExpandedState);
+        inputRef.current?.focus();
         if (isExpanded) {
             // Clear search when collapsing
             setSearchQuery("");
+            inputRef.current?.blur();
         }
     };
 
@@ -34,12 +37,14 @@ export default function SearchPill({ onSearch, onExpandChange, debounceMs = 300 
         if (e.key === "Enter" || e.key === " ") {
             e.preventDefault();
             toggleExpand();
+
         }
     };
 
     return (
         <div className={`glass-pill search ${isExpanded ? "grow" : ""}`}>
             <input
+                ref={inputRef}
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
