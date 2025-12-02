@@ -56,7 +56,7 @@ export default function ChildrenList() {
         action={<SearchPill onSearch={setSearchQuery} onExpandChange={setSearchExpanded} />}
       />
       <main style={{ justifyContent: "start", maxWidth: "570px", marginInline: "auto" }}>
-        <div style={{ marginInline: "auto", display: "flex", gap: "1rem", width: "100%", overflowX: "auto", paddingBlock: "1rem" }}>
+        <div className="tabs" style={{ marginInline: "auto", display: "flex", width: "100%", overflowX: "auto", paddingBlock: "1rem" }}>
           {ageGroupsTabs.map((ageGroupTab) => (
             <button
               key={ageGroupTab}
