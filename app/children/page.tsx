@@ -3,9 +3,11 @@ import Link from "next/link";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { TAgeGroup } from "@/convex/types/children";
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, JSX, useEffect, useState } from "react";
 import GlassHeader from "@/components/GlassHeader";
 import SearchPill from "@/components/SearchPill";
+import { parseDate } from "@internationalized/date";
+import { calculateAge } from "@/utils/calculateAge";
 
 const ageGroupsTabs: (TAgeGroup | "all")[] = [
   "all",
@@ -13,6 +15,12 @@ const ageGroupsTabs: (TAgeGroup | "all")[] = [
   "toddler",
   "preschooler",
 ];
+
+const ageGroupIcons: Record<TAgeGroup, JSX.Element> = {
+  infant: <i className="hgi hgi-stroke hgi-baby-bottle"></i>,
+  toddler: <i className="hgi hgi-stroke hgi-rubber-duck"></i>,
+  preschooler: <i className="hgi hgi-stroke hgi-puzzle"></i>,
+};
 
 export default function ChildrenList() {
   const children = useQuery(api.children.getChildrenWithPrimaryGuardian);
@@ -57,6 +65,7 @@ export default function ChildrenList() {
               className={`secondary ${ageGroupTab}`}
               style={{ textTransform: "capitalize", padding: "0.5rem 1rem", minWidth: "100px" }}
             >
+              {ageGroupTab !== "all" ? ageGroupIcons[ageGroupTab] : ""}
               {ageGroupTab}
             </button>
           ))}
@@ -74,8 +83,8 @@ export default function ChildrenList() {
                     style={{
                       width: "5rem",
                       aspectRatio: "1/1",
-                      borderRadius: "50%",
-                      overflow: "hidden",
+
+                      position: "relative",
                     }}
                   >
                     <img
@@ -85,8 +94,25 @@ export default function ChildrenList() {
                         width: "100%",
                         height: "100%",
                         objectFit: "cover",
+                        borderRadius: "50%",
                       }}
                     />
+                    <span
+                      className={child.ageGroup}
+                      style={{
+                        position: "absolute",
+                        bottom: "0",
+                        right: "-0.5rem",
+                        width: "2rem",
+                        height: "2rem",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        borderRadius: "100vw"
+                      }}
+                    >
+                      {ageGroupIcons[child.ageGroup]}
+                    </span>
                   </Link>
 
                   <div
@@ -97,7 +123,7 @@ export default function ChildrenList() {
                     }}
                   >
                     <div>
-                      <p>{child.fullName}</p>
+                      <h4 style={{ fontSize: "inherit", margin: 0 }}>{child.fullName}</h4>
                       <p>{child.gender}</p>
                     </div>
                     <div
@@ -107,9 +133,7 @@ export default function ChildrenList() {
                         alignItems: "end",
                       }}
                     >
-                      <p className={child.ageGroup} style={{ padding: "0.25rem 1rem", borderRadius: "999px" }}>{child.ageGroup}</p>
-                      {/* TODO: calculate age based on the calendar */}
-                      {/* <p>{calculateAge(parseDate(child.dateOfBirth))?.age}</p> */}
+                      <p>{calculateAge(parseDate(child.dateOfBirth))?.age}</p>
                     </div>
                   </div>
                 </summary>

@@ -2,8 +2,8 @@
 //   const today = new Date();
 //   const birthDate = new Date(dateOfBirth);
 
-import { CalendarDate } from "@internationalized/date";
-import { todayInEth } from "./calendar";
+import { CalendarDate, toCalendar, today } from "@internationalized/date";
+import { EthiopianCalendar, todayInEth, todayInGreg } from "./calendar";
 import { toast } from "sonner";
 import { TAgeGroup } from "@/convex/types/children";
 
@@ -27,9 +27,9 @@ import { TAgeGroup } from "@/convex/types/children";
 //   return `${years} year${years === 1 ? "" : "s"}`;
 // }
 
-const { year: thisYear, month: thisMonth, day: thisDay } = todayInEth;
-
 export function calculateAge(dateOfBirth: CalendarDate) {
+  const { year: thisYear, month: thisMonth, day: thisDay } = todayInGreg;
+
   let ageInYears = thisYear - dateOfBirth.year;
   let ageInMonths = thisMonth - dateOfBirth.month;
   let ageInDays = thisDay - dateOfBirth.day;
@@ -47,17 +47,33 @@ export function calculateAge(dateOfBirth: CalendarDate) {
     }
   }
   let age: string;
-  if (ageInYears === 0) {
-    if (ageInMonths === 0) {
-      age = `${ageInDays} days`;
+  if (ageInYears <= 0) {
+    if (ageInMonths <= 0) {
+      if (ageInDays > 0) {
+        age = `${ageInDays}ቀናት`;
+      } else {
+        age = "";
+      }
     } else {
-      age = `${ageInMonths} months, ${ageInDays} days`;
+      if (ageInDays > 0) {
+        age = `${ageInMonths} ዓመት ከ${ageInDays}ቀናት`;
+      } else {
+        age = `${ageInMonths} ወር`;
+      }
     }
   } else {
-    if (ageInMonths === 0) {
-      age = `${ageInYears} years, ${ageInDays} days`;
+    if (ageInMonths <= 0) {
+      if (ageInDays > 0) {
+        age = `${ageInYears} ዓመት, ${ageInDays}ቀናት`;
+      } else {
+        age = `${ageInYears} ዓመት`;
+      }
     } else {
-      age = `${ageInYears} years, ${ageInMonths} months`;
+      if (ageInDays > 0) {
+        age = `${ageInYears} ዓመት ከ${ageInMonths} ወር ከ${ageInDays}ቀናት`;
+      } else {
+        age = `${ageInYears} ዓመት ከ${ageInMonths} ወር`;
+      }
     }
   }
   return { age, ageInYears };

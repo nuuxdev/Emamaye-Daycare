@@ -295,17 +295,17 @@
 
   .infant {
     color: var(--color-infant);
-    background-color: var(--background);
+    background-color: var(--white);
   }
 
   .toddler {
     color: var(--color-toddler);
-    background-color: var(--background);
+    background-color: var(--white);
   }
 
   .preschooler {
     color: var(--color-preschooler);
-    background-color: var(--background);
+    background-color: var(--white);
   }
 
   button {
