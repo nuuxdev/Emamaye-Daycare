@@ -13,9 +13,7 @@ export default function GlassHeader({ title, backHref, action, isCompact }: Glas
         <header className="glass-header-wrapper">
             {backHref ? (
                 <Link href={backHref} className="glass-pill">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M15 18L9 12L15 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
+                    <i className="hgi hgi-stroke hgi-arrow-left-01"></i>
                 </Link>
             ) : (
                 <div style={{ width: "48px" }}></div>

@@ -107,7 +107,7 @@ export default function ChildrenList() {
                         alignItems: "end",
                       }}
                     >
-                      <p className={`pill ${child.ageGroup}`}>{child.ageGroup}</p>
+                      <p className={child.ageGroup} style={{ padding: "0.25rem 1rem", borderRadius: "999px" }}>{child.ageGroup}</p>
                       {/* TODO: calculate age based on the calendar */}
                       {/* <p>{calculateAge(parseDate(child.dateOfBirth))?.age}</p> */}
                     </div>

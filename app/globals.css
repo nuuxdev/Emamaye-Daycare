@@ -293,6 +293,21 @@
     }
   }
 
+  .infant {
+    color: var(--color-infant);
+    background-color: var(--background);
+  }
+
+  .toddler {
+    color: var(--color-toddler);
+    background-color: var(--background);
+  }
+
+  .preschooler {
+    color: var(--color-preschooler);
+    background-color: var(--background);
+  }
+
   button {
     padding: 1rem 2.5rem;
     border-radius: 16px;
