@@ -63,11 +63,17 @@ export default function ChildrenList() {
               disabled={tab === ageGroupTab}
               onClick={() => setTab(ageGroupTab)}
               className={`secondary ${ageGroupTab}`}
-              style={{ textTransform: "capitalize", padding: "0.5rem 1rem"}}
-            >
-              {ageGroupTab !== "all" ? ageGroupIcons[ageGroupTab] : ""}
-              {ageGroupTab}
-            </button>
+              style={{
+               textTransform: "capitalize",
+               padding: "0.5rem 1rem",
+               minWidth: "100px",
+               width: "fit-content",
+               display: "inline-flex",
+               }}
+              >
+                <i style={{ minWidth: 0 }}>{ageGroupIcons[ageGroupTab]}</i>
+                <span style={{ minWidth: 0 }}>{ageGroupTab}</span>
+          </button>
           ))}
         </div>
         <div style={{ display: "grid", gap: "0.5rem", width: "100%", paddingInline: "1rem" }}>
