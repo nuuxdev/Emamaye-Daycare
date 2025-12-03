@@ -2,7 +2,7 @@
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import { JSX, useEffect, useState } from "react";
+import { Fragment, JSX, useEffect, useState } from "react";
 import AttendanceCard from "../views/attendance/Card";
 import AttendanceList from "../views/attendance/List";
 import { TStatus } from "@/convex/types/attendance";
@@ -37,8 +37,24 @@ export default function Attendance() {
       setView("list");
     } else {
       setAttendanceData([]);
-      if (attendanceDate === new Date().toISOString().slice(0, 10)) {
+
+      // Check if date is today or yesterday
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const yesterday = new Date(today);
+      yesterday.setDate(yesterday.getDate() - 1);
+
+      const selectedDate = new Date(attendanceDate);
+      selectedDate.setHours(0, 0, 0, 0);
+
+      const isToday = selectedDate.getTime() === today.getTime();
+      const isYesterday = selectedDate.getTime() === yesterday.getTime();
+
+      if (isToday || isYesterday) {
         setView("card");
+      } else {
+        // For other dates without records, stay in list view (will be empty)
+        setView("list");
       }
     }
   }, [attendancesByDate, attendanceDate]);
@@ -84,40 +100,62 @@ export default function Attendance() {
     }
   };
 
-  const PreviewView = () => (
-    <div style={{ display: "flex", flexDirection: "column", gap: "1rem", width: "100%", paddingBottom: "5rem" }}>
-      <h3 style={{ textAlign: "center" }}>Review Attendance</h3>
-      {childrenData.map((child) => {
-        const status = attendanceData.find((att) => att.childId === child._id)?.status;
-        return (
-          <div key={child._id} className="neo-box" style={{ flexDirection: "row", justifyContent: "space-between", padding: "1rem" }}>
-            <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
-              <img
-                src={child.avatar}
-                alt={child.fullName}
-                style={{
-                  width: "3rem",
-                  height: "3rem",
-                  borderRadius: "50%",
-                  objectFit: "cover",
-                }}
-              />
-              <span>{child.fullName}</span>
-            </div>
-            <span
-              style={{
-                color: status === "present" ? "var(--success-color)" : "var(--error-color)",
-                fontWeight: "700",
-                textTransform: "capitalize",
-              }}
-            >
-              {status}
-            </span>
-          </div>
-        );
-      })}
-    </div>
-  );
+  const PreviewView = () => {
+    const toggleAttendance = (childId: Id<"children">) => {
+      const existingIndex = attendanceData.findIndex(
+        (att) => att.childId === childId
+      );
+
+      if (existingIndex !== -1) {
+        const newAttendanceData = [...attendanceData];
+        const currentStatus = newAttendanceData[existingIndex].status;
+        newAttendanceData[existingIndex].status =
+          currentStatus === "present" ? "absent" : "present";
+        setAttendanceData(newAttendanceData);
+      }
+    };
+
+    return (
+      <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", width: "100%", paddingBottom: "5rem" }}>
+        <h3 style={{ textAlign: "center" }}>Review Attendance</h3>
+        {childrenData.map((child, index) => {
+          const status = attendanceData.find((att) => att.childId === child._id)?.status;
+          return (
+            <Fragment key={child._id}>
+              <div style={{ display: "flex", gap: "1rem", alignItems: "center", justifyContent: "space-between", padding: "0.5rem 0" }}>
+                <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
+                  <img
+                    src={child.avatar}
+                    alt={child.fullName}
+                    style={{
+                      width: "3rem",
+                      height: "3rem",
+                      borderRadius: "50%",
+                      objectFit: "cover",
+                    }}
+                  />
+                  <span>{child.fullName}</span>
+                </div>
+                <button
+                  onClick={() => toggleAttendance(child._id)}
+                  className="secondary"
+                  style={{
+                    backgroundColor: status === "present" ? "var(--success-color)" : "var(--error-color)",
+                    color: "white",
+                    textTransform: "capitalize",
+                    minWidth: "5rem",
+                  }}
+                >
+                  {status}
+                </button>
+              </div>
+              {index < childrenData.length - 1 && <hr />}
+            </Fragment>
+          );
+        })}
+      </div>
+    );
+  };
 
   const viewComponents: Record<"card" | "list" | "preview", JSX.Element> = {
     card: (
