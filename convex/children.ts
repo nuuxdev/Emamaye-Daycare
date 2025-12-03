@@ -28,9 +28,9 @@ export const addChild = mutation({
 
     const user = await ctx.db.get(userId);
     if (!user) throw new Error("User not found");
-    
-    const getGuadianAvatarUrl = async () =>{
-      if(args.guardianData.avatar){
+
+    const getGuadianAvatarUrl = async () => {
+      if (args.guardianData.avatar) {
         return await ctx.storage.getUrl(args.guardianData.avatar) || undefined
       }
       return
@@ -43,8 +43,8 @@ export const addChild = mutation({
       avatar: await getGuadianAvatarUrl(),
     });
 
-const getChildAvatarUrl = async () =>{
-      if(args.childData.avatar){
+    const getChildAvatarUrl = async () => {
+      if (args.childData.avatar) {
         return await ctx.storage.getUrl(args.childData.avatar) || undefined
       }
       return
@@ -88,6 +88,13 @@ export const getChild = query({
   },
   handler: async (ctx, args) => {
     const child = await ctx.db.get(args.id);
-    return child;
+    if (!child) return null;
+
+    const primaryGuardian = await ctx.db.get(child.primaryGuardian);
+
+    return {
+      ...child,
+      primaryGuardian: primaryGuardian,
+    };
   },
 });
