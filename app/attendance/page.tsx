@@ -173,6 +173,7 @@ export default function Attendance() {
       <AttendanceList
         childrenData={childrenData}
         attendancesByDate={attendancesByDate}
+        attendanceDate={attendanceDate}
       />
     ),
     preview: <PreviewView />,
@@ -189,7 +190,7 @@ export default function Attendance() {
           </div>
         }
       />
-      <main>
+      <main style={{ justifyContent: view !== "card" ? "start" : "center" }}>
         <div style={{ display: "grid", gap: "1rem", width: "100%", maxWidth: "600px" }}>
           <h3 style={{ textAlign: "center", margin: 0 }}>
             {new Date(attendanceDate).toLocaleDateString("en-US", {

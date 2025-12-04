@@ -7,15 +7,37 @@ import { Fragment } from "react";
 export default function AttendanceList({
   childrenData,
   attendancesByDate,
+  attendanceDate,
 }: {
   childrenData: Doc<"children">[];
   attendancesByDate: Doc<"attendance">[];
+  attendanceDate: string;
 }) {
   const updateSingleAttendance = useMutation(
     api.attendance.updateSingleAttendance,
   );
 
+  // Check if date is today or yesterday
+  const isEditable = () => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    const selectedDate = new Date(attendanceDate);
+    selectedDate.setHours(0, 0, 0, 0);
+
+    const isToday = selectedDate.getTime() === today.getTime();
+    const isYesterday = selectedDate.getTime() === yesterday.getTime();
+
+    return isToday || isYesterday;
+  };
+
+  const editable = isEditable();
+
   const toggleAttendance = (childId: Id<"children">) => {
+    if (!editable) return;
+
     const attendanceRecord = attendancesByDate.find(
       (att) => att.childId === childId,
     );
@@ -32,6 +54,7 @@ export default function AttendanceList({
         const attendanceRecord = attendancesByDate.find((att) => att.childId === child._id);
         const status = attendanceRecord?.status;
         const isExpired = !attendanceRecord; // No record means expired
+        const isLocked = !editable && attendanceRecord; // Past date with record
 
         return (
           <Fragment key={child._id}>
@@ -51,7 +74,7 @@ export default function AttendanceList({
               </div>
               <button
                 onClick={() => toggleAttendance(child._id)}
-                disabled={isExpired}
+                disabled={!editable}
                 className="secondary"
                 style={{
                   backgroundColor: isExpired
@@ -62,11 +85,16 @@ export default function AttendanceList({
                   color: isExpired ? "var(--foreground)" : "white",
                   textTransform: "capitalize",
                   minWidth: "5rem",
-                  opacity: isExpired ? 0.5 : 1,
-                  cursor: isExpired ? "not-allowed" : "pointer",
+                  opacity: isExpired ? 0.5 : isLocked ? 0.7 : 1,
+                  cursor: editable ? "pointer" : "not-allowed",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "0.25rem",
                 }}
               >
                 {isExpired ? "Expired" : status}
+                {isLocked && <i className="hgi hgi-stroke hgi-circle-lock-02" style={{ fontSize: "1.5rem" }}></i>}
               </button>
             </div>
             {index < childrenData.length - 1 && <hr />}
