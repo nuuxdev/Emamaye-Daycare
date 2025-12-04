@@ -46,3 +46,21 @@ export const updateSingleAttendance = mutation({
     return result;
   },
 });
+
+export const getAttendanceByDateRange = query({
+  args: {
+    startDate: v.string(),
+    endDate: v.string(),
+  },
+  handler: async (ctx, args) => {
+    return ctx.db
+      .query("attendance")
+      .filter((q) =>
+        q.and(
+          q.gte(q.field("date"), args.startDate),
+          q.lte(q.field("date"), args.endDate)
+        )
+      )
+      .collect();
+  },
+});

@@ -8,8 +8,10 @@ import AttendanceList from "../views/attendance/List";
 import { TStatus } from "@/convex/types/attendance";
 import GlassHeader from "@/components/GlassHeader";
 import { SelectDate } from "../views/register/Calendar";
-import { GregorianCalendar, toCalendar } from "@internationalized/date";
-import { todayInEth } from "@/utils/calendar";
+import { GregorianCalendar, toCalendar, parseDate } from "@internationalized/date";
+import { todayInEth, formatEthiopianDate } from "@/utils/calendar";
+
+type TViewTab = "daily" | "weekly" | "monthly";
 
 export default function Attendance() {
   const [attendanceDate, setAttendanceDate] = useState(
@@ -17,13 +19,64 @@ export default function Attendance() {
   );
   const [currentChildIndex, setCurrentChildIndex] = useState(0);
   const [view, setView] = useState<"card" | "list" | "preview">("card");
+  const [viewTab, setViewTab] = useState<TViewTab>("daily");
+
+  // Navigation helper functions
+  const navigateDate = (direction: "prev" | "next") => {
+    const currentDate = parseDate(attendanceDate);
+    let newDate;
+
+    if (viewTab === "daily") {
+      newDate = direction === "prev"
+        ? currentDate.subtract({ days: 1 })
+        : currentDate.add({ days: 1 });
+    } else if (viewTab === "weekly") {
+      newDate = direction === "prev"
+        ? currentDate.subtract({ weeks: 1 })
+        : currentDate.add({ weeks: 1 });
+    } else {
+      newDate = direction === "prev"
+        ? currentDate.subtract({ months: 1 })
+        : currentDate.add({ months: 1 });
+    }
+
+    setAttendanceDate(newDate.toString());
+  };
+
   const childrenData = useQuery(api.children.getChildrenWithPrimaryGuardian);
   const attendancesByDate = useQuery(api.attendance.getAttendanceByDate, {
     date: attendanceDate,
   });
+
+  // Calculate date range for weekly/monthly views
+  const getDateRange = () => {
+    const current = parseDate(attendanceDate);
+    if (viewTab === "weekly") {
+      // Get Monday of current week and Friday
+      const dayOfWeek = current.toDate("UTC").getDay();
+      const daysToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+      const monday = current.subtract({ days: daysToMonday });
+      const friday = monday.add({ days: 4 });
+      return { startDate: monday.toString(), endDate: friday.toString() };
+    } else if (viewTab === "monthly") {
+      // Get first and last day of month
+      const startOfMonth = current.set({ day: 1 });
+      const daysInMonth = current.calendar.getDaysInMonth(current);
+      const endOfMonth = current.set({ day: daysInMonth });
+      return { startDate: startOfMonth.toString(), endDate: endOfMonth.toString() };
+    }
+    return { startDate: attendanceDate, endDate: attendanceDate };
+  };
+
+  const { startDate, endDate } = getDateRange();
+  const attendancesByRange = useQuery(api.attendance.getAttendanceByDateRange, {
+    startDate,
+    endDate,
+  });
+
   const [attendanceData, setAttendanceData] = useState<
     { childId: Id<"children">; status: TStatus }[]
-  >([]);
+  >([]);;
 
   useEffect(() => {
     if (attendancesByDate === undefined) return;
@@ -158,6 +211,70 @@ export default function Attendance() {
     );
   };
 
+  // Calculate attendance counts for weekly/monthly views
+  const getAttendanceCount = (childId: Id<"children">) => {
+    if (!attendancesByRange) return { present: 0, total: 0 };
+    const childAttendance = attendancesByRange.filter((att) => att.childId === childId);
+    const presentCount = childAttendance.filter((att) => att.status === "present").length;
+
+    if (viewTab === "weekly") {
+      return { present: presentCount, total: 5 }; // 5 weekdays
+    } else {
+      // Count weekdays in the month
+      const start = parseDate(startDate);
+      const end = parseDate(endDate);
+      let weekdays = 0;
+      let current = start;
+      while (current.compare(end) <= 0) {
+        const day = current.toDate("UTC").getDay();
+        if (day !== 0 && day !== 6) weekdays++;
+        current = current.add({ days: 1 });
+      }
+      return { present: presentCount, total: weekdays };
+    }
+  };
+
+  // Weekly/Monthly attendance summary view
+  const AttendanceSummaryView = () => (
+    <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", width: "100%" }}>
+      {childrenData?.map((child, index) => {
+        const { present, total } = getAttendanceCount(child._id);
+        return (
+          <Fragment key={child._id}>
+            <div style={{ display: "flex", gap: "1rem", alignItems: "center", justifyContent: "space-between", padding: "0.5rem 0" }}>
+              <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
+                <img
+                  src={child.avatar}
+                  alt={child.fullName}
+                  style={{
+                    width: "3rem",
+                    height: "3rem",
+                    borderRadius: "50%",
+                    objectFit: "cover",
+                  }}
+                />
+                <span>{child.fullName}</span>
+              </div>
+              <span
+                className="secondary"
+                style={{
+                  padding: "0.5rem 1rem",
+                  borderRadius: "100vw",
+                  backgroundColor: present === total ? "var(--success-color)" : present === 0 ? "var(--error-color)" : "var(--info-color)",
+                  color: "white",
+                  fontWeight: "600",
+                }}
+              >
+                {present}/{total}
+              </span>
+            </div>
+            {index < (childrenData?.length ?? 0) - 1 && <hr />}
+          </Fragment>
+        );
+      })}
+    </div>
+  );
+
   const viewComponents: Record<"card" | "list" | "preview", JSX.Element> = {
     card: (
       <AttendanceCard
@@ -169,14 +286,30 @@ export default function Attendance() {
         setCurrentChildIndex={setCurrentChildIndex}
       />
     ),
-    list: (
+    list: viewTab === "daily" ? (
       <AttendanceList
         childrenData={childrenData}
         attendancesByDate={attendancesByDate}
         attendanceDate={attendanceDate}
       />
+    ) : (
+      <AttendanceSummaryView />
     ),
     preview: <PreviewView />,
+  };
+
+  // Format date display based on view tab
+  const getDateDisplayString = () => {
+    if (viewTab === "daily") {
+      return formatEthiopianDate(attendanceDate);
+    } else if (viewTab === "weekly") {
+      return `${formatEthiopianDate(startDate)} - ${formatEthiopianDate(endDate)}`;
+    } else {
+      // Monthly - show month and year only
+      const ethDate = formatEthiopianDate(startDate);
+      const parts = ethDate.split(" ");
+      return `${parts[0]} ${parts[2]}`; // e.g., "ታህሳስ 2017"
+    }
   };
 
   return (
@@ -192,14 +325,42 @@ export default function Attendance() {
       />
       <main style={{ justifyContent: view !== "card" ? "start" : "center" }}>
         <div style={{ display: "grid", gap: "1rem", width: "100%", maxWidth: "600px" }}>
-          <h3 style={{ textAlign: "center", margin: 0 }}>
-            {new Date(attendanceDate).toLocaleDateString("en-US", {
-              weekday: "long",
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-            })}
-          </h3>
+          {/* View Tabs - show above date navigation */}
+          <div style={{ display: "flex", width: "100%", overflowX: "auto" }}>
+            {(["daily", "weekly", "monthly"] as TViewTab[]).map((tab) => (
+              <button
+                key={tab}
+                disabled={viewTab === tab}
+                onClick={() => setViewTab(tab)}
+                className="tabs secondary"
+                style={{ textTransform: "capitalize", flexGrow: 1 }}
+              >
+                {tab}
+              </button>
+            ))}
+          </div>
+
+          {/* Date Navigation */}
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "1rem" }}>
+            <button
+              onClick={() => navigateDate("prev")}
+              className="glass-pill"
+              style={{ padding: "0.5rem", cursor: "pointer" }}
+            >
+              <i className="hgi hgi-stroke hgi-arrow-left-01"></i>
+            </button>
+            <h3 style={{ textAlign: "center", margin: 0, fontSize: viewTab !== "daily" ? "1rem" : undefined }}>
+              {getDateDisplayString()}
+            </h3>
+            <button
+              onClick={() => navigateDate("next")}
+              className="glass-pill"
+              style={{ padding: "0.5rem", cursor: "pointer" }}
+            >
+              <i className="hgi hgi-stroke hgi-arrow-right-01"></i>
+            </button>
+          </div>
+
           {viewComponents[view]}
         </div>
       </main>
