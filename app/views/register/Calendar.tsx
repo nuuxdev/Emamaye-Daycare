@@ -45,7 +45,7 @@ export const InputDate = ({ register, onSelect, value }: { register: UseFormRegi
         readOnly
       />
       <div style={{ position: "absolute", right: "1.5rem", top: "50%", transform: "translateY(-50%)", pointerEvents: "none", opacity: 0.5 }}>
-        <i class="hgi hgi-stroke hgi-calendar-01"></i>
+        <i className="hgi hgi-stroke hgi-calendar-01"></i>
       </div>
     </div>
     <Dialog dialogRef={dialogRef} onSelect={onSelect} value={value} />
@@ -56,7 +56,7 @@ export const SelectDate = ({ onSelect, value }: { onSelect: (date: CalendarDate)
   const dialogRef = useRef<HTMLDialogElement>(null);
   return <>
     <div style={{ cursor: "pointer" }} role="button" onClick={() => dialogRef.current?.showModal()}>
-      <i class="hgi hgi-stroke hgi-calendar-01"></i>
+      <i className="hgi hgi-stroke hgi-calendar-01"></i>
     </div>
     <Dialog dialogRef={dialogRef} onSelect={onSelect} value={value} />
   </>
