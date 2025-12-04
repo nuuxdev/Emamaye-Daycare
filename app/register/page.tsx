@@ -12,14 +12,8 @@ import useBetterMutation from "@/hooks/useBetterMutation";
 import { toast } from "sonner";
 import GlassHeader from "@/components/GlassHeader";
 import { TAgeGroup, TGender } from "@/convex/types/children";
-import {
-  CalendarDate,
-  EthiopicCalendar,
-  GregorianCalendar,
-  toCalendar,
-} from "@internationalized/date";
 import { TRelationToChild } from "@/convex/types/guardians";
-import { months } from "../views/register/Calendar";
+import { fromEthDateString } from "@/utils/calendar";
 
 export type TChildInfo = {
   fullName: string;
@@ -142,20 +136,12 @@ export default function Register() {
 
     try {
       const dateOfBirth = savedSteps[0].dateOfBirth;
-      const [month, date, year] = dateOfBirth.split("-");
-      const dateInEt = new CalendarDate(
-        new EthiopicCalendar(),
-        parseInt(year),
-        months.indexOf(month) + 1,
-        parseInt(date),
-      );
-      const dateInGreg = toCalendar(dateInEt, new GregorianCalendar());
-
+      const dateOfBirthString = fromEthDateString(dateOfBirth);
       const childData = {
         ...savedSteps[0],
         paymentAmount: savedSteps[0].paymentAmount!,
         avatar: childStorageId,
-        dateOfBirth: dateInGreg.toString(),
+        dateOfBirth: dateOfBirthString,
       };
       const guardianData = {
         ...savedSteps[1],

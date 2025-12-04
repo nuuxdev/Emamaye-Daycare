@@ -9,10 +9,11 @@ import { TStatus } from "@/convex/types/attendance";
 import GlassHeader from "@/components/GlassHeader";
 import { SelectDate } from "../views/register/Calendar";
 import { GregorianCalendar, toCalendar } from "@internationalized/date";
+import { todayInEth } from "@/utils/calendar";
 
 export default function Attendance() {
   const [attendanceDate, setAttendanceDate] = useState(
-    new Date().toISOString().slice(0, 10),
+    todayInEth.toString()
   );
   const [currentChildIndex, setCurrentChildIndex] = useState(0);
   const [view, setView] = useState<"card" | "list" | "preview">("card");
@@ -184,7 +185,7 @@ export default function Attendance() {
         backHref="/"
         action={
           <div className="glass-pill">
-            <SelectDate onSelect={(dateInEt) => setAttendanceDate(toCalendar(dateInEt, new GregorianCalendar()).toString())} />
+            <SelectDate value={attendanceDate} onSelect={(dateInEt) => setAttendanceDate(toCalendar(dateInEt, new GregorianCalendar()).toString())} />
           </div>
         }
       />

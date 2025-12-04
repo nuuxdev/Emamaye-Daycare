@@ -1,15 +1,13 @@
 import { TChildInfo } from "@/app/register/page";
-import { CalendarDate } from "@internationalized/date";
+import { CalendarDate, parseDate, toCalendar } from "@internationalized/date";
 import { useEffect, useRef, useState } from "react";
 import { UseFormRegister } from "react-hook-form";
 import { EthiopianCalendar, todayInEth } from "@/utils/calendar";
 
 const { year: thisYear, month: thisMonth, day: thisDay } = todayInEth;
 
-const years: number[] = [];
-for (let year = thisYear; year > thisYear - 5; year--) {
-  years.push(year);
-}
+const years = Array.from({ length: 5 }, (_, i) => thisYear - i);
+
 export const months = [
   "መስከረም",
   "ጥቅምት",
@@ -25,12 +23,10 @@ export const months = [
   "ነሃሴ",
   "ጳጉሜ",
 ];
-const days: number[] = [];
-for (let day = 1; day <= 30; day++) {
-  days.push(day);
-}
 
-export const InputDate = ({ register, onSelect }: { register: UseFormRegister<TChildInfo>, onSelect: (date: CalendarDate) => void }) => {
+const days = Array.from({ length: 30 }, (_, i) => i + 1);
+
+export const InputDate = ({ register, onSelect, value }: { register: UseFormRegister<TChildInfo>, onSelect: (date: CalendarDate) => void, value: string }) => {
 
   const dialogRef = useRef<HTMLDialogElement>(null);
 
@@ -52,44 +48,38 @@ export const InputDate = ({ register, onSelect }: { register: UseFormRegister<TC
         📆
       </div>
     </div>
-    <Dialog dialogRef={dialogRef} onSelect={onSelect} />
+    <Dialog dialogRef={dialogRef} onSelect={onSelect} value={value} />
   </div>
 }
 
-export const SelectDate = ({ onSelect }: { onSelect: (date: CalendarDate) => void }) => {
+export const SelectDate = ({ onSelect, value }: { onSelect: (date: CalendarDate) => void, value: string }) => {
   const dialogRef = useRef<HTMLDialogElement>(null);
   return <>
     <div style={{ cursor: "pointer" }} role="button" onClick={() => dialogRef.current?.showModal()}>
       📆
     </div>
-    <Dialog dialogRef={dialogRef} onSelect={onSelect} />
+    <Dialog dialogRef={dialogRef} onSelect={onSelect} value={value} />
   </>
 }
 
 
-const Dialog = ({ dialogRef, onSelect }: { dialogRef: React.RefObject<HTMLDialogElement | null>, onSelect: (date: CalendarDate) => void }) => {
+const Dialog = ({ dialogRef, onSelect, value }: { dialogRef: React.RefObject<HTMLDialogElement | null>, onSelect: (date: CalendarDate) => void, value: string }) => {
+
+
   const [currentMonth, setCurrentMonth] = useState<number>();
   const [currentDate, setCurrentDate] = useState<number>();
   const [currentYear, setCurrentYear] = useState<number>();
   const [daysInMonth, setDaysInMonth] = useState<number>(30);
-  const [monthsArray, setMonthsArray] = useState<string[]>([]);
+  const [monthsArray, setMonthsArray] = useState<string[]>(months);
+  const [yearsArray] = useState<number[]>(years);
+  const [initialized, setInitialized] = useState(false);
+  const monthsRef = useRef<HTMLUListElement>(null);
+  const daysRef = useRef<HTMLUListElement>(null);
+  const yearsRef = useRef<HTMLUListElement>(null);
 
-  const handleClose = (type: "cancel" | "set") => {
-    if (type === "cancel") {
-      dialogRef.current?.close();
-    } else if (type === "set") {
-      const dateInEt = new CalendarDate(
-        EthiopianCalendar,
-        currentYear!,
-        currentMonth!,
-        currentDate!,
-      )
-      onSelect(dateInEt);
-      dialogRef.current?.close();
-    }
-  };
 
   useEffect(() => {
+    if (!initialized) return;
     if (currentYear === thisYear) {
       if (monthsArray.length === 13) {
         const newMonthsArray = months.filter((_, i) => i + 1 <= thisMonth);
@@ -117,7 +107,7 @@ const Dialog = ({ dialogRef, onSelect }: { dialogRef: React.RefObject<HTMLDialog
     );
     const daysInCurrentMonth = EthiopianCalendar.getDaysInMonth(selectedDate);
     setDaysInMonth(daysInCurrentMonth);
-  }, [currentMonth, currentYear]);
+  }, [currentMonth, currentYear, initialized]);
 
   useEffect(() => {
     const scrollers = document.querySelectorAll(".scroller");
@@ -146,7 +136,7 @@ const Dialog = ({ dialogRef, onSelect }: { dialogRef: React.RefObject<HTMLDialog
             } else if (entry.target.className.includes("dates")) {
               setCurrentDate(days[index]);
             } else if (entry.target.className.includes("years")) {
-              setCurrentYear(years[index]);
+              setCurrentYear(yearsArray[index]);
             }
           }
         });
@@ -160,11 +150,53 @@ const Dialog = ({ dialogRef, onSelect }: { dialogRef: React.RefObject<HTMLDialog
     return () => observers.forEach((observer) => observer.disconnect());
   }, [daysInMonth, monthsArray]);
 
+  useEffect(() => {
+    if (!dialogRef.current?.open) return;
+    console.log("dialog opened");
+    const selectedDate = value ? toCalendar(parseDate(value), EthiopianCalendar) : todayInEth;
+
+    // Initial scroll with FULL lists
+    setCurrentDate(selectedDate.day);
+    setCurrentMonth(selectedDate.month);
+    setCurrentYear(selectedDate.year);
+
+    daysRef.current?.children[selectedDate.day - 1]?.scrollIntoView({ behavior: "smooth", block: "center" });
+    monthsRef.current?.children[selectedDate.month - 1]?.scrollIntoView({ behavior: "smooth", block: "center" });
+    yearsRef.current?.children[yearsArray.indexOf(selectedDate.year)]?.scrollIntoView({ behavior: "smooth", block: "center" });
+
+    setInitialized(true);
+  }, [value, dialogRef.current?.open]);
+
+
+
+
+
+
+
+  const handleClose = (type: "cancel" | "set") => {
+    if (type === "cancel") {
+      dialogRef.current?.close();
+    } else if (type === "set") {
+      const dateInEt = new CalendarDate(
+        EthiopianCalendar,
+        currentYear!,
+        currentMonth!,
+        currentDate!,
+      )
+      onSelect(dateInEt);
+      dialogRef.current?.close();
+    }
+  };
+
+
+
+
+
   return <dialog ref={dialogRef}>
     <h3 className="dialog-title">ቀን ይምረጡ</h3>
     <div className="scroller-wrapper">
       <div className="scroller">
-        <ul style={{ listStyle: "none" }}>
+        <ul ref={monthsRef} style={{ listStyle: "none" }}>
           {monthsArray?.map((month) => (
             <li key={month} className="months">
               {month}
@@ -173,7 +205,7 @@ const Dialog = ({ dialogRef, onSelect }: { dialogRef: React.RefObject<HTMLDialog
         </ul>
       </div>
       <div className="scroller">
-        <ul style={{ listStyle: "none" }}>
+        <ul ref={daysRef} style={{ listStyle: "none" }}>
           {Array.from({ length: daysInMonth }, (_, i) => i + 1).map(
             (day) => {
               if (day < 10) {
@@ -193,8 +225,8 @@ const Dialog = ({ dialogRef, onSelect }: { dialogRef: React.RefObject<HTMLDialog
         </ul>
       </div>
       <div className="scroller">
-        <ul style={{ listStyle: "none" }}>
-          {years.map((year) => (
+        <ul ref={yearsRef} style={{ listStyle: "none" }}>
+          {yearsArray.map((year) => (
             <li key={year} className="years">
               {year}
             </li>

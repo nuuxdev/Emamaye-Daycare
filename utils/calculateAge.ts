@@ -28,7 +28,9 @@ import { TAgeGroup } from "@/convex/types/children";
 // }
 
 export function calculateAge(dateOfBirth: CalendarDate) {
-  const { year: thisYear, month: thisMonth, day: thisDay } = todayInGreg;
+  const isEthiopic = dateOfBirth.calendar.identifier === "ethiopic";
+  const { year: thisYear, month: thisMonth, day: thisDay } = isEthiopic ? todayInEth : todayInGreg;
+
 
   let ageInYears = thisYear - dateOfBirth.year;
   let ageInMonths = thisMonth - dateOfBirth.month;

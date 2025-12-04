@@ -1,10 +1,11 @@
 import { TChildInfo, TSavedSteps } from "@/app/register/page";
 import { Dispatch, SetStateAction, useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { InputDate, months } from "./Calendar";
+import { InputDate } from "./Calendar";
 import { TAgeGroup } from "@/convex/types/children";
 import Select from "@/components/Select";
 import { calculateAge, getAgeGroup, getPaymentAmount } from "@/utils/calculateAge";
+import { fromEthDateString, todayInGreg } from "@/utils/calendar";
 
 export default function ChildInfo({
   saveSteps,
@@ -57,6 +58,8 @@ export default function ChildInfo({
   };
 
   useEffect(() => {
+    const data = getValues("dateOfBirth");
+    console.log("dateOfBirth", data);
     if (ageGroup) {
       setPaymentAmount(ageGroup);
     }
@@ -100,7 +103,7 @@ export default function ChildInfo({
         </div>
       </fieldset>
 
-      <InputDate register={register} onSelect={(dateInEt) => {
+      <InputDate value={!!getValues("dateOfBirth") ? fromEthDateString(getValues("dateOfBirth")) : todayInGreg.toString()} register={register} onSelect={(dateInEt) => {
         const age = calculateAge(
           dateInEt
         );
@@ -110,9 +113,7 @@ export default function ChildInfo({
           setValue("paymentAmount", getPaymentAmount(ageGroup));
         }
         const dateString = dateInEt.day < 10 ? `0${dateInEt.day}` : dateInEt.day;
-        const monthString = months[dateInEt.month - 1];
-
-        console.log("dateOfBirth", `${monthString}-${dateString}-${dateInEt.year}`);
+        const monthString = dateInEt.month < 10 ? `0${dateInEt.month}` : dateInEt.month;
         setValue("dateOfBirth", `${monthString}-${dateString}-${dateInEt.year}`);
       }} />
 
