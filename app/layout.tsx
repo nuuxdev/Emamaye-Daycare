@@ -42,7 +42,7 @@ export default function RootLayout({
           className={`${geistSans.variable} ${ptSerif.variable} antialiased`}
         >
           <TelegramProvider />
-          <Toaster />
+          <Toaster position="top-center" />
           <ConvexClientProvider>{children}</ConvexClientProvider>
 
           {/* SVG Filters for Button Effects */}

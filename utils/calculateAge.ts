@@ -1,83 +1,90 @@
-// export function calculateAge(dateOfBirth: string) {
-//   const today = new Date();
-//   const birthDate = new Date(dateOfBirth);
-
-import { CalendarDate, toCalendar, today } from "@internationalized/date";
+import { CalendarDate, toCalendar } from "@internationalized/date";
 import { EthiopianCalendar, todayInEth, todayInGreg } from "./calendar";
 import { toast } from "sonner";
 import { TAgeGroup } from "@/convex/types/children";
 
-//   let years = today.getFullYear() - birthDate.getFullYear();
-//   let months = today.getMonth() - birthDate.getMonth();
-//   let days = today.getDate() - birthDate.getDate();
+/**
+ * Gets the number of days in the previous month for an Ethiopian calendar date.
+ * Handles the 13th month (Pagume) correctly, which is 5 or 6 days depending on leap year.
+ */
+function getDaysInPreviousMonth(date: CalendarDate): number {
+  // Get the previous month's date to determine its days
+  const prevMonth = date.month === 1 ? 13 : date.month - 1;
+  const prevYear = date.month === 1 ? date.year - 1 : date.year;
 
-//   if (days < 0) {
-//     months -= 1;
-//   }
-
-//   if (months < 0) {
-//     years -= 1;
-//     months += 12;
-//   }
-
-//   if (years < 1) {
-//     return `${months} month${months === 1 ? "" : "s"}`;
-//   }
-
-//   return `${years} year${years === 1 ? "" : "s"}`;
-// }
+  // Create a date in the previous month to get its day count
+  const prevMonthDate = new CalendarDate(EthiopianCalendar, prevYear, prevMonth, 1);
+  return EthiopianCalendar.getDaysInMonth(prevMonthDate);
+}
 
 export function calculateAge(dateOfBirth: CalendarDate) {
   const isEthiopic = dateOfBirth.calendar.identifier === "ethiopic";
-  const { year: thisYear, month: thisMonth, day: thisDay } = isEthiopic ? todayInEth : todayInGreg;
+  const bdInEth = isEthiopic ? dateOfBirth : toCalendar(dateOfBirth, EthiopianCalendar);
+  const { year: thisYear, month: thisMonth, day: thisDay } = todayInEth;
+  const { year: bdYear, month: bdMonth, day: bdDay } = bdInEth;
 
+  let ageInYears = thisYear - bdYear;
+  let ageInMonths = thisMonth - bdMonth;
+  let ageInDays = thisDay - bdDay;
 
-  let ageInYears = thisYear - dateOfBirth.year;
-  let ageInMonths = thisMonth - dateOfBirth.month;
-  let ageInDays = thisDay - dateOfBirth.day;
+  // Get the number of days in the previous month (relative to today) for borrowing
+  const daysInPrevMonth = getDaysInPreviousMonth(todayInEth);
+
   if (ageInYears < 0) {
-    toast.error("Invalid date");
+    toast.error("Invalid year");
     return;
-  } else {
+  } else if (ageInYears === 0) {
     if (ageInMonths < 0) {
-      ageInYears--;
-      ageInMonths += 12;
+      toast.error("Invalid month");
+      return;
     } else if (ageInMonths === 0) {
       if (ageInDays < 0) {
+        toast.error("Invalid day");
+        return;
+      }
+      else if (ageInDays === 0) {
+        toast.info("just born");
+      }
+    }
+    else {
+      if (ageInDays < 0) {
         ageInMonths--;
+        ageInDays += daysInPrevMonth;
       }
     }
   }
-  let age: string;
-  if (ageInYears <= 0) {
-    if (ageInMonths <= 0) {
-      if (ageInDays > 0) {
-        age = `${ageInDays}ቀናት`;
-      } else {
-        age = "";
-      }
-    } else {
-      if (ageInDays > 0) {
-        age = `${ageInMonths} ዓመት ከ${ageInDays}ቀናት`;
-      } else {
-        age = `${ageInMonths} ወር`;
+  else {
+    if (ageInMonths < 0) {
+      ageInYears--;
+      ageInMonths += 13; // Ethiopian calendar has 13 months
+      if (ageInDays < 0) {
+        ageInMonths--;
+        ageInDays += daysInPrevMonth;
       }
     }
-  } else {
-    if (ageInMonths <= 0) {
-      if (ageInDays > 0) {
-        age = `${ageInYears} ዓመት, ${ageInDays}ቀናት`;
-      } else {
-        age = `${ageInYears} ዓመት`;
+    else if (ageInMonths === 0) {
+      if (ageInDays < 0) {
+        ageInYears--;
+        ageInMonths = 12; // Borrow from previous year (12 months, as we're now in month 13 conceptually)
+        ageInDays += daysInPrevMonth;
       }
-    } else {
-      if (ageInDays > 0) {
-        age = `${ageInYears} ዓመት ከ${ageInMonths} ወር ከ${ageInDays}ቀናት`;
-      } else {
-        age = `${ageInYears} ዓመት ከ${ageInMonths} ወር`;
+      if (ageInDays === 0) {
+        toast.info("happy birthday!");
+      }
+    }
+    else {
+      if (ageInDays < 0) {
+        ageInMonths--;
+        ageInDays += daysInPrevMonth;
       }
     }
   }
+  const yearsString = ageInYears > 0 ? `${ageInYears} ዓመት ` : ""
+  const monthsString = ageInMonths > 0 ? `${ageInMonths} ወር ` : ""
+  const daysString = ageInDays > 0 ? `${ageInDays} ቀናት` : "";
+  const age: string = `${yearsString}${monthsString}${daysString}`;
+
+
   return { age, ageInYears };
 }
 
