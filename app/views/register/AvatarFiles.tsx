@@ -1,41 +1,29 @@
 import { TAvatarFiles, TSavedSteps } from "@/app/register/page";
-import { Dispatch, SetStateAction, useState } from "react";
+import { Dispatch, SetStateAction, useState, useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
-import { useMutation } from "convex/react";
+import { useAction } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { toast } from "sonner";
 import { ServerAvatar } from "@/app/components/ServerAvatar";
 
-const CircularProgress = ({ progress }: { progress: number }) => {
-  const radius = 40;
-  const circumference = 2 * Math.PI * radius;
-  const strokeDashoffset = circumference - (progress / 100) * circumference;
-
+const HorizontalProgress = ({ progress }: { progress: number }) => {
   return (
-    <div className="absolute inset-0 flex items-center justify-center bg-white/80 z-10 rounded-full">
-      <svg className="transform -rotate-90 w-24 h-24">
-        <circle
-          cx="48"
-          cy="48"
-          r={radius}
-          stroke="#e0e0e0"
-          strokeWidth="8"
-          fill="transparent"
-        />
-        <circle
-          cx="48"
-          cy="48"
-          r={radius}
-          stroke="var(--primary-color)"
-          strokeWidth="8"
-          fill="transparent"
-          strokeDasharray={circumference}
-          strokeDashoffset={strokeDashoffset}
-          style={{ transition: "stroke-dashoffset 0.1s linear" }}
-        />
-      </svg>
-      <span className="absolute text-sm font-bold text-primary">{Math.round(progress)}%</span>
+    <div style={{
+      width: "100%",
+      height: "4px",
+      backgroundColor: "#e0e0e0",
+      borderRadius: "2px",
+      overflow: "hidden",
+      marginTop: "0.5rem"
+    }}>
+      <div style={{
+        width: `${progress}%`,
+        height: "100%",
+        backgroundColor: "var(--primary-color)",
+        borderRadius: "2px",
+        transition: "width 0.1s linear"
+      }} />
     </div>
   );
 };
@@ -44,70 +32,120 @@ const ImageUploader = ({
   label,
   storageId,
   onUploadComplete,
-  generateUploadUrl
+  uploadOptimizedImage
 }: {
   label: string;
   storageId?: Id<"_storage">;
   onUploadComplete: (storageId: Id<"_storage">, file: File) => void;
-  generateUploadUrl: () => Promise<string>;
+  uploadOptimizedImage: (args: { imageData: ArrayBuffer }) => Promise<string>;
 }) => {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
+  // Local preview URL for instant display
+  const [localPreviewUrl, setLocalPreviewUrl] = useState<string | null>(null);
+  // Track if upload is complete to swap images
+  const [uploadComplete, setUploadComplete] = useState(false);
+
+  // Cleanup object URL when component unmounts
+  useEffect(() => {
+    return () => {
+      if (localPreviewUrl) {
+        URL.revokeObjectURL(localPreviewUrl);
+      }
+    };
+  }, []);
+
+  // Clear local preview when upload is complete and we have a storage ID
+  useEffect(() => {
+    if (uploadComplete && storageId && localPreviewUrl) {
+      // Small delay to ensure server image is ready
+      const timeout = setTimeout(() => {
+        URL.revokeObjectURL(localPreviewUrl);
+        setLocalPreviewUrl(null);
+        setUploadComplete(false);
+      }, 500);
+      return () => clearTimeout(timeout);
+    }
+  }, [uploadComplete, storageId, localPreviewUrl]);
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // Show instant preview
+    const previewUrl = URL.createObjectURL(file);
+    setLocalPreviewUrl(previewUrl);
+    setUploadComplete(false);
+
     setIsUploading(true);
-    setUploadProgress(0);
+    setUploadProgress(10); // Start at 10% to show something is happening
 
     try {
-      const postUrl = await generateUploadUrl();
+      // Convert file to ArrayBuffer
+      const arrayBuffer = await file.arrayBuffer();
 
-      const xhr = new XMLHttpRequest();
-      xhr.open("POST", postUrl);
-      xhr.setRequestHeader("Content-Type", file.type);
+      // Simulate progress while uploading (since action doesn't support progress)
+      const progressInterval = setInterval(() => {
+        setUploadProgress(prev => Math.min(prev + 5, 90));
+      }, 200);
 
-      xhr.upload.onprogress = (event) => {
-        if (event.lengthComputable) {
-          const progress = (event.loaded / event.total) * 100;
-          setUploadProgress(progress);
-        }
-      };
+      // Upload and optimize on backend
+      const newStorageId = await uploadOptimizedImage({ imageData: arrayBuffer });
 
-      xhr.onload = () => {
-        if (xhr.status === 200) {
-          const response = JSON.parse(xhr.responseText);
-          onUploadComplete(response.storageId, file);
-          setIsUploading(false);
-        } else {
-          console.error("Upload failed");
-          toast.error("Upload failed");
-          setIsUploading(false);
-        }
-      };
+      clearInterval(progressInterval);
+      setUploadProgress(100);
 
-      xhr.onerror = () => {
-        console.error("Upload error");
-        toast.error("Upload error");
+      // Notify parent of successful upload
+      onUploadComplete(newStorageId as Id<"_storage">, file);
+
+      // Mark upload as complete to trigger image swap
+      setUploadComplete(true);
+
+      // Hide progress bar after a short delay
+      setTimeout(() => {
         setIsUploading(false);
-      };
+        setUploadProgress(0);
+      }, 500);
 
-      xhr.send(file);
     } catch (error) {
-      console.error("Error starting upload", error);
-      toast.error("Error starting upload");
+      console.error("Error uploading image:", error);
+      toast.error("ምስሉን መጫን አልተቻለም");
       setIsUploading(false);
+      setUploadProgress(0);
+      // Clear the preview on error
+      if (localPreviewUrl) {
+        URL.revokeObjectURL(localPreviewUrl);
+        setLocalPreviewUrl(null);
+      }
     }
   };
+
+  // Show local preview while uploading, server image after complete
+  const showLocalPreview = localPreviewUrl && !uploadComplete;
 
   return (
     <div className="mb-1">
       <label className="input-label">{label}</label>
       <div className="neo-box avatar-card relative">
-        <div className="avatar-preview-container relative">
-          <ServerAvatar storageId={storageId} />
-          {isUploading && <CircularProgress progress={uploadProgress} />}
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", width: "100%" }}>
+          <div className="avatar-preview-container">
+            {showLocalPreview ? (
+              <img
+                src={localPreviewUrl}
+                alt="Preview"
+                className="avatar-img"
+              />
+            ) : (
+              <ServerAvatar storageId={storageId} />
+            )}
+          </div>
+
+          {/* Horizontal progress bar below the image */}
+          {isUploading && (
+            <div style={{ width: "100%", maxWidth: "120px" }}>
+              <HorizontalProgress progress={uploadProgress} />
+            </div>
+          )}
         </div>
 
         <input
@@ -146,26 +184,18 @@ export default function AvatarFiles({
 }) {
   const defaultValues: TAvatarFiles = savedSteps[step] as TAvatarFiles;
 
-  // We need to keep track of storageIds in the form state or just use savedSteps directly?
-  // Using react-hook-form is good for validation if we needed it, but here we are managing storageIds.
-  // Let's sync with react-hook-form for consistency with other steps, but we primarily care about storageIds.
-
   const { control, setValue, getValues } = useForm<TAvatarFiles>({
     defaultValues,
   });
 
-  const generateUploadUrl = useMutation(api.images.generateUploadUrl);
+  const uploadOptimizedImage = useAction(api.imageOptimizer.uploadOptimizedImage);
 
   const submitHandler = async (direction: "next" | "previous") => {
     const data = getValues();
 
     if (direction === "next") {
-      // Validate that we have storageIds if required
-      // For now, let's assume child avatar is required? 
-      // The previous logic checked for childAvatar file.
-
       if (!data.childStorageId) {
-        toast.error("Please upload a child photo");
+        toast.error("እባክዎ የልጁን ፎቶ ያስገቡ");
         return;
       }
 
@@ -193,10 +223,10 @@ export default function AvatarFiles({
             <ImageUploader
               label="የልጅ ፎቶ"
               storageId={field.value}
-              generateUploadUrl={generateUploadUrl}
+              uploadOptimizedImage={uploadOptimizedImage}
               onUploadComplete={(id, file) => {
                 field.onChange(id);
-                setValue("childAvatar", file); // Keep file for consistency if needed, though we rely on ID
+                setValue("childAvatar", file);
 
                 // Update savedSteps immediately to persist the ID
                 const savedStateCopy = [...savedSteps] as TSavedSteps;
@@ -219,7 +249,7 @@ export default function AvatarFiles({
             <ImageUploader
               label="የወላጅ ፎቶ (አማራጭ)"
               storageId={field.value}
-              generateUploadUrl={generateUploadUrl}
+              uploadOptimizedImage={uploadOptimizedImage}
               onUploadComplete={(id, file) => {
                 field.onChange(id);
                 setValue("guardianAvatar", file);
