@@ -19,8 +19,8 @@ export const uploadOptimizedImage = action({
             // This is ideal for avatar images as it maintains aspect ratio and fills the square
             const resized = source.resize({
                 method: "cover",
-                width: 100,
-                height: 100
+                width: 200,
+                height: 200
             });
 
             // Convert to webp for smaller file size
