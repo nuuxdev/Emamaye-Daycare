@@ -2,7 +2,7 @@
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import { Fragment, JSX, useEffect, useState } from "react";
+import { Fragment, JSX, useEffect, useState, useRef } from "react";
 import AttendanceCard from "../views/attendance/Card";
 import AttendanceList from "../views/attendance/List";
 import { TStatus } from "@/convex/types/attendance";
@@ -21,27 +21,56 @@ export default function Attendance() {
   const [currentChildIndex, setCurrentChildIndex] = useState(0);
   const [view, setView] = useState<"card" | "list" | "preview">("card");
   const [viewTab, setViewTab] = useState<TViewTab>("daily");
+  const [pendingDate, setPendingDate] = useState<string | null>(null);
+  const warningDialogRef = useRef<HTMLDialogElement>(null);
 
   // Navigation helper functions
-  const navigateDate = (direction: "prev" | "next") => {
-    const currentDate = parseDate(attendanceDate);
-    let newDate;
+  // const navigateDate = (direction: "prev" | "next") => {
+  //   const currentDate = parseDate(attendanceDate);
+  //   let newDate;
 
-    if (viewTab === "daily") {
-      newDate = direction === "prev"
-        ? currentDate.subtract({ days: 1 })
-        : currentDate.add({ days: 1 });
-    } else if (viewTab === "weekly") {
-      newDate = direction === "prev"
-        ? currentDate.subtract({ weeks: 1 })
-        : currentDate.add({ weeks: 1 });
+  //   if (viewTab === "daily") {
+  //     newDate = direction === "prev"
+  //       ? currentDate.subtract({ days: 1 })
+  //       : currentDate.add({ days: 1 });
+  //   } else if (viewTab === "weekly") {
+  //     newDate = direction === "prev"
+  //       ? currentDate.subtract({ weeks: 1 })
+  //       : currentDate.add({ weeks: 1 });
+  //   } else {
+  //     newDate = direction === "prev"
+  //       ? currentDate.subtract({ months: 1 })
+  //       : currentDate.add({ months: 1 });
+  //   }
+
+  //   setAttendanceDate(newDate.toString());
+  // };
+
+  // Handle date change with warning if attendance is partially recorded
+  const handleDateChange = (newDate: string) => {
+    if (view === "card" && attendanceData.length > 0 && attendanceData.length < (childrenData?.length || 0)) {
+      // Partial attendance recorded, show warning
+      setPendingDate(newDate);
+      warningDialogRef.current?.showModal();
     } else {
-      newDate = direction === "prev"
-        ? currentDate.subtract({ months: 1 })
-        : currentDate.add({ months: 1 });
+      setAttendanceDate(newDate);
     }
+  };
 
-    setAttendanceDate(newDate.toString());
+  const confirmDateChange = () => {
+    if (pendingDate) {
+      // Rollback attendance data
+      setAttendanceData([]);
+      setCurrentChildIndex(0);
+      setAttendanceDate(pendingDate);
+      setPendingDate(null);
+    }
+    warningDialogRef.current?.close();
+  };
+
+  const cancelDateChange = () => {
+    setPendingDate(null);
+    warningDialogRef.current?.close();
   };
 
   const childrenData = useQuery(api.children.getChildrenWithPrimaryGuardian);
@@ -254,13 +283,14 @@ export default function Attendance() {
                     objectFit: "cover",
                   }}
                 />
-                <span>{child.fullName}</span>
+                <h4 style={{ margin: 0, fontSize: "inherit", textTransform: "capitalize" }}>{child.fullName}</h4>
               </div>
               <span
-                className="secondary"
                 style={{
-                  padding: "0.5rem 1rem",
+                  padding: "0.4rem 0.6rem",
                   borderRadius: "100vw",
+                  minWidth: "4.5rem",
+                  textAlign: "center",
                   backgroundColor: present === total ? "var(--success-color)" : present === 0 ? "var(--error-color)" : "var(--info-color)",
                   color: "white",
                   fontWeight: "600",
@@ -304,7 +334,13 @@ export default function Attendance() {
     if (viewTab === "daily") {
       return formatEthiopianDate(attendanceDate);
     } else if (viewTab === "weekly") {
-      return `${formatEthiopianDate(startDate)} - ${formatEthiopianDate(endDate)}`;
+      // Show only day and month, no year
+      const formatShort = (dateStr: string) => {
+        const ethDate = formatEthiopianDate(dateStr);
+        const parts = ethDate.split(" ");
+        return `${parts[0]} ${parts[1].replace(",", "")}`; // e.g., "ታህሳስ 25"
+      };
+      return `${formatShort(startDate)} - ${formatShort(endDate)}`;
     } else {
       // Monthly - show month and year only
       const ethDate = formatEthiopianDate(startDate);
@@ -320,31 +356,44 @@ export default function Attendance() {
         backHref="/"
         action={
           <div className="glass-pill">
-            <SelectDate value={attendanceDate} onSelect={(dateInEt) => setAttendanceDate(toCalendar(dateInEt, new GregorianCalendar()).toString())} />
+            <SelectDate value={attendanceDate} onSelect={(dateInEt) => handleDateChange(toCalendar(dateInEt, new GregorianCalendar()).toString())} />
           </div>
         }
       />
       <main style={{ justifyContent: view !== "card" ? "start" : "center" }}>
-        <div style={{ display: "grid", gap: "1rem", width: "100%", maxWidth: "600px" }}>
-          {/* View Tabs - show above date navigation */}
-          <div style={{ display: "flex", width: "100%", overflowX: "auto" }}>
-            {(["daily", "weekly", "monthly"] as TViewTab[]).map((tab) => (
-              <button
-                key={tab}
-                disabled={viewTab === tab}
-                onClick={() => setViewTab(tab)}
-                className="tabs secondary"
-                style={{ textTransform: "capitalize", flexGrow: 1 }}
-              >
-                {tab}
-              </button>
-            ))}
-          </div>
+        <div style={{ display: "grid", gap: "1rem", width: "100%", maxWidth: "600px", paddingInline: "0.5rem", boxSizing: "border-box" }}>
+          {/* View Tabs - hide on card view */}
+          {view !== "card" && (
+            <div style={{ display: "flex", width: "100%", overflowX: "auto" }}>
+              {(["daily", "weekly", "monthly"] as TViewTab[]).map((tab) => (
+                <button
+                  key={tab}
+                  disabled={viewTab === tab}
+                  onClick={() => setViewTab(tab)}
+                  className="tabs secondary"
+                  style={{ textTransform: "capitalize", flexGrow: 1 }}
+                >
+                  {tab}
+                </button>
+              ))}
+            </div>
+          )}
 
           {/* Date Navigation */}
           <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "1rem" }}>
             <button
-              onClick={() => navigateDate("prev")}
+              onClick={() => {
+                const currentDate = parseDate(attendanceDate);
+                let newDate;
+                if (viewTab === "daily") {
+                  newDate = currentDate.subtract({ days: 1 });
+                } else if (viewTab === "weekly") {
+                  newDate = currentDate.subtract({ weeks: 1 });
+                } else {
+                  newDate = currentDate.subtract({ months: 1 });
+                }
+                handleDateChange(newDate.toString());
+              }}
               className="glass-pill"
               style={{ padding: "0.5rem", cursor: "pointer" }}
             >
@@ -354,9 +403,44 @@ export default function Attendance() {
               {getDateDisplayString()}
             </h3>
             <button
-              onClick={() => navigateDate("next")}
+              onClick={() => {
+                const currentDate = parseDate(attendanceDate);
+                let newDate;
+                if (viewTab === "daily") {
+                  newDate = currentDate.add({ days: 1 });
+                } else if (viewTab === "weekly") {
+                  newDate = currentDate.add({ weeks: 1 });
+                } else {
+                  newDate = currentDate.add({ months: 1 });
+                }
+                handleDateChange(newDate.toString());
+              }}
               className="glass-pill"
               style={{ padding: "0.5rem", cursor: "pointer" }}
+              disabled={(() => {
+                const currentDate = parseDate(attendanceDate);
+                const today = todayInEth;
+                if (viewTab === "daily") {
+                  return currentDate.compare(today) >= 0;
+                } else if (viewTab === "weekly") {
+                  // Disable if we're already in the current week
+                  const dayOfWeek = today.toDate("UTC").getDay();
+                  const daysToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+                  const thisMonday = today.subtract({ days: daysToMonday });
+                  const currentMonday = (() => {
+                    const dow = currentDate.toDate("UTC").getDay();
+                    const dtm = dow === 0 ? 6 : dow - 1;
+                    return currentDate.subtract({ days: dtm });
+                  })();
+                  return currentMonday.compare(thisMonday) >= 0;
+                } else {
+                  // Disable if we're already in the current month or future
+                  // Compare year first, then month
+                  if (currentDate.year > today.year) return true;
+                  if (currentDate.year === today.year && currentDate.month >= today.month) return true;
+                  return false;
+                }
+              })()}
             >
               <ChevronRight />
             </button>
@@ -383,6 +467,33 @@ export default function Attendance() {
           Submit Attendance
         </button>
       )}
+
+      {/* Warning Dialog for Date Change */}
+      <dialog ref={warningDialogRef} style={{ borderRadius: "16px", padding: "1.5rem", maxWidth: "90%", width: "320px" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "1rem", textAlign: "center" }}>
+          <h3 style={{ margin: 0 }}>⚠️ ማስጠንቀቂያ</h3>
+          <p style={{ margin: 0, lineHeight: 1.6 }}>
+            የተገቢው የተማሪዎች ቅፅ ያልተጠናቀቀ ነው። ቀኑን ከቀየሩ የተቀዳው መረጃ ይሰረዛል።
+          </p>
+          <div style={{ display: "flex", gap: "0.5rem" }}>
+            <button
+              onClick={cancelDateChange}
+              className="secondary"
+              style={{ flex: 1 }}
+            >
+              ተመለስ
+            </button>
+            <button
+              onClick={confirmDateChange}
+              className="secondary"
+              style={{ flex: 1, color: "var(--error-color)" }}
+            >
+              ቀይር
+            </button>
+          </div>
+        </div>
+      </dialog>
     </>
   );
 }
+

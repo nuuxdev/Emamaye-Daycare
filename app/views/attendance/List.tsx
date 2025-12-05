@@ -71,7 +71,7 @@ export default function AttendanceList({
                     objectFit: "cover",
                   }}
                 />
-                <span>{child.fullName}</span>
+                <h4 style={{ margin: 0, fontSize: "inherit", textTransform: "capitalize" }}>{child.fullName}</h4>
               </div>
               <button
                 onClick={() => toggleAttendance(child._id)}
@@ -85,7 +85,8 @@ export default function AttendanceList({
                       : "var(--error-color)",
                   color: isExpired ? "var(--foreground)" : "white",
                   textTransform: "capitalize",
-                  minWidth: "5rem",
+                  minWidth: "4.5rem",
+                  padding: "0.4rem 0.6rem",
                   opacity: isExpired ? 0.5 : isLocked ? 0.7 : 1,
                   cursor: editable ? "pointer" : "not-allowed",
                   display: "flex",
