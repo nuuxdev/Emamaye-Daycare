@@ -5,18 +5,91 @@ import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import GlassHeader from "@/components/GlassHeader";
-import { JSX } from "react";
+import { JSX, useEffect, useState } from "react";
 import { ArrowRight, CallIcon, InfantIcon, MessageIcon, PreschoolerIcon, ToddlerIcon } from "@/components/Icons";
 import { formatEthiopianDate } from "@/utils/calendar";
 import { calculateAge } from "@/utils/calculateAge";
 import { parseDate } from "@internationalized/date";
 
+// Simple confetti component
+const Confetti = () => {
+  const colors = ['#ff6b6b', '#feca57', '#48dbfb', '#ff9ff3', '#54a0ff', '#5f27cd', '#00d2d3', '#1dd1a1'];
+  const confettiPieces = Array.from({ length: 50 }, (_, i) => ({
+    id: i,
+    left: Math.random() * 100,
+    delay: Math.random() * 3,
+    duration: 2 + Math.random() * 2,
+    color: colors[Math.floor(Math.random() * colors.length)],
+    size: 6 + Math.random() * 8,
+    rotation: Math.random() * 360
+  }));
+
+  return (
+    <div style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      width: '100%',
+      height: '100%',
+      pointerEvents: 'none',
+      overflow: 'hidden',
+      zIndex: 9999
+    }}>
+      {confettiPieces.map((piece) => (
+        <div
+          key={piece.id}
+          style={{
+            position: 'absolute',
+            left: `${piece.left}%`,
+            top: '-20px',
+            width: `${piece.size}px`,
+            height: `${piece.size}px`,
+            backgroundColor: piece.color,
+            borderRadius: piece.id % 3 === 0 ? '50%' : '2px',
+            transform: `rotate(${piece.rotation}deg)`,
+            animation: `confetti-fall ${piece.duration}s ease-in forwards`,
+            animationDelay: `${piece.delay}s`,
+            opacity: 0
+          }}
+        />
+      ))}
+      <style>{`
+        @keyframes confetti-fall {
+          0% {
+            opacity: 1;
+            top: -20px;
+            transform: translateX(0) rotate(0deg);
+          }
+          100% {
+            opacity: 0;
+            top: 100vh;
+            transform: translateX(${Math.random() > 0.5 ? '' : '-'}100px) rotate(720deg);
+          }
+        }
+      `}</style>
+    </div>
+  );
+};
+
 export default function ChildInfo() {
   const { childId } = useParams();
+  const [showConfetti, setShowConfetti] = useState(false);
 
   const child = useQuery(api.children.getChild, {
     id: childId as Id<"children">,
   });
+
+  // Check if it's the child's birthday and trigger confetti
+  const isBirthday = child ? calculateAge(parseDate(child.dateOfBirth))?.age === "happy birthday!" : false;
+
+  useEffect(() => {
+    if (isBirthday) {
+      setShowConfetti(true);
+      // Hide confetti after animation completes
+      const timeout = setTimeout(() => setShowConfetti(false), 5000);
+      return () => clearTimeout(timeout);
+    }
+  }, [isBirthday]);
 
   if (!child) return null;
 
@@ -36,21 +109,38 @@ export default function ChildInfo() {
 
   return (
     <>
+      {showConfetti && <Confetti />}
       <GlassHeader title="Child Info" backHref="/children" />
       <main style={{ width: "100%", maxWidth: "600px", marginInline: "auto" }}>
         <div style={{ display: "flex", flexDirection: "column", gap: "1rem", width: "100%" }}>
           {/* Child Info Box */}
           <div className="neo-box">
-            <img
-              src={child.avatar}
-              alt={child.fullName}
-              style={{
-                width: "10rem",
-                height: "10rem",
-                borderRadius: "50%",
-                objectFit: "cover",
-              }}
-            />
+            {/* Avatar with birthday hat */}
+            <div style={{ position: "relative", display: "inline-block" }}>
+              <img
+                src={child.avatar}
+                alt={child.fullName}
+                style={{
+                  width: "10rem",
+                  height: "10rem",
+                  borderRadius: "50%",
+                  objectFit: "cover",
+                }}
+              />
+              {/* Birthday hat emoji - positioned on top left of avatar */}
+              {isBirthday && (
+                <span style={{
+                  position: "absolute",
+                  top: "-10px",
+                  left: "-5px",
+                  fontSize: "2.5rem",
+                  transform: "rotate(-20deg)",
+                  filter: "drop-shadow(2px 2px 2px rgba(0,0,0,0.3))"
+                }}>
+                  🥳
+                </span>
+              )}
+            </div>
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.5rem" }}>
               <h3 style={{ margin: 0 }}>{child.fullName}</h3>
               <div
@@ -71,7 +161,13 @@ export default function ChildInfo() {
 
             {/* Age and Birthdate in Amharic */}
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.25rem", opacity: 0.7 }}>
-              {ageInAmharic && <span style={{ fontWeight: 500 }} dangerouslySetInnerHTML={{ __html: ageInAmharic }} />}
+              {isBirthday ? (
+                <span style={{ fontWeight: 600, fontSize: "1.1rem", color: "var(--primary-color)" }}>
+                  🎉 Happy Birthday! 🎉
+                </span>
+              ) : (
+                ageInAmharic && <span style={{ fontWeight: 500 }} dangerouslySetInnerHTML={{ __html: ageInAmharic }} />
+              )}
               <span>🎂{ethiopianBirthdate}🎂</span>
             </div>
           </div>

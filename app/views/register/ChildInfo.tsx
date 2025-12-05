@@ -6,7 +6,6 @@ import { TAgeGroup } from "@/convex/types/children";
 import Select from "@/components/Select";
 import { calculateAge, getAgeGroup, getPaymentAmount } from "@/utils/calculateAge";
 import { fromEthDateString, todayInGreg } from "@/utils/calendar";
-import { toast } from "sonner";
 
 export default function ChildInfo({
   saveSteps,
@@ -59,8 +58,6 @@ export default function ChildInfo({
   };
 
   useEffect(() => {
-    const data = getValues("dateOfBirth");
-    console.log("dateOfBirth", data);
     if (ageGroup) {
       setPaymentAmount(ageGroup);
     }
@@ -110,7 +107,6 @@ export default function ChildInfo({
         );
 
         if (age) {
-          toast.info(age.age);
           const ageGroup = getAgeGroup(age.ageInYears);
           setValue("ageGroup", ageGroup);
           setValue("paymentAmount", getPaymentAmount(ageGroup));

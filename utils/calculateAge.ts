@@ -42,9 +42,6 @@ export function calculateAge(dateOfBirth: CalendarDate) {
         toast.error("Invalid day");
         return;
       }
-      else if (ageInDays === 0) {
-        toast.info("just born");
-      }
     }
     else {
       if (ageInDays < 0) {
@@ -56,7 +53,7 @@ export function calculateAge(dateOfBirth: CalendarDate) {
   else {
     if (ageInMonths < 0) {
       ageInYears--;
-      ageInMonths += 13; // Ethiopian calendar has 13 months
+      ageInMonths += 13;
       if (ageInDays < 0) {
         ageInMonths--;
         ageInDays += daysInPrevMonth;
@@ -65,11 +62,8 @@ export function calculateAge(dateOfBirth: CalendarDate) {
     else if (ageInMonths === 0) {
       if (ageInDays < 0) {
         ageInYears--;
-        ageInMonths = 12; // Borrow from previous year (12 months, as we're now in month 13 conceptually)
+        ageInMonths = 12;
         ageInDays += daysInPrevMonth;
-      }
-      if (ageInDays === 0) {
-        toast.info("happy birthday!");
       }
     }
     else {
@@ -83,6 +77,12 @@ export function calculateAge(dateOfBirth: CalendarDate) {
   const monthsString = ageInMonths > 0 ? `<strong>${ageInMonths}</strong> ወር ` : ""
   const daysString = ageInDays > 0 ? `<strong>${ageInDays}</strong> ቀናት` : "";
   const age: string = `${yearsString}${monthsString}${daysString}`;
+  if (ageInYears + ageInMonths + ageInDays === 0) {
+    return { age: "just born", ageInYears };
+  }
+  if (ageInYears > 0 && ageInMonths + ageInDays === 0) {
+    return { age: "happy birthday!", ageInYears };
+  }
 
 
   return { age, ageInYears };
