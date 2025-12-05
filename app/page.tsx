@@ -23,16 +23,16 @@ export default function Home() {
           }}
         >
           <Link href="/children" style={cardStyle} className="neo-box">
-            Children
+            ልጆቼ
           </Link>
           <Link href="/attendance" style={cardStyle} className="neo-box">
-            Attendance
+            አቴንዳንስ
           </Link>
           <Link href="/register" style={cardStyle} className="neo-box">
-            Register
+            ምዝገባ
           </Link>
           <Link href="/payment" style={cardStyle} className="neo-box">
-            Payment
+            ክፍያ
           </Link>
         </div>
       </main>
