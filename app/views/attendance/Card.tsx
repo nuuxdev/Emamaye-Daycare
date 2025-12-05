@@ -1,12 +1,13 @@
+import { InfantIcon, PreschoolerIcon, ToddlerIcon } from "@/components/Icons";
 import { Doc, Id } from "@/convex/_generated/dataModel";
 import { TStatus } from "@/convex/types/attendance";
 import { TAgeGroup } from "@/convex/types/children";
 import { JSX } from "react";
 
 const ageGroupIcons: Record<TAgeGroup, JSX.Element> = {
-  infant: <i className="hgi hgi-stroke hgi-baby-bottle"></i>,
-  toddler: <i className="hgi hgi-stroke hgi-rubber-duck"></i>,
-  preschooler: <i className="hgi hgi-stroke hgi-puzzle"></i>,
+  infant: <InfantIcon />,
+  toddler: <ToddlerIcon />,
+  preschooler: <PreschoolerIcon />,
 };
 
 export default function AttendanceCard({

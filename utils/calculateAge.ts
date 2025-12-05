@@ -79,9 +79,9 @@ export function calculateAge(dateOfBirth: CalendarDate) {
       }
     }
   }
-  const yearsString = ageInYears > 0 ? `${ageInYears} ዓመት ` : ""
-  const monthsString = ageInMonths > 0 ? `${ageInMonths} ወር ` : ""
-  const daysString = ageInDays > 0 ? `${ageInDays} ቀናት` : "";
+  const yearsString = ageInYears > 0 ? `<strong>${ageInYears}</strong> ዓመት ` : ""
+  const monthsString = ageInMonths > 0 ? `<strong>${ageInMonths}</strong> ወር ` : ""
+  const daysString = ageInDays > 0 ? `<strong>${ageInDays}</strong> ቀናት` : "";
   const age: string = `${yearsString}${monthsString}${daysString}`;
 
 

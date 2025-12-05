@@ -1,3 +1,4 @@
+import { LockIcon } from "@/components/Icons";
 import { api } from "@/convex/_generated/api";
 import { Doc, Id } from "@/convex/_generated/dataModel";
 import { TStatus } from "@/convex/types/attendance";
@@ -94,7 +95,7 @@ export default function AttendanceList({
                 }}
               >
                 {isExpired ? "Expired" : status}
-                {isLocked && <i className="hgi hgi-stroke hgi-circle-lock-02" style={{ fontSize: "1.5rem" }}></i>}
+                {isLocked && <LockIcon />}
               </button>
             </div>
             {index < childrenData.length - 1 && <hr />}

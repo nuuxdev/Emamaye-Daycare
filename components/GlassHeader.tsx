@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ReactNode } from "react";
+import { ArrowLeft } from "./Icons";
 
 type GlassHeaderProps = {
     title: string;
@@ -13,7 +14,7 @@ export default function GlassHeader({ title, backHref, action, isCompact }: Glas
         <header className="glass-header-wrapper">
             {backHref ? (
                 <Link href={backHref} className="glass-pill">
-                    <i className="hgi hgi-stroke hgi-arrow-left-01"></i>
+                    <ArrowLeft />
                 </Link>
             ) : (
                 <div style={{ width: "48px" }}></div>

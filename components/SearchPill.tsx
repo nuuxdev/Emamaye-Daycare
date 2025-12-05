@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
+import { CloseIcon, SearchIcon } from "./Icons";
 
 type SearchPillProps = {
     onSearch: (query: string) => void;
@@ -64,9 +65,9 @@ export default function SearchPill({ onSearch, onExpandChange, debounceMs = 300 
             >
                 {
                     isExpanded ? (
-                        <i className="hgi hgi-stroke hgi-multiplication-sign"></i>
+                        <CloseIcon />
                     ) : (
-                        <i className="hgi hgi-stroke hgi-search-02"></i>
+                        <SearchIcon />
                     )
                 }
             </div>

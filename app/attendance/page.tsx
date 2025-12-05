@@ -10,6 +10,7 @@ import GlassHeader from "@/components/GlassHeader";
 import { SelectDate } from "../views/register/Calendar";
 import { GregorianCalendar, toCalendar, parseDate } from "@internationalized/date";
 import { todayInEth, formatEthiopianDate } from "@/utils/calendar";
+import { ChevronLeft, ChevronRight } from "@/components/Icons";
 
 type TViewTab = "daily" | "weekly" | "monthly";
 
@@ -347,7 +348,7 @@ export default function Attendance() {
               className="glass-pill"
               style={{ padding: "0.5rem", cursor: "pointer" }}
             >
-              <i className="hgi hgi-stroke hgi-arrow-left-01"></i>
+              <ChevronLeft />
             </button>
             <h3 style={{ textAlign: "center", margin: 0, fontSize: viewTab !== "daily" ? "1rem" : undefined }}>
               {getDateDisplayString()}
@@ -357,7 +358,7 @@ export default function Attendance() {
               className="glass-pill"
               style={{ padding: "0.5rem", cursor: "pointer" }}
             >
-              <i className="hgi hgi-stroke hgi-arrow-right-01"></i>
+              <ChevronRight />
             </button>
           </div>
 

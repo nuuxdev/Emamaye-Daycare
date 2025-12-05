@@ -6,6 +6,10 @@ import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import GlassHeader from "@/components/GlassHeader";
 import { JSX } from "react";
+import { ArrowRight, CallIcon, InfantIcon, MessageIcon, PreschoolerIcon, ToddlerIcon } from "@/components/Icons";
+import { formatEthiopianDate } from "@/utils/calendar";
+import { calculateAge } from "@/utils/calculateAge";
+import { parseDate } from "@internationalized/date";
 
 export default function ChildInfo() {
   const { childId } = useParams();
@@ -16,10 +20,18 @@ export default function ChildInfo() {
 
   if (!child) return null;
 
+  // Format birthdate to Ethiopian/Amharic format
+  const ethiopianBirthdate = formatEthiopianDate(child.dateOfBirth);
+
+  // Calculate age in Amharic
+  const birthDate = parseDate(child.dateOfBirth);
+  const ageResult = calculateAge(birthDate);
+  const ageInAmharic = ageResult?.age || "";
+
   const ageGroupIcons: Record<string, JSX.Element> = {
-    infant: <i className="hgi hgi-stroke hgi-baby-bottle"></i>,
-    toddler: <i className="hgi hgi-stroke hgi-rubber-duck"></i>,
-    preschooler: <i className="hgi hgi-stroke hgi-puzzle"></i>,
+    infant: <InfantIcon />,
+    toddler: <ToddlerIcon />,
+    preschooler: <PreschoolerIcon />,
   };
 
   return (
@@ -57,11 +69,10 @@ export default function ChildInfo() {
               </div>
             </div>
 
-            {/* Additional Child Details if needed, kept minimal as per request */}
-            <div style={{ display: "flex", gap: "1rem", opacity: 0.7 }}>
-              <span>{child.gender}</span>
-              <span>•</span>
-              <span>{child.dateOfBirth}</span>
+            {/* Age and Birthdate in Amharic */}
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.25rem", opacity: 0.7 }}>
+              {ageInAmharic && <span style={{ fontWeight: 500 }} dangerouslySetInnerHTML={{ __html: ageInAmharic }} />}
+              <span>🎂{ethiopianBirthdate}🎂</span>
             </div>
           </div>
 
@@ -101,7 +112,7 @@ export default function ChildInfo() {
                     height: "3.5rem"
                   }}
                 >
-                  <i className="hgi hgi-stroke hgi-call"></i>
+                  <CallIcon />
                 </a>
 
                 <a
@@ -115,7 +126,7 @@ export default function ChildInfo() {
                     height: "3.5rem"
                   }}
                 >
-                  <i className="hgi hgi-stroke hgi-message-01"></i>
+                  <MessageIcon />
                 </a>
 
                 <Link
@@ -130,13 +141,13 @@ export default function ChildInfo() {
                     height: "3.5rem"
                   }}
                 >
-                  <i className="hgi hgi-stroke hgi-user"></i>
+                  <ArrowRight />
                 </Link>
               </div>
             </div>
           )}
         </div>
-      </main>
+      </main >
     </>
   );
 }

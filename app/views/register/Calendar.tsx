@@ -3,6 +3,7 @@ import { CalendarDate, parseDate, toCalendar } from "@internationalized/date";
 import { useEffect, useRef, useState } from "react";
 import { UseFormRegister } from "react-hook-form";
 import { EthiopianCalendar, todayInEth } from "@/utils/calendar";
+import { CalendarIcon } from "@/components/Icons";
 
 const { year: thisYear, month: thisMonth, day: thisDay } = todayInEth;
 
@@ -45,7 +46,7 @@ export const InputDate = ({ register, onSelect, value }: { register: UseFormRegi
         readOnly
       />
       <div style={{ position: "absolute", right: "1.5rem", top: "50%", transform: "translateY(-50%)", pointerEvents: "none", opacity: 0.5 }}>
-        <i className="hgi hgi-stroke hgi-calendar-01"></i>
+        <CalendarIcon />
       </div>
     </div>
     <Dialog dialogRef={dialogRef} onSelect={onSelect} value={value} />
@@ -56,7 +57,7 @@ export const SelectDate = ({ onSelect, value }: { onSelect: (date: CalendarDate)
   const dialogRef = useRef<HTMLDialogElement>(null);
   return <>
     <div style={{ cursor: "pointer" }} role="button" onClick={() => dialogRef.current?.showModal()}>
-      <i className="hgi hgi-stroke hgi-calendar-01"></i>
+      <CalendarIcon />
     </div>
     <Dialog dialogRef={dialogRef} onSelect={onSelect} value={value} />
   </>

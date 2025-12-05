@@ -8,6 +8,7 @@ import GlassHeader from "@/components/GlassHeader";
 import SearchPill from "@/components/SearchPill";
 import { parseDate } from "@internationalized/date";
 import { calculateAge } from "@/utils/calculateAge";
+import { CallIcon, InfantIcon, InfoIcon, PreschoolerIcon, ToddlerIcon } from "@/components/Icons";
 
 const ageGroupsTabs: (TAgeGroup | "all children")[] = [
   "all children",
@@ -17,9 +18,9 @@ const ageGroupsTabs: (TAgeGroup | "all children")[] = [
 ];
 
 const ageGroupIcons: Record<TAgeGroup, JSX.Element> = {
-  infant: <i className="hgi hgi-stroke hgi-baby-bottle"></i>,
-  toddler: <i className="hgi hgi-stroke hgi-rubber-duck"></i>,
-  preschooler: <i className="hgi hgi-stroke hgi-puzzle"></i>,
+  infant: <InfantIcon />,
+  toddler: <ToddlerIcon />,
+  preschooler: <PreschoolerIcon />,
 };
 
 export default function ChildrenList() {
@@ -132,7 +133,7 @@ export default function ChildrenList() {
                         alignItems: "end",
                       }}
                     >
-                      <p>{calculateAge(parseDate(child.dateOfBirth))?.age}</p>
+                      <p dangerouslySetInnerHTML={{ __html: calculateAge(parseDate(child.dateOfBirth))?.age || "" }} />
                     </div>
                   </div>
                 </summary>
@@ -148,7 +149,7 @@ export default function ChildrenList() {
                     className="glass-pill with-icon"
                     style={{ color: "var(--success-color)" }}
                   >
-                    <i className="hgi hgi-stroke hgi-call"></i>
+                    <CallIcon />
                     {child.primaryGuardianFullName?.split(" ")[0]}
                   </Link>
                   <Link
@@ -156,7 +157,7 @@ export default function ChildrenList() {
                     className="glass-pill with-icon"
                     style={{ color: "var(--info-color)" }}
                   >
-                    <i className="hgi hgi-stroke hgi-information-circle"></i>
+                    <InfoIcon />
                     info
                   </Link>
                 </div>
