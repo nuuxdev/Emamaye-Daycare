@@ -6,6 +6,7 @@ import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { toast } from "sonner";
 import { ServerAvatar } from "@/app/components/ServerAvatar";
+import { CameraIcon, UploadIcon } from "@/components/Icons";
 
 const HorizontalProgress = ({ progress }: { progress: number }) => {
   return (
@@ -41,12 +42,9 @@ const ImageUploader = ({
 }) => {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
-  // Local preview URL for instant display
   const [localPreviewUrl, setLocalPreviewUrl] = useState<string | null>(null);
-  // Track if upload is complete to swap images
   const [uploadComplete, setUploadComplete] = useState(false);
 
-  // Cleanup object URL when component unmounts
   useEffect(() => {
     return () => {
       if (localPreviewUrl) {
@@ -55,10 +53,8 @@ const ImageUploader = ({
     };
   }, []);
 
-  // Clear local preview when upload is complete and we have a storage ID
   useEffect(() => {
     if (uploadComplete && storageId && localPreviewUrl) {
-      // Small delay to ensure server image is ready
       const timeout = setTimeout(() => {
         URL.revokeObjectURL(localPreviewUrl);
         setLocalPreviewUrl(null);
@@ -72,36 +68,28 @@ const ImageUploader = ({
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Show instant preview
     const previewUrl = URL.createObjectURL(file);
     setLocalPreviewUrl(previewUrl);
     setUploadComplete(false);
 
     setIsUploading(true);
-    setUploadProgress(10); // Start at 10% to show something is happening
+    setUploadProgress(10);
 
     try {
-      // Convert file to ArrayBuffer
       const arrayBuffer = await file.arrayBuffer();
 
-      // Simulate progress while uploading (since action doesn't support progress)
       const progressInterval = setInterval(() => {
         setUploadProgress(prev => Math.min(prev + 5, 90));
       }, 200);
 
-      // Upload and optimize on backend
       const newStorageId = await uploadOptimizedImage({ imageData: arrayBuffer });
 
       clearInterval(progressInterval);
       setUploadProgress(100);
 
-      // Notify parent of successful upload
       onUploadComplete(newStorageId as Id<"_storage">, file);
-
-      // Mark upload as complete to trigger image swap
       setUploadComplete(true);
 
-      // Hide progress bar after a short delay
       setTimeout(() => {
         setIsUploading(false);
         setUploadProgress(0);
@@ -112,7 +100,6 @@ const ImageUploader = ({
       toast.error("ምስሉን መጫን አልተቻለም");
       setIsUploading(false);
       setUploadProgress(0);
-      // Clear the preview on error
       if (localPreviewUrl) {
         URL.revokeObjectURL(localPreviewUrl);
         setLocalPreviewUrl(null);
@@ -120,7 +107,6 @@ const ImageUploader = ({
     }
   };
 
-  // Show local preview while uploading, server image after complete
   const showLocalPreview = localPreviewUrl && !uploadComplete;
 
   return (
@@ -140,7 +126,6 @@ const ImageUploader = ({
             )}
           </div>
 
-          {/* Horizontal progress bar below the image */}
           {isUploading && (
             <div style={{ width: "100%", maxWidth: "120px" }}>
               <HorizontalProgress progress={uploadProgress} />
@@ -148,6 +133,7 @@ const ImageUploader = ({
           )}
         </div>
 
+        {/* Hidden file inputs */}
         <input
           type="file"
           accept="image/*"
@@ -156,16 +142,45 @@ const ImageUploader = ({
           onChange={handleFileSelect}
           disabled={isUploading}
         />
-
-        <button
-          type="button"
-          className="secondary"
-          onClick={() => document.getElementById(`file-${label}`)?.click()}
+        <input
+          type="file"
+          accept="image/*"
+          capture="environment"
+          style={{ display: "none" }}
+          id={`camera-${label}`}
+          onChange={handleFileSelect}
           disabled={isUploading}
-        >
-          {isUploading ? "እየጫነ ነው..." : "ያስገቡ"}
-          {!isUploading && <span style={{ fontSize: '1.1rem' }}>↑</span>}
-        </button>
+        />
+
+        {/* Buttons container - width fits content */}
+        <div style={{ position: "relative", display: "inline-flex", alignItems: "center", gap: "0.5rem" }}>
+          <button
+            type="button"
+            className="secondary"
+            onClick={() => document.getElementById(`file-${label}`)?.click()}
+            disabled={isUploading}
+          >
+            {isUploading ? "እየጫነ..." : <><UploadIcon />ፋይል</>}
+          </button>
+          <button
+            type="button"
+            className="secondary"
+            onClick={() => document.getElementById(`camera-${label}`)?.click()}
+            disabled={isUploading}
+            style={{
+              position: "absolute",
+              right: "-4.5rem",
+              aspectRatio: "1/1",
+              borderRadius: "50%",
+              padding: "1rem",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center"
+            }}
+          >
+            <CameraIcon />
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -194,17 +209,11 @@ export default function AvatarFiles({
     const data = getValues();
 
     if (direction === "next") {
-      if (!data.childStorageId) {
-        toast.error("እባክዎ የልጁን ፎቶ ያስገቡ");
-        return;
-      }
-
       setStep((prev) => prev + 1);
     } else if (direction === "previous") {
       setStep((prev) => prev - 1);
     }
 
-    // Save state
     const savedStateCopy = [...savedSteps] as TSavedSteps;
     savedStateCopy[step] = data;
     saveSteps(savedStateCopy);
@@ -221,14 +230,13 @@ export default function AvatarFiles({
           control={control}
           render={({ field }) => (
             <ImageUploader
-              label="የልጅ ፎቶ"
+              label="የልጅ ፎቶ (አማራጭ)"
               storageId={field.value}
               uploadOptimizedImage={uploadOptimizedImage}
               onUploadComplete={(id, file) => {
                 field.onChange(id);
                 setValue("childAvatar", file);
 
-                // Update savedSteps immediately to persist the ID
                 const savedStateCopy = [...savedSteps] as TSavedSteps;
                 savedStateCopy[step] = {
                   ...getValues(),

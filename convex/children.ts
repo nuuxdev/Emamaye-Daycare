@@ -98,3 +98,23 @@ export const getChild = query({
     };
   },
 });
+
+export const updateChildAvatar = mutation({
+  args: {
+    childId: v.id("children"),
+    avatarStorageId: v.id("_storage"),
+  },
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) throw new Error("Unauthorized");
+
+    const child = await ctx.db.get(args.childId);
+    if (!child) throw new Error("Child not found");
+
+    const avatarUrl = await ctx.storage.getUrl(args.avatarStorageId);
+    if (!avatarUrl) throw new Error("Could not get avatar URL");
+
+    await ctx.db.patch(args.childId, { avatar: avatarUrl });
+    return "Avatar updated successfully";
+  },
+});

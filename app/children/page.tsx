@@ -88,7 +88,7 @@ export default function ChildrenList() {
                     }}
                   >
                     <img
-                      src={child.avatar}
+                      src={child.avatar || "/profile.png"}
                       alt="child avatar"
                       style={{
                         width: "100%",

@@ -124,15 +124,9 @@ export default function Register() {
     setIsPending(true);
     if (step !== stepsData.length - 1) return;
 
-    // Images should already be uploaded by the AvatarFiles step
+    // Images should already be uploaded by the AvatarFiles step (both are now optional)
     const childStorageId = savedSteps[2].childStorageId;
     const guardianStorageId = savedSteps[2].guardianStorageId;
-
-    if (!childStorageId) {
-      toast.error("Child avatar is missing. Please go back and upload.");
-      setIsPending(false);
-      return;
-    }
 
     try {
       const dateOfBirth = savedSteps[0].dateOfBirth;

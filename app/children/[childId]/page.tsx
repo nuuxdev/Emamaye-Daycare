@@ -1,59 +1,85 @@
 "use client";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { useQuery } from "convex/react";
+import { useQuery, useAction, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import GlassHeader from "@/components/GlassHeader";
-import { JSX, useEffect, useState } from "react";
-import { ArrowRight, CallIcon, InfantIcon, MessageIcon, PreschoolerIcon, ToddlerIcon } from "@/components/Icons";
+import { JSX, useEffect, useState, useRef } from "react";
+import { ArrowRight, CallIcon, CameraIcon, CloseIcon, InfantIcon, MessageIcon, PlusIcon, PreschoolerIcon, RecycleIcon, ToddlerIcon, UploadIcon } from "@/components/Icons";
 import { formatEthiopianDate } from "@/utils/calendar";
 import { calculateAge } from "@/utils/calculateAge";
 import { parseDate } from "@internationalized/date";
+import { toast } from "sonner";
+
+// Placeholder image for users without avatar
+const PLACEHOLDER_AVATAR = "/profile.png";
+
+// Reusable HorizontalProgress component (same as in AvatarFiles)
+const HorizontalProgress = ({ progress }: { progress: number }) => {
+    return (
+        <div style={{
+            width: "100%",
+            height: "4px",
+            backgroundColor: "#e0e0e0",
+            borderRadius: "2px",
+            overflow: "hidden",
+            marginTop: "0.5rem"
+        }}>
+            <div style={{
+                width: `${progress}%`,
+                height: "100%",
+                backgroundColor: "var(--primary-color)",
+                borderRadius: "2px",
+                transition: "width 0.1s linear"
+            }} />
+        </div>
+    );
+};
 
 // Simple confetti component
 const Confetti = () => {
-  const colors = ['#ff6b6b', '#feca57', '#48dbfb', '#ff9ff3', '#54a0ff', '#5f27cd', '#00d2d3', '#1dd1a1'];
-  const confettiPieces = Array.from({ length: 50 }, (_, i) => ({
-    id: i,
-    left: Math.random() * 100,
-    delay: Math.random() * 3,
-    duration: 2 + Math.random() * 2,
-    color: colors[Math.floor(Math.random() * colors.length)],
-    size: 6 + Math.random() * 8,
-    rotation: Math.random() * 360
-  }));
+    const colors = ['#ff6b6b', '#feca57', '#48dbfb', '#ff9ff3', '#54a0ff', '#5f27cd', '#00d2d3', '#1dd1a1'];
+    const confettiPieces = Array.from({ length: 50 }, (_, i) => ({
+        id: i,
+        left: Math.random() * 100,
+        delay: Math.random() * 3,
+        duration: 2 + Math.random() * 2,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        size: 6 + Math.random() * 8,
+        rotation: Math.random() * 360
+    }));
 
-  return (
-    <div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      width: '100%',
-      height: '100%',
-      pointerEvents: 'none',
-      overflow: 'hidden',
-      zIndex: 9999
-    }}>
-      {confettiPieces.map((piece) => (
-        <div
-          key={piece.id}
-          style={{
-            position: 'absolute',
-            left: `${piece.left}%`,
-            top: '-20px',
-            width: `${piece.size}px`,
-            height: `${piece.size}px`,
-            backgroundColor: piece.color,
-            borderRadius: piece.id % 3 === 0 ? '50%' : '2px',
-            transform: `rotate(${piece.rotation}deg)`,
-            animation: `confetti-fall ${piece.duration}s ease-in forwards`,
-            animationDelay: `${piece.delay}s`,
-            opacity: 0
-          }}
-        />
-      ))}
-      <style>{`
+    return (
+        <div style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            pointerEvents: 'none',
+            overflow: 'hidden',
+            zIndex: 9999
+        }}>
+            {confettiPieces.map((piece) => (
+                <div
+                    key={piece.id}
+                    style={{
+                        position: 'absolute',
+                        left: `${piece.left}%`,
+                        top: '-20px',
+                        width: `${piece.size}px`,
+                        height: `${piece.size}px`,
+                        backgroundColor: piece.color,
+                        borderRadius: piece.id % 3 === 0 ? '50%' : '2px',
+                        transform: `rotate(${piece.rotation}deg)`,
+                        animation: `confetti-fall ${piece.duration}s ease-in forwards`,
+                        animationDelay: `${piece.delay}s`,
+                        opacity: 0
+                    }}
+                />
+            ))}
+            <style>{`
         @keyframes confetti-fall {
           0% {
             opacity: 1;
@@ -67,183 +93,368 @@ const Confetti = () => {
           }
         }
       `}</style>
-    </div>
-  );
+        </div>
+    );
+};
+
+// Avatar uploader with background upload support and dialog for options
+const AvatarUploader = ({
+    currentAvatarUrl,
+    onUploadComplete,
+    size = "10rem",
+    ageGroup
+}: {
+    currentAvatarUrl?: string;
+    onUploadComplete: (storageId: Id<"_storage">) => void;
+    size?: string;
+    ageGroup?: string;
+}) => {
+    const [isUploading, setIsUploading] = useState(false);
+    const [uploadProgress, setUploadProgress] = useState(0);
+    const [localPreviewUrl, setLocalPreviewUrl] = useState<string | null>(null);
+    const uploadOptimizedImage = useAction(api.imageOptimizer.uploadOptimizedImage);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const cameraInputRef = useRef<HTMLInputElement>(null);
+    const dialogRef = useRef<HTMLDialogElement>(null);
+
+    const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        // Close dialog
+        dialogRef.current?.close();
+
+        const previewUrl = URL.createObjectURL(file);
+        setLocalPreviewUrl(previewUrl);
+        setIsUploading(true);
+        setUploadProgress(10);
+
+        // Background upload - use async without awaiting in a blocking way
+        const uploadInBackground = async () => {
+            try {
+                const arrayBuffer = await file.arrayBuffer();
+
+                // Simulate progress
+                const progressInterval = setInterval(() => {
+                    setUploadProgress(prev => Math.min(prev + 5, 90));
+                }, 200);
+
+                const newStorageId = await uploadOptimizedImage({ imageData: arrayBuffer });
+
+                clearInterval(progressInterval);
+                setUploadProgress(100);
+
+                onUploadComplete(newStorageId as Id<"_storage">);
+                toast.success("ፎቶው ተጫነ");
+
+                // Cleanup after a delay
+                setTimeout(() => {
+                    setIsUploading(false);
+                    setUploadProgress(0);
+                }, 500);
+            } catch (error) {
+                console.error("Error uploading image:", error);
+                toast.error("ፎቶውን መጫን አልተቻለም");
+                URL.revokeObjectURL(previewUrl);
+                setLocalPreviewUrl(null);
+                setIsUploading(false);
+                setUploadProgress(0);
+            }
+        };
+
+        // Start upload in background (non-blocking)
+        uploadInBackground();
+    };
+
+    const displayUrl = localPreviewUrl || currentAvatarUrl;
+    const hasRealImage = !!currentAvatarUrl && currentAvatarUrl !== PLACEHOLDER_AVATAR;
+    const showPlaceholder = !displayUrl || displayUrl === PLACEHOLDER_AVATAR;
+
+    const openUploadDialog = () => {
+        dialogRef.current?.showModal();
+    };
+
+    return (
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+            <div style={{ position: "relative", display: "inline-block" }}>
+                <img
+                    src={showPlaceholder ? PLACEHOLDER_AVATAR : displayUrl}
+                    alt="Avatar"
+                    style={{
+                        width: size,
+                        height: size,
+                        borderRadius: "50%",
+                        objectFit: "cover",
+                        opacity: isUploading ? 0.7 : 1,
+                        transition: "opacity 0.2s"
+                    }}
+                />
+
+                {/* Hidden inputs */}
+                <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    style={{ display: "none" }}
+                    onChange={handleFileSelect}
+                    disabled={isUploading}
+                />
+                <input
+                    ref={cameraInputRef}
+                    type="file"
+                    accept="image/*"
+                    capture="environment"
+                    style={{ display: "none" }}
+                    onChange={handleFileSelect}
+                    disabled={isUploading}
+                />
+
+                {/* Upload button - styled like age group icon */}
+                {!isUploading && (
+                    <button
+                        type="button"
+                        onClick={openUploadDialog}
+                        className={ageGroup || ""}
+                        style={{
+                            position: "absolute",
+                            bottom: "0",
+                            right: "-0.5rem",
+                            width: "2.5rem",
+                            height: "2.5rem",
+                            borderRadius: "100vw",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            cursor: "pointer",
+                            padding: 0,
+                            border: "none",
+                            boxShadow: "none", // Remove shadow to match list page
+                            backgroundColor: "var(--white, white)", // Ensure white background
+                            color: ageGroup ? undefined : "var(--primary-color)" // Default color for guardian
+                        }}
+                    >
+                        {hasRealImage ? <RecycleIcon /> : <PlusIcon />}
+                    </button>
+                )}
+            </div>
+
+            {/* Progress bar below avatar */}
+            {isUploading && (
+                <div style={{ width: "100%", maxWidth: size }}>
+                    <HorizontalProgress progress={uploadProgress} />
+                </div>
+            )}
+
+            {/* Upload options dialog */}
+            <dialog ref={dialogRef} style={{ borderRadius: "1rem", padding: "1.5rem" }}>
+                <h3 style={{ margin: "0 0 1rem 0", textAlign: "center" }}>ፎቶ ይምረጡ</h3>
+                <div style={{ display: "flex", flexDirection: "column", gap: "1rem", justifyContent: "center" }}>
+                    <button
+                        type="button"
+                        className="secondary"
+                        onClick={() => fileInputRef.current?.click()}
+                    >
+                        <UploadIcon />
+                        <span>ፋይል</span>
+                    </button>
+                    <button
+                        type="button"
+                        className="secondary"
+                        onClick={() => cameraInputRef.current?.click()}
+                    >
+                        <CameraIcon />
+                        <span>ካሜራ</span>
+                    </button>
+                </div>
+                <button
+                    type="button"
+                    onClick={() => dialogRef.current?.close()}
+                    className="secondary"
+                    style={{ position: "absolute", top: "0", right: "0", cursor: "pointer" }}
+                >
+                    <CloseIcon />
+                </button>
+            </dialog>
+        </div >
+    );
 };
 
 export default function ChildInfo() {
-  const { childId } = useParams();
-  const [showConfetti, setShowConfetti] = useState(false);
+    const { childId } = useParams();
+    const [showConfetti, setShowConfetti] = useState(false);
 
-  const child = useQuery(api.children.getChild, {
-    id: childId as Id<"children">,
-  });
+    const child = useQuery(api.children.getChild, {
+        id: childId as Id<"children">,
+    });
 
-  // Check if it's the child's birthday and trigger confetti
-  const isBirthday = child ? calculateAge(parseDate(child.dateOfBirth))?.age === "happy birthday!" : false;
+    const updateChildAvatar = useMutation(api.children.updateChildAvatar);
+    const updateGuardianAvatar = useMutation(api.guardians.updateGuardianAvatar);
 
-  useEffect(() => {
-    if (isBirthday) {
-      setShowConfetti(true);
-      // Hide confetti after animation completes
-      const timeout = setTimeout(() => setShowConfetti(false), 5000);
-      return () => clearTimeout(timeout);
-    }
-  }, [isBirthday]);
+    const isBirthday = child ? calculateAge(parseDate(child.dateOfBirth))?.age === "happy birthday!" : false;
 
-  if (!child) return null;
+    useEffect(() => {
+        if (isBirthday) {
+            setShowConfetti(true);
+            const timeout = setTimeout(() => setShowConfetti(false), 5000);
+            return () => clearTimeout(timeout);
+        }
+    }, [isBirthday]);
 
-  // Format birthdate to Ethiopian/Amharic format
-  const ethiopianBirthdate = formatEthiopianDate(child.dateOfBirth);
+    if (!child) return null;
 
-  // Calculate age in Amharic
-  const birthDate = parseDate(child.dateOfBirth);
-  const ageResult = calculateAge(birthDate);
-  const ageInAmharic = ageResult?.age || "";
+    const ethiopianBirthdate = formatEthiopianDate(child.dateOfBirth);
+    const birthDate = parseDate(child.dateOfBirth);
+    const ageResult = calculateAge(birthDate);
+    const ageInAmharic = ageResult?.age || "";
 
-  const ageGroupIcons: Record<string, JSX.Element> = {
-    infant: <InfantIcon />,
-    toddler: <ToddlerIcon />,
-    preschooler: <PreschoolerIcon />,
-  };
+    const ageGroupIcons: Record<string, JSX.Element> = {
+        infant: <InfantIcon />,
+        toddler: <ToddlerIcon />,
+        preschooler: <PreschoolerIcon />,
+    };
 
-  return (
-    <>
-      {showConfetti && <Confetti />}
-      <GlassHeader title="Child Info" backHref="/children" />
-      <main style={{ width: "100%", maxWidth: "600px", marginInline: "auto" }}>
-        <div style={{ display: "flex", flexDirection: "column", gap: "1rem", width: "100%" }}>
-          {/* Child Info Box */}
-          <div className="neo-box">
-            {/* Avatar with birthday hat */}
-            <div style={{ position: "relative", display: "inline-block" }}>
-              <img
-                src={child.avatar}
-                alt={child.fullName}
-                style={{
-                  width: "10rem",
-                  height: "10rem",
-                  borderRadius: "50%",
-                  objectFit: "cover",
-                }}
-              />
-              {/* Birthday hat emoji - positioned on top left of avatar */}
-              {isBirthday && (
-                <span style={{
-                  position: "absolute",
-                  top: "-10px",
-                  left: "-5px",
-                  fontSize: "2.5rem",
-                  transform: "rotate(-20deg)",
-                  filter: "drop-shadow(2px 2px 2px rgba(0,0,0,0.3))"
-                }}>
-                  🥳
-                </span>
-              )}
-            </div>
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.5rem" }}>
-              <h3 style={{ margin: 0 }}>{child.fullName}</h3>
-              <div
-                className={`tabs secondary ${child.ageGroup}`}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "0.5rem",
-                  borderRadius: "16px",
-                  padding: "0.5rem 1rem",
-                  width: "fit-content"
-                }}
-              >
-                {ageGroupIcons[child.ageGroup]}
-                <span style={{ textTransform: "capitalize" }}>{child.ageGroup}</span>
-              </div>
-            </div>
+    const handleChildAvatarUpload = async (storageId: Id<"_storage">) => {
+        await updateChildAvatar({ childId: child._id, avatarStorageId: storageId });
+    };
 
-            {/* Age and Birthdate in Amharic */}
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.25rem", opacity: 0.7 }}>
-              {isBirthday ? (
-                <span style={{ fontWeight: 600, fontSize: "1.1rem", color: "var(--primary-color)" }}>
-                  🎉 Happy Birthday! 🎉
-                </span>
-              ) : (
-                ageInAmharic && <span style={{ fontWeight: 500 }} dangerouslySetInnerHTML={{ __html: ageInAmharic }} />
-              )}
-              <span>🎂{ethiopianBirthdate}🎂</span>
-            </div>
-          </div>
+    const handleGuardianAvatarUpload = async (storageId: Id<"_storage">) => {
+        if (child.primaryGuardian) {
+            await updateGuardianAvatar({ guardianId: child.primaryGuardian._id, avatarStorageId: storageId });
+        }
+    };
 
-          {/* Guardian Info Box */}
-          {child.primaryGuardian && (
-            <div className="neo-box" style={{ alignItems: "stretch" }}>
-              <h4 style={{ textAlign: "center", marginBottom: "1rem" }}>Primary Guardian</h4>
+    return (
+        <>
+            {showConfetti && <Confetti />}
+            <GlassHeader title="Child Info" backHref="/children" />
+            <main style={{ width: "100%", maxWidth: "600px", marginInline: "auto" }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: "1rem", width: "100%" }}>
+                    {/* Child Info Box */}
+                    <div className="neo-box">
+                        <div style={{ position: "relative", display: "inline-block" }}>
+                            <AvatarUploader
+                                currentAvatarUrl={child.avatar}
+                                onUploadComplete={handleChildAvatarUpload}
+                                size="10rem"
+                                ageGroup={child.ageGroup}
+                            />
+                            {isBirthday && (
+                                <span style={{
+                                    position: "absolute",
+                                    top: "-10px",
+                                    left: "-5px",
+                                    fontSize: "2.5rem",
+                                    transform: "rotate(-20deg)",
+                                    filter: "drop-shadow(2px 2px 2px rgba(0,0,0,0.3))"
+                                }}>
+                                    🥳
+                                </span>
+                            )}
+                        </div>
+                        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.5rem" }}>
+                            <h3 style={{ margin: 0 }}>{child.fullName}</h3>
+                            <div
+                                className={`tabs secondary ${child.ageGroup}`}
+                                style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: "0.5rem",
+                                    borderRadius: "16px",
+                                    padding: "0.5rem 1rem",
+                                    width: "fit-content"
+                                }}
+                            >
+                                {ageGroupIcons[child.ageGroup]}
+                                <span style={{ textTransform: "capitalize" }}>{child.ageGroup}</span>
+                            </div>
+                        </div>
 
-              <div style={{ display: "flex", gap: "1rem", alignItems: "center", marginBottom: "1rem" }}>
-                <img
-                  src={child.primaryGuardian.avatar}
-                  alt={child.primaryGuardian.fullName}
-                  style={{
-                    width: "4rem",
-                    height: "4rem",
-                    borderRadius: "50%",
-                    objectFit: "cover",
-                  }}
-                />
-                <div>
-                  <h4 style={{ margin: 0, fontSize: "1.1rem" }}>{child.primaryGuardian.fullName}</h4>
-                  <p style={{ margin: 0, opacity: 0.7, textTransform: "capitalize" }}>
-                    {child.primaryGuardian.relationToChild}
-                  </p>
+                        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.25rem", opacity: 0.7 }}>
+                            {isBirthday ? (
+                                <span style={{ fontWeight: 600, fontSize: "1.1rem", color: "var(--primary-color)" }}>
+                                    🎉 Happy Birthday! 🎉
+                                </span>
+                            ) : (
+                                ageInAmharic && <span style={{ fontWeight: 500 }} dangerouslySetInnerHTML={{ __html: ageInAmharic }} />
+                            )}
+                            <span>🎂{ethiopianBirthdate}🎂</span>
+                        </div>
+                    </div>
+
+                    {/* Guardian Info Box */}
+                    {child.primaryGuardian && (
+                        <div className="neo-box">
+                            <h4 style={{ textAlign: "center", margin: 0 }}>Primary Guardian</h4>
+
+                            {/* Avatar centered like child card, but smaller */}
+                            <AvatarUploader
+                                currentAvatarUrl={child.primaryGuardian.avatar}
+                                onUploadComplete={handleGuardianAvatarUpload}
+                                size="6rem"
+                            />
+
+                            {/* Name and relation */}
+                            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.25rem" }}>
+                                <h4 style={{ margin: 0, fontSize: "1.1rem" }}>{child.primaryGuardian.fullName}</h4>
+                                <span style={{ opacity: 0.7, textTransform: "capitalize" }}>
+                                    {child.primaryGuardian.relationToChild}
+                                </span>
+                            </div>
+
+                            {/* Address */}
+                            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", opacity: 0.7 }}>
+                                <span>📍</span>
+                                <span>{child.primaryGuardian.address}</span>
+                            </div>
+
+                            {/* Action buttons */}
+                            <div style={{ display: "flex", justifyContent: "center", gap: "1rem" }}>
+                                <a
+                                    href={`tel:${child.primaryGuardian.phoneNumber}`}
+                                    className="glass-pill"
+                                    style={{
+                                        color: "var(--success-color)",
+                                        aspectRatio: "1/1",
+                                        padding: 0,
+                                        width: "3rem",
+                                        height: "3rem"
+                                    }}
+                                >
+                                    <CallIcon />
+                                </a>
+
+                                <a
+                                    href={`sms:${child.primaryGuardian.phoneNumber}`}
+                                    className="glass-pill"
+                                    style={{
+                                        color: "var(--info-color)",
+                                        aspectRatio: "1/1",
+                                        padding: 0,
+                                        width: "3rem",
+                                        height: "3rem"
+                                    }}
+                                >
+                                    <MessageIcon />
+                                </a>
+
+                                <Link
+                                    href="#"
+                                    className="glass-pill"
+                                    style={{
+                                        color: "var(--foreground)",
+                                        aspectRatio: "1/1",
+                                        padding: 0,
+                                        width: "3rem",
+                                        height: "3rem"
+                                    }}
+                                >
+                                    <ArrowRight />
+                                </Link>
+                            </div>
+                        </div>
+                    )}
                 </div>
-              </div>
-
-              <div style={{ display: "flex", justifyContent: "space-between", gap: "1rem" }}>
-                <a
-                  href={`tel:${child.primaryGuardian.phoneNumber}`}
-                  className="glass-pill"
-                  style={{
-                    color: "var(--success-color)",
-                    aspectRatio: "1/1",
-                    padding: 0,
-                    width: "3.5rem",
-                    height: "3.5rem"
-                  }}
-                >
-                  <CallIcon />
-                </a>
-
-                <a
-                  href={`sms:${child.primaryGuardian.phoneNumber}`}
-                  className="glass-pill"
-                  style={{
-                    color: "var(--info-color)",
-                    aspectRatio: "1/1",
-                    padding: 0,
-                    width: "3.5rem",
-                    height: "3.5rem"
-                  }}
-                >
-                  <MessageIcon />
-                </a>
-
-                <Link
-                  // href={`/guardians/${child.primaryGuardian._id}`}
-                  href="#"
-                  className="glass-pill"
-                  style={{
-                    color: "var(--foreground)",
-                    aspectRatio: "1/1",
-                    padding: 0,
-                    width: "3.5rem",
-                    height: "3.5rem"
-                  }}
-                >
-                  <ArrowRight />
-                </Link>
-              </div>
-            </div>
-          )}
-        </div>
-      </main >
-    </>
-  );
+            </main>
+        </>
+    );
 }
