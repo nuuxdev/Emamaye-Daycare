@@ -190,7 +190,7 @@ export default function Register() {
   return (
     <>
       <GlassHeader title="Registration" backHref="/" />
-      <main className="animate-fade-in">
+      <main className="animate-fade-in" style={{ justifyContent: 'start' }}>
         <div className="neo-box centered-container" style={{ maxWidth: '600px' }}>
 
           {/* Stepper */}

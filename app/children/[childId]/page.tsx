@@ -228,9 +228,8 @@ const AvatarUploader = ({
                             cursor: "pointer",
                             padding: 0,
                             border: "none",
-                            boxShadow: "none", // Remove shadow to match list page
-                            backgroundColor: "var(--white, white)", // Ensure white background
-                            color: ageGroup ? undefined : "var(--primary-color)" // Default color for guardian
+                            backgroundColor: "var(--white, white)",
+                            color: "var(--foreground)"
                         }}
                     >
                         {hasRealImage ? <RecycleIcon /> : <PlusIcon />}
@@ -270,7 +269,22 @@ const AvatarUploader = ({
                     type="button"
                     onClick={() => dialogRef.current?.close()}
                     className="secondary"
-                    style={{ position: "absolute", top: "0", right: "0", cursor: "pointer" }}
+                    style={{
+                        position: "absolute",
+                        top: "0.5rem",
+                        right: "0.5rem",
+                        cursor: "pointer",
+                        width: "2rem",
+                        height: "2rem",
+                        borderRadius: "50%",
+                        padding: 0,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        background: "transparent",
+                        border: "none",
+                        boxShadow: "none"
+                    }}
                 >
                     <CloseIcon />
                 </button>
@@ -408,7 +422,7 @@ export default function ChildInfo() {
                             </div>
 
                             {/* Action buttons */}
-                            <div style={{ display: "flex", justifyContent: "center", gap: "1rem" }}>
+                            <div style={{ display: "flex", justifyContent: "center", gap: "3rem" }}>
                                 <a
                                     href={`tel:${child.primaryGuardian.phoneNumber}`}
                                     className="glass-pill"
@@ -437,7 +451,7 @@ export default function ChildInfo() {
                                     <MessageIcon />
                                 </a>
 
-                                <Link
+                                {/* <Link
                                     href="#"
                                     className="glass-pill"
                                     style={{
@@ -449,7 +463,7 @@ export default function ChildInfo() {
                                     }}
                                 >
                                     <ArrowRight />
-                                </Link>
+                                </Link> */}
                             </div>
                         </div>
                     )}

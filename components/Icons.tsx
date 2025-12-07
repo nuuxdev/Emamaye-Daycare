@@ -115,11 +115,7 @@ export function UploadIcon() {
 }
 
 export function RecycleIcon() {
-    return <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" color="currentColor" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M11.5 20H10.0179C6.71538 20 5.06413 20 3.92709 19.0927C2.79005 18.1854 2.52839 16.5585 2.00507 13.3046L1.60471 10.7859C1.00001 6.95575 1.00001 5.69817 2.17657 4.34911C3.35312 3 4.6314 3 7.18797 3H16.812C19.3686 3 20.6469 3 21.8234 4.34911C22.7374 5.40058 22.7937 6.50726 22.5 8.5" />
-        <path d="M7 3L8.13831 1.86169C8.62057 1.37942 9.27456 1.10742 9.95715 1.10742H14.0428C14.7254 1.10742 15.3794 1.37942 15.8617 1.86169L17 3" />
-        <path d="M17.5 13.5L20 16M20 16L22.5 18.5M20 16L22.5 13.5M20 16L17.5 18.5" />
-    </svg>
+    return <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M12 17q-1.825 0-3.188-1.137T7.1 13h1.55q.325 1.1 1.238 1.8t2.112.7q1.45 0 2.475-1.025T15.5 12q0-1.45-1.025-2.475T12 8.5q-.725 0-1.35.263t-1.1.737H11V11H7V7h1.5v1.425q.675-.65 1.575-1.038T12 7q2.075 0 3.538 1.463T17 12q0 2.075-1.463 3.538T12 17Zm-7 4q-.825 0-1.413-.588T3 19v-4h2v4h4v2H5Zm10 0v-2h4v-4h2v4q0 .825-.588 1.413T19 21h-4ZM3 9V5q0-.825.588-1.413T5 3h4v2H5v4H3Zm16 0V5h-4V3h4q.825 0 1.413.588T21 5v4h-2Z" /></svg>
 }
 
 export function PlusIcon() {
