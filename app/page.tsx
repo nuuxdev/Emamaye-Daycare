@@ -31,7 +31,7 @@ export default function Home() {
           <Link href="/register" style={cardStyle} className="neo-box">
             ምዝገባ
           </Link>
-          <Link href="/payment" style={cardStyle} className="neo-box">
+          <Link href="/payments" style={cardStyle} className="neo-box">
             ክፍያ
           </Link>
         </div>

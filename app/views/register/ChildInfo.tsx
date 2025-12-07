@@ -6,6 +6,8 @@ import { TAgeGroup } from "@/convex/types/children";
 import Select from "@/components/Select";
 import { calculateAge, getAgeGroup, getPaymentAmount } from "@/utils/calculateAge";
 import { fromEthDateString, todayInGreg } from "@/utils/calendar";
+import { useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
 
 export default function ChildInfo({
   saveSteps,
@@ -27,6 +29,8 @@ export default function ChildInfo({
   const ageGroup = watch("ageGroup");
 
 
+  const paymentSettings = useQuery(api.payments.getPaymentSettings);
+
   const submitHandler = async (direction: "next" | "previous") => {
     const data = getValues();
 
@@ -43,25 +47,31 @@ export default function ChildInfo({
     saveSteps(savedStateCopy);
   };
 
+  const getDynamicPaymentAmount = (group: TAgeGroup) => {
+    if (!paymentSettings) return 0;
+    const setting = paymentSettings.find((s) => s.ageGroup === group);
+    return setting ? setting.amount : 0;
+  };
+
   const setPaymentAmount = (ageGroup: TAgeGroup) => {
-    switch (ageGroup) {
-      case "infant":
-        setValue("paymentAmount", 2500);
-        break;
-      case "toddler":
-        setValue("paymentAmount", 2000);
-        break;
-      case "preschooler":
-        setValue("paymentAmount", 1500);
-        break;
+    const amount = getDynamicPaymentAmount(ageGroup);
+    if (amount > 0) {
+      setValue("paymentAmount", amount);
+    } else {
+      // Fallback or keep existing logic if settings not loaded yet
+      // But ideally we should wait or show loading.
+      // For now let's fallback to hardcoded if API fails or returns nothing, 
+      // OR just set 0 if not found.
+      // Let's stick to the dynamic value only.
+      setValue("paymentAmount", amount);
     }
   };
 
   useEffect(() => {
-    if (ageGroup) {
+    if (ageGroup && paymentSettings) {
       setPaymentAmount(ageGroup);
     }
-  }, [ageGroup, setValue]);
+  }, [ageGroup, setValue, paymentSettings]);
 
   return (
     <form className="grid-gap-1 form-container">
@@ -109,7 +119,7 @@ export default function ChildInfo({
         if (age) {
           const ageGroup = getAgeGroup(age.ageInYears);
           setValue("ageGroup", ageGroup);
-          setValue("paymentAmount", getPaymentAmount(ageGroup));
+          setValue("paymentAmount", getDynamicPaymentAmount(ageGroup));
         }
         const dateString = dateInEt.day < 10 ? `0${dateInEt.day}` : dateInEt.day;
         const monthString = dateInEt.month < 10 ? `0${dateInEt.month}` : dateInEt.month;
@@ -137,6 +147,20 @@ export default function ChildInfo({
         <input type="hidden" {...register("ageGroup")} />
       </div>
 
+
+      <Select
+        id="paymentSchedule"
+        label="የክፍያ ጊዜ"
+        register={register}
+        setValue={setValue}
+        options={[
+          { value: "month_end", label: "የወር መጨረሻ (30)" },
+          { value: "month_half", label: "ወር አጋማሽ (15)" },
+        ]}
+        defaultValue={defaultValues?.paymentSchedule}
+        value={watch("paymentSchedule")}
+        placeholder="የክፍያ ጊዜ ይምረጡ"
+      />
 
       <div className="mb-1">
         <label htmlFor="paymentAmount" className="mb-1 label-text">የክፍያ መጠን</label>

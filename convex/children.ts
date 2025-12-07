@@ -12,6 +12,7 @@ export const addChild = mutation({
       dateOfBirth: v.string(),
       ageGroup: VAgeGroup,
       paymentAmount: v.number(),
+      paymentSchedule: v.union(v.literal("month_end"), v.literal("month_half")),
       avatar: v.optional(v.id("_storage")),
     }),
     guardianData: v.object({
@@ -55,6 +56,7 @@ export const addChild = mutation({
       dateOfBirth: args.childData.dateOfBirth,
       ageGroup: args.childData.ageGroup,
       paymentAmount: args.childData.paymentAmount,
+      paymentSchedule: args.childData.paymentSchedule,
       avatar: await getChildAvatarUrl(),
       primaryGuardian: guardianId,
     });

@@ -16,11 +16,13 @@ import type {
 import type * as attendance from "../attendance.js";
 import type * as auth from "../auth.js";
 import type * as children from "../children.js";
+import type * as crons from "../crons.js";
 import type * as guardians from "../guardians.js";
 import type * as http from "../http.js";
 import type * as imageOptimizer from "../imageOptimizer.js";
 import type * as images from "../images.js";
 import type * as myFunctions from "../myFunctions.js";
+import type * as payments from "../payments.js";
 import type * as types_attendance from "../types/attendance.js";
 import type * as types_children from "../types/children.js";
 import type * as types_guardians from "../types/guardians.js";
@@ -37,11 +39,13 @@ declare const fullApi: ApiFromModules<{
   attendance: typeof attendance;
   auth: typeof auth;
   children: typeof children;
+  crons: typeof crons;
   guardians: typeof guardians;
   http: typeof http;
   imageOptimizer: typeof imageOptimizer;
   images: typeof images;
   myFunctions: typeof myFunctions;
+  payments: typeof payments;
   "types/attendance": typeof types_attendance;
   "types/children": typeof types_children;
   "types/guardians": typeof types_guardians;
