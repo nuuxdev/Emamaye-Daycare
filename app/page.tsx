@@ -1,13 +1,17 @@
 "use client";
 import Link from "next/link";
 import GlassHeader from "@/components/GlassHeader";
+import { InfantIcon, CalendarIcon, ClipboardIcon, MoneyIcon } from "@/components/Icons";
 
 export default function Home() {
   const cardStyle = {
     aspectRatio: "1/1",
     display: "flex",
+    flexDirection: "column" as const,
     justifyContent: "center",
     alignItems: "center",
+    gap: "0.5rem",
+    padding: "2rem",
   };
   return (
     <>
@@ -23,16 +27,20 @@ export default function Home() {
           }}
         >
           <Link href="/children" style={cardStyle} className="neo-box">
-            ልጆቼ
+            <InfantIcon />
+            <span>ልጆቼ</span>
           </Link>
           <Link href="/attendance" style={cardStyle} className="neo-box">
-            አቴንዳንስ
+            <CalendarIcon />
+            <span>አቴንዳንስ</span>
           </Link>
           <Link href="/register" style={cardStyle} className="neo-box">
-            ምዝገባ
+            <ClipboardIcon />
+            <span>ምዝገባ</span>
           </Link>
           <Link href="/payments" style={cardStyle} className="neo-box">
-            ክፍያ
+            <MoneyIcon />
+            <span>ክፍያ</span>
           </Link>
         </div>
       </main>
