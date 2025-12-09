@@ -56,7 +56,7 @@ export const InputDate = ({ register, onSelect, value }: { register: UseFormRegi
 export const SelectDate = ({ onSelect, value }: { onSelect: (date: CalendarDate) => void, value: string }) => {
   const dialogRef = useRef<HTMLDialogElement>(null);
   return <>
-    <div style={{ cursor: "pointer" }} role="button" onClick={() => dialogRef.current?.showModal()}>
+    <div style={{ cursor: "pointer", height: "1.5rem" }} role="button" onClick={() => dialogRef.current?.showModal()}>
       <CalendarIcon />
     </div>
     <Dialog dialogRef={dialogRef} onSelect={onSelect} value={value} />

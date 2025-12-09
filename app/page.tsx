@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import GlassHeader from "@/components/GlassHeader";
-import { InfantIcon, CalendarIcon, ClipboardIcon, MoneyIcon } from "@/components/Icons";
+import { ClipboardIcon, MoneyIcon, AttendanceIcon, PreschoolerIcon } from "@/components/Icons";
 
 export default function Home() {
   const cardStyle = {
@@ -11,7 +11,7 @@ export default function Home() {
     justifyContent: "center",
     alignItems: "center",
     gap: "0.5rem",
-    padding: "2rem",
+    padding: "2rem"
   };
   return (
     <>
@@ -27,11 +27,11 @@ export default function Home() {
           }}
         >
           <Link href="/children" style={cardStyle} className="neo-box">
-            <InfantIcon />
+            <PreschoolerIcon />
             <span>ልጆቼ</span>
           </Link>
           <Link href="/attendance" style={cardStyle} className="neo-box">
-            <CalendarIcon />
+            <AttendanceIcon />
             <span>አቴንዳንስ</span>
           </Link>
           <Link href="/register" style={cardStyle} className="neo-box">

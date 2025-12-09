@@ -88,7 +88,7 @@ export default function AttendanceCard({
         </div>
 
         {/* Current Child Avatar */}
-        <div style={{ position: "relative", width: "10rem", height: "10rem" }}>
+        <div style={{ position: "relative", width: "8rem", height: "8rem" }}>
           <img
             src={currentChild.avatar}
             alt={currentChild.fullName}
