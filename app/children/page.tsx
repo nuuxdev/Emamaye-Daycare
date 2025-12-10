@@ -74,7 +74,7 @@ export default function ChildrenList() {
           {children === undefined && <p>Loading...</p>}
           {filteredChildren?.map((child) => (
             <Fragment key={child._id}>
-              <details style={{ width: "100%" }}>
+              <details style={{ width: "100%", cursor: "pointer" }} name="children-list-item">
                 <summary
                   style={{ display: "flex", gap: "1rem", alignItems: "start" }}
                 >
@@ -83,7 +83,6 @@ export default function ChildrenList() {
                     style={{
                       width: "5rem",
                       aspectRatio: "1/1",
-
                       position: "relative",
                     }}
                   >
