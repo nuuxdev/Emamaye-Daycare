@@ -724,7 +724,23 @@
     &[open]::details-content {
       height: auto;
     }
+
+    &[name="children-list-item"] {
+      animation: im-in-view;
+      animation-timeline: view();
+      animation-range: 0% 15%;
+    }
+
   }
+
+  @keyframes im-in-view {
+    from {
+      scale: 0.85;
+      opacity: 0;
+    }
+  }
+
+
 
   i {
     font-size: 1.75rem;
