@@ -146,7 +146,7 @@ export default function ChildrenList() {
                         alignItems: "end",
                       }}
                     >
-                      <p dangerouslySetInnerHTML={{ __html: calculateAge(parseDate(child.dateOfBirth))?.age || "" }} />
+                      <p dangerouslySetInnerHTML={{ __html: calculateAge(parseDate(child.dateOfBirth))?.ageShort || calculateAge(parseDate(child.dateOfBirth))?.age || "" }} />
                     </div>
                   </div>
                 </summary>

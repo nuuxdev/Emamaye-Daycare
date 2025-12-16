@@ -62,7 +62,7 @@ export function calculateAge(dateOfBirth: CalendarDate) {
     else if (ageInMonths === 0) {
       if (ageInDays < 0) {
         ageInYears--;
-        ageInMonths = 12;
+        ageInMonths = 11;
         ageInDays += daysInPrevMonth;
       }
     }
@@ -77,6 +77,7 @@ export function calculateAge(dateOfBirth: CalendarDate) {
   const monthsString = ageInMonths > 0 ? `<strong>${ageInMonths}</strong> ወር ` : ""
   const daysString = ageInDays > 0 ? `<strong>${ageInDays}</strong> ቀናት` : "";
   const age: string = `${yearsString}${monthsString}${daysString}`;
+  const ageShort: string = `${yearsString}${monthsString}`;
   if (ageInYears + ageInMonths + ageInDays === 0) {
     return { age: "just born", ageInYears };
   }
@@ -85,7 +86,7 @@ export function calculateAge(dateOfBirth: CalendarDate) {
   }
 
 
-  return { age, ageInYears };
+  return { age, ageInYears, ageShort };
 }
 
 export function getAgeGroup(ageInYears: number) {
