@@ -17,6 +17,13 @@ const ageGroupsTabs: (TAgeGroup | "all children")[] = [
   "preschooler",
 ];
 
+const ageGroupAmh: Record<TAgeGroup | "all children", string> = {
+  "all children": "ሁሉም ልጆቼ",
+  infant: "ጨቅላ",
+  toddler: "ህፃን",
+  preschooler: "ልጅ",
+};
+
 const ageGroupIcons: Record<TAgeGroup, JSX.Element> = {
   infant: <InfantIcon />,
   toddler: <ToddlerIcon />,
@@ -79,7 +86,7 @@ export default function ChildrenList() {
               className={`tabs secondary ${ageGroupTab}`}
             >
               {ageGroupTab !== "all children" ? ageGroupIcons[ageGroupTab] : ""}
-              <span style={{ textWrap: "nowrap" }}>{ageGroupTab}</span>
+              <span style={{ textWrap: "nowrap" }}>{ageGroupAmh[ageGroupTab]}</span>
               {counts[ageGroupTab]}
             </button>
           ))}
