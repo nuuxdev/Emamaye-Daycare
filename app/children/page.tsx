@@ -28,10 +28,21 @@ export default function ChildrenList() {
   const [filteredChildren, setFilteredChildren] = useState(children);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchExpanded, setSearchExpanded] = useState(false);
-
+  const [counts, setCounts] = useState<{ [key in TAgeGroup | "all children"]: number }>({
+    "all children": 0,
+    infant: 0,
+    toddler: 0,
+    preschooler: 0,
+  });
   const [tab, setTab] = useState<TAgeGroup | "all children">("all children");
   useEffect(() => {
     let result = children;
+    let initCounts: { [key in TAgeGroup | "all children"]: number } = {
+      "all children": children?.length || 0,
+      infant: children?.filter((child) => child.ageGroup === "infant")?.length || 0,
+      toddler: children?.filter((child) => child.ageGroup === "toddler")?.length || 0,
+      preschooler: children?.filter((child) => child.ageGroup === "preschooler")?.length || 0,
+    }
 
     // Filter by age group
     if (tab !== "all children") {
@@ -45,6 +56,8 @@ export default function ChildrenList() {
       );
     }
 
+    setCounts(initCounts);
+
     setFilteredChildren(result);
   }, [tab, children, searchQuery]);
 
@@ -56,7 +69,7 @@ export default function ChildrenList() {
         isCompact={searchExpanded}
         action={<SearchPill onSearch={setSearchQuery} onExpandChange={setSearchExpanded} />}
       />
-      <main style={{ justifyContent: "start", maxWidth: "570px", marginInline: "auto" }}>
+      <main style={{ justifyContent: "start", maxWidth: "610px", marginInline: "auto" }}>
         <div style={{ marginInline: "auto", display: "flex", width: "100%", overflowX: "auto", paddingBlock: "1rem" }}>
           {ageGroupsTabs.map((ageGroupTab) => (
             <button
@@ -67,6 +80,7 @@ export default function ChildrenList() {
             >
               {ageGroupTab !== "all children" ? ageGroupIcons[ageGroupTab] : ""}
               <span style={{ textWrap: "nowrap" }}>{ageGroupTab}</span>
+              {counts[ageGroupTab]}
             </button>
           ))}
         </div>
