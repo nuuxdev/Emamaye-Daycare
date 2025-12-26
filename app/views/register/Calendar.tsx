@@ -53,7 +53,7 @@ export const InputDate = ({ register, onSelect, value }: { register: UseFormRegi
   </div>
 }
 
-export const SelectDate = ({ onSelect, value }: { onSelect: (date: CalendarDate) => void, value: string }) => {
+export const SelectDate = ({ onSelect, value }: { onSelect: (date: CalendarDate) => void, value?: string }) => {
   const dialogRef = useRef<HTMLDialogElement>(null);
   return <>
     <div style={{ cursor: "pointer", height: "1.5rem" }} role="button" onClick={() => dialogRef.current?.showModal()}>
@@ -64,7 +64,7 @@ export const SelectDate = ({ onSelect, value }: { onSelect: (date: CalendarDate)
 }
 
 
-const Dialog = ({ dialogRef, onSelect, value }: { dialogRef: React.RefObject<HTMLDialogElement | null>, onSelect: (date: CalendarDate) => void, value: string }) => {
+const Dialog = ({ dialogRef, onSelect, value }: { dialogRef: React.RefObject<HTMLDialogElement | null>, onSelect: (date: CalendarDate) => void, value?: string }) => {
 
 
   const [currentMonth, setCurrentMonth] = useState<number>();

@@ -1,5 +1,5 @@
 "use client";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useQuery, useAction, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
@@ -7,15 +7,16 @@ import { Id } from "@/convex/_generated/dataModel";
 import GlassHeader from "@/components/GlassHeader";
 import { JSX, useEffect, useState, useRef } from "react";
 import { ArrowRight, CallIcon, CameraIcon, CloseIcon, InfantIcon, MessageIcon, PlusIcon, PreschoolerIcon, RecycleIcon, ToddlerIcon, UploadIcon } from "@/components/Icons";
-import { formatEthiopianDate } from "@/utils/calendar";
+import { formatEthiopianDate, todayInEth } from "@/utils/calendar";
 import { calculateAge } from "@/utils/calculateAge";
 import { parseDate } from "@internationalized/date";
 import { toast } from "sonner";
+import ChildAttendanceGrid from "@/app/views/attendance/ChildAttendanceGrid";
 
 // Placeholder image for users without avatar
 const PLACEHOLDER_AVATAR = "/profile.png";
 
-// Reusable HorizontalProgress component (same as in AvatarFiles)
+// Reusable HorizontalProgress component
 const HorizontalProgress = ({ progress }: { progress: number }) => {
     return (
         <div style={{
@@ -97,7 +98,7 @@ const Confetti = () => {
     );
 };
 
-// Avatar uploader with background upload support and dialog for options
+// Avatar uploader
 const AvatarUploader = ({
     currentAvatarUrl,
     onUploadComplete,
@@ -121,7 +122,6 @@ const AvatarUploader = ({
         const file = e.target.files?.[0];
         if (!file) return;
 
-        // Close dialog
         dialogRef.current?.close();
 
         const previewUrl = URL.createObjectURL(file);
@@ -129,12 +129,9 @@ const AvatarUploader = ({
         setIsUploading(true);
         setUploadProgress(10);
 
-        // Background upload - use async without awaiting in a blocking way
         const uploadInBackground = async () => {
             try {
                 const arrayBuffer = await file.arrayBuffer();
-
-                // Simulate progress
                 const progressInterval = setInterval(() => {
                     setUploadProgress(prev => Math.min(prev + 5, 90));
                 }, 200);
@@ -147,7 +144,6 @@ const AvatarUploader = ({
                 onUploadComplete(newStorageId as Id<"_storage">);
                 toast.success("ፎቶው ተጫነ");
 
-                // Cleanup after a delay
                 setTimeout(() => {
                     setIsUploading(false);
                     setUploadProgress(0);
@@ -162,17 +158,12 @@ const AvatarUploader = ({
             }
         };
 
-        // Start upload in background (non-blocking)
         uploadInBackground();
     };
 
     const displayUrl = localPreviewUrl || currentAvatarUrl;
     const hasRealImage = !!currentAvatarUrl && currentAvatarUrl !== PLACEHOLDER_AVATAR;
     const showPlaceholder = !displayUrl || displayUrl === PLACEHOLDER_AVATAR;
-
-    const openUploadDialog = () => {
-        dialogRef.current?.showModal();
-    };
 
     return (
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
@@ -190,7 +181,6 @@ const AvatarUploader = ({
                     }}
                 />
 
-                {/* Hidden inputs */}
                 <input
                     ref={fileInputRef}
                     type="file"
@@ -209,11 +199,10 @@ const AvatarUploader = ({
                     disabled={isUploading}
                 />
 
-                {/* Upload button - styled like age group icon */}
                 {!isUploading && (
                     <button
                         type="button"
-                        onClick={openUploadDialog}
+                        onClick={() => dialogRef.current?.showModal()}
                         className={ageGroup || ""}
                         style={{
                             position: "absolute",
@@ -237,14 +226,12 @@ const AvatarUploader = ({
                 )}
             </div>
 
-            {/* Progress bar below avatar */}
             {isUploading && (
                 <div style={{ width: "100%", maxWidth: size }}>
                     <HorizontalProgress progress={uploadProgress} />
                 </div>
             )}
 
-            {/* Upload options dialog */}
             <dialog ref={dialogRef} style={{ borderRadius: "1rem", padding: "1.5rem" }}>
                 <h3 style={{ margin: "0 0 1rem 0", textAlign: "center" }}>ፎቶ ይምረጡ</h3>
                 <div style={{ display: "flex", flexDirection: "column", gap: "1rem", justifyContent: "center" }}>
@@ -293,8 +280,16 @@ const AvatarUploader = ({
     );
 };
 
+type TTab = "details" | "guardian" | "attendance";
+
 export default function ChildInfo() {
     const { childId } = useParams();
+    const searchParams = useSearchParams();
+    const router = useRouter();
+    const initialTab = (searchParams.get("tab") as TTab) || "details";
+    const initialDate = searchParams.get("date") || todayInEth.toString();
+
+    const [activeTab, setActiveTab] = useState<TTab>(initialTab);
     const [showConfetti, setShowConfetti] = useState(false);
 
     const child = useQuery(api.children.getChild, {
@@ -337,91 +332,105 @@ export default function ChildInfo() {
         }
     };
 
+    const tabs: { id: TTab; label: string }[] = [
+        { id: "details", label: "Details" },
+        { id: "guardian", label: "Guardian" },
+        { id: "attendance", label: "Attendance" },
+    ];
+
     return (
         <>
             {showConfetti && <Confetti />}
             <GlassHeader title="Child Info" backHref="/children" />
             <main style={{ width: "100%", maxWidth: "600px", marginInline: "auto" }}>
                 <div style={{ display: "flex", flexDirection: "column", gap: "1rem", width: "100%" }}>
-                    {/* Child Info Box */}
-                    <div className="neo-box">
-                        <div style={{ position: "relative", display: "inline-block" }}>
-                            <AvatarUploader
-                                currentAvatarUrl={child.avatar}
-                                onUploadComplete={handleChildAvatarUpload}
-                                size="10rem"
-                                ageGroup={child.ageGroup}
-                            />
-                            {isBirthday && (
-                                <span style={{
-                                    position: "absolute",
-                                    top: "-10px",
-                                    left: "-5px",
-                                    fontSize: "2.5rem",
-                                    transform: "rotate(-20deg)",
-                                    filter: "drop-shadow(2px 2px 2px rgba(0,0,0,0.3))"
-                                }}>
-                                    🥳
-                                </span>
-                            )}
-                        </div>
-                        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.5rem" }}>
-                            <h3 style={{ margin: 0 }}>{child.fullName}</h3>
-                            <div
-                                className={`tabs secondary ${child.ageGroup}`}
-                                style={{
-                                    display: "flex",
-                                    alignItems: "center",
-                                    gap: "0.5rem",
-                                    borderRadius: "16px",
-                                    padding: "0.5rem 1rem",
-                                    width: "fit-content"
-                                }}
+                    {/* Tabs */}
+                    <div style={{ display: "flex", width: "100%", gap: "0" }}>
+                        {tabs.map((tab) => (
+                            <button
+                                key={tab.id}
+                                disabled={activeTab === tab.id}
+                                onClick={() => setActiveTab(tab.id)}
+                                className="tabs secondary"
+                                style={{ flex: 1 }}
                             >
-                                {ageGroupIcons[child.ageGroup]}
-                                <span style={{ textTransform: "capitalize" }}>{child.ageGroup}</span>
-                            </div>
-                        </div>
-
-                        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.25rem", opacity: 0.7 }}>
-                            {isBirthday ? (
-                                <span style={{ fontWeight: 600, fontSize: "1.1rem", color: "var(--primary-color)" }}>
-                                    🎉 Happy Birthday! 🎉
-                                </span>
-                            ) : (
-                                ageInAmharic && <span style={{ fontWeight: 500 }} dangerouslySetInnerHTML={{ __html: ageInAmharic }} />
-                            )}
-                            <span>🎂{ethiopianBirthdate}🎂</span>
-                        </div>
+                                {tab.label}
+                            </button>
+                        ))}
                     </div>
 
-                    {/* Guardian Info Box */}
-                    {child.primaryGuardian && (
-                        <div className="neo-box">
-                            <h4 style={{ textAlign: "center", margin: 0 }}>Primary Guardian</h4>
+                    {/* Tab Content */}
+                    {activeTab === "details" && (
+                        <div className="neo-box animate-fade-in">
+                            <div style={{ position: "relative", display: "inline-block" }}>
+                                <AvatarUploader
+                                    currentAvatarUrl={child.avatar}
+                                    onUploadComplete={handleChildAvatarUpload}
+                                    size="10rem"
+                                    ageGroup={child.ageGroup}
+                                />
+                                {isBirthday && (
+                                    <span style={{
+                                        position: "absolute",
+                                        top: "-10px",
+                                        left: "-5px",
+                                        fontSize: "2.5rem",
+                                        transform: "rotate(-20deg)",
+                                        filter: "drop-shadow(2px 2px 2px rgba(0,0,0,0.3))"
+                                    }}>
+                                        🥳
+                                    </span>
+                                )}
+                            </div>
+                            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.5rem" }}>
+                                <h3 style={{ margin: 0 }}>{child.fullName}</h3>
+                                <div
+                                    className={`tabs secondary ${child.ageGroup}`}
+                                    style={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: "0.5rem",
+                                        borderRadius: "16px",
+                                        padding: "0.5rem 1rem",
+                                        width: "fit-content"
+                                    }}
+                                >
+                                    {ageGroupIcons[child.ageGroup]}
+                                    <span style={{ textTransform: "capitalize" }}>{child.ageGroup}</span>
+                                </div>
+                            </div>
 
-                            {/* Avatar centered like child card, but smaller */}
+                            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.25rem", opacity: 0.7 }}>
+                                {isBirthday ? (
+                                    <span style={{ fontWeight: 600, fontSize: "1.1rem", color: "var(--primary-color)" }}>
+                                        🎉 Happy Birthday! 🎉
+                                    </span>
+                                ) : (
+                                    ageInAmharic && <span style={{ fontWeight: 500 }} dangerouslySetInnerHTML={{ __html: ageInAmharic }} />
+                                )}
+                                <span>🎂{ethiopianBirthdate}🎂</span>
+                            </div>
+                        </div>
+                    )}
+
+                    {activeTab === "guardian" && child.primaryGuardian && (
+                        <div className="neo-box animate-fade-in">
+                            <h4 style={{ textAlign: "center", margin: 0 }}>Primary Guardian</h4>
                             <AvatarUploader
                                 currentAvatarUrl={child.primaryGuardian.avatar}
                                 onUploadComplete={handleGuardianAvatarUpload}
                                 size="6rem"
                             />
-
-                            {/* Name and relation */}
                             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.25rem" }}>
                                 <h4 style={{ margin: 0, fontSize: "1.1rem" }}>{child.primaryGuardian.fullName}</h4>
                                 <span style={{ opacity: 0.7, textTransform: "capitalize" }}>
                                     {child.primaryGuardian.relationToChild}
                                 </span>
                             </div>
-
-                            {/* Address */}
                             <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", opacity: 0.7 }}>
                                 <span>📍</span>
                                 <span>{child.primaryGuardian.address}</span>
                             </div>
-
-                            {/* Action buttons */}
                             <div style={{ display: "flex", justifyContent: "center", gap: "3rem" }}>
                                 <a
                                     href={`tel:${child.primaryGuardian.phoneNumber}`}
@@ -436,7 +445,6 @@ export default function ChildInfo() {
                                 >
                                     <CallIcon />
                                 </a>
-
                                 <a
                                     href={`sms:${child.primaryGuardian.phoneNumber}`}
                                     className="glass-pill"
@@ -450,21 +458,16 @@ export default function ChildInfo() {
                                 >
                                     <MessageIcon />
                                 </a>
-
-                                {/* <Link
-                                    href="#"
-                                    className="glass-pill"
-                                    style={{
-                                        color: "var(--foreground)",
-                                        aspectRatio: "1/1",
-                                        padding: 0,
-                                        width: "3rem",
-                                        height: "3rem"
-                                    }}
-                                >
-                                    <ArrowRight />
-                                </Link> */}
                             </div>
+                        </div>
+                    )}
+
+                    {activeTab === "attendance" && (
+                        <div className="animate-fade-in">
+                            <ChildAttendanceGrid
+                                childId={child._id}
+                                initialDate={initialDate}
+                            />
                         </div>
                     )}
                 </div>
