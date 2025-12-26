@@ -16,7 +16,7 @@ export default function Home() {
   return (
     <>
       <GlassHeader title="Emamaye Daycare Pro" />
-      <main>
+      <main className="center">
 
         <div
           style={{

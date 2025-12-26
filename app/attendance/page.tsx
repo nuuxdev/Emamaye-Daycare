@@ -207,7 +207,7 @@ export default function Attendance() {
           </div>
         }
       />
-      <main style={{ justifyContent: view !== "card" ? "start" : "center" }}>
+      <main>
         <div style={{ display: "grid", gap: "1rem", width: "100%", maxWidth: "600px", paddingInline: "0.5rem", boxSizing: "border-box" }}>
           <AttendanceTabs viewTab={viewTab} setViewTab={setViewTab} view={view} />
           <DateNavigator
