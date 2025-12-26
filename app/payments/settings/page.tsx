@@ -4,18 +4,19 @@ import { api } from "@/convex/_generated/api";
 import GlassHeader from "@/components/GlassHeader";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
-import { InfantIcon, ToddlerIcon, PreschoolerIcon } from "@/components/Icons";
+import { InfantIcon, ToddlerIcon, PreschoolerIcon, EditIcon } from "@/components/Icons";
 
 const ageGroups = [
-    { id: "infant", label: "ጨቅላ (0-1 ዓመት)", icon: <InfantIcon /> },
-    { id: "toddler", label: "ታዳጊ (1-3 ዓመት)", icon: <ToddlerIcon /> },
-    { id: "preschooler", label: "ቅድመ ትምህርት (3-6 ዓመት)", icon: <PreschoolerIcon /> },
+    { id: "infant", label: "ጨቅላ (0-1)", icon: <InfantIcon /> },
+    { id: "toddler", label: "ህፃን (1-2)", icon: <ToddlerIcon /> },
+    { id: "preschooler", label: "ታዳጊ (3-6)", icon: <PreschoolerIcon /> },
 ];
 
 export default function PaymentSettings() {
     const settings = useQuery(api.payments.getPaymentSettings);
     const updateSettings = useMutation(api.payments.updatePaymentSettings);
     const [amounts, setAmounts] = useState<Record<string, number>>({});
+    const [editingId, setEditingId] = useState<string | null>(null);
 
     useEffect(() => {
         if (settings) {
@@ -34,6 +35,7 @@ export default function PaymentSettings() {
         try {
             await updateSettings({ ageGroup, amount });
             toast.success("Price updated successfully");
+            setEditingId(null);
         } catch (error) {
             console.error(error);
             toast.error("Failed to update price");
@@ -58,7 +60,7 @@ export default function PaymentSettings() {
                                 borderRadius: "12px",
                                 border: "1px solid rgba(0,0,0,0.05)"
                             }}>
-                                <div className={`tabs secondary ${group.id}`} style={{ padding: "0.5rem", borderRadius: "50%", width: "3rem", height: "3rem", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                                <div className={`${group.id}`} style={{ width: "2rem", height: "2rem", display: "grid", placeItems: "center", borderRadius: "50%" }}>
                                     {group.icon}
                                 </div>
 
@@ -72,15 +74,42 @@ export default function PaymentSettings() {
                                         value={amounts[group.id] || ""}
                                         onChange={(e) => setAmounts({ ...amounts, [group.id]: parseInt(e.target.value) || 0 })}
                                         placeholder="Amount"
+                                        disabled={editingId !== group.id}
                                         style={{ width: "120px", padding: "1rem" }}
                                     />
-                                    <button
-                                        onClick={() => handleSave(group.id)}
-                                        className="primary"
-                                        style={{ padding: "0.5rem 1rem", fontSize: "0.9rem" }}
-                                    >
-                                        Save
-                                    </button>
+                                    {editingId === group.id ? (
+                                        <button
+                                            onClick={() => handleSave(group.id)}
+                                            className="primary"
+                                            style={{
+                                                padding: "0",
+                                                width: "3rem",
+                                                height: "3rem",
+                                                display: "flex",
+                                                alignItems: "center",
+                                                justifyContent: "center",
+                                                borderRadius: "50%"
+                                            }}
+                                        >
+                                            <EditIcon />
+                                        </button>
+                                    ) : (
+                                        <button
+                                            onClick={() => setEditingId(group.id)}
+                                            className="secondary"
+                                            style={{
+                                                padding: "0",
+                                                width: "3rem",
+                                                height: "3rem",
+                                                display: "flex",
+                                                alignItems: "center",
+                                                justifyContent: "center",
+                                                borderRadius: "50%"
+                                            }}
+                                        >
+                                            <EditIcon />
+                                        </button>
+                                    )}
                                 </div>
                             </div>
                         ))}

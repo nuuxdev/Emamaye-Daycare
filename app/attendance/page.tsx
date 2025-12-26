@@ -352,7 +352,7 @@ export default function Attendance() {
   return (
     <>
       <GlassHeader
-        title="Attendance"
+        title="አቴንዳንስ"
         backHref="/"
         action={
           <div className="glass-pill">

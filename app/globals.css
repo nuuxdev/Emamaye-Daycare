@@ -750,6 +750,8 @@
     text-transform: capitalize;
     padding: 0.5rem 1rem;
     border-radius: 0px;
+    flex-grow: 1;
+    max-width: 10rem;
 
     &:first-child {
       border-top-left-radius: 16px;

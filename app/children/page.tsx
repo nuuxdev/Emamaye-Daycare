@@ -21,7 +21,7 @@ const ageGroupAmh: Record<TAgeGroup | "all children", string> = {
   "all children": "ሁሉም ልጆቼ",
   infant: "ጨቅላ",
   toddler: "ህፃን",
-  preschooler: "ልጅ",
+  preschooler: "ታዳጊ",
 };
 
 const ageGroupIcons: Record<TAgeGroup, JSX.Element> = {
@@ -71,7 +71,7 @@ export default function ChildrenList() {
   return (
     <>
       <GlassHeader
-        title="Children"
+        title="ልጆቼ"
         backHref="/"
         isCompact={searchExpanded}
         action={<SearchPill onSearch={setSearchQuery} onExpandChange={setSearchExpanded} />}

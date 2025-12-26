@@ -88,7 +88,7 @@ export default function PaymentsList() {
                     >
                         <ChevronLeft />
                     </button>
-                    <h3 style={{ textAlign: "center", margin: 0, fontSize: "1rem" }}>
+                    <h3 style={{ textAlign: "center", margin: 0, fontSize: "1rem", width: "8rem", padding: "0.5rem" }}>
                         {getMonthDisplayString()}
                     </h3>
                     <button

@@ -192,7 +192,7 @@ export default function Register() {
 
   return (
     <>
-      <GlassHeader title="Registration" backHref="/" />
+      <GlassHeader title="ምዝገባ" backHref="/" />
       <main className="animate-fade-in" style={{ justifyContent: 'start' }}>
         <div className="neo-box centered-container" style={{ maxWidth: '600px' }}>
 
@@ -216,18 +216,6 @@ export default function Register() {
                 if (index === 2) return !!savedSteps[2].childAvatar; // Optional: require avatar?
                 return false;
               };
-
-              // Allow navigation if the step is the current one, 
-              // OR if it's a previous step (always allowed to go back),
-              // OR if it's a future step BUT all previous steps are completed.
-              // Simpler rule based on user request "Only make the filled ones to be navigatable":
-              // We can interpret "filled" as "completed".
-              // But usually you can always go back. 
-              // And you can go to a future step only if all intermediate steps are done.
-              // Let's allow clicking if:
-              // 1. It's less than or equal to current step (history)
-              // 2. It's a future step and the immediate previous step is complete (next available) - actually user said "filled ones".
-              // If I jump from 0 to 2, 1 must be filled.
 
               const canNavigate = index <= step || (index > step && Array.from({ length: index }, (_, i) => i).every(i => isCompleted(i)));
 
