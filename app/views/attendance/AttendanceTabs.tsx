@@ -1,4 +1,4 @@
-import { TViewTab } from "@/app/attendance/page";
+import { TViewTab } from "@/app/attendance/types";
 
 export default function AttendanceTabs({
     viewTab,

@@ -1,7 +1,7 @@
 import { ChevronLeft, ChevronRight } from "@/components/Icons";
 import { formatEthiopianDate, todayInEth } from "@/utils/calendar";
 import { parseDate, EthiopicCalendar, GregorianCalendar, toCalendar } from "@internationalized/date";
-import { TViewTab } from "@/app/attendance/page";
+import { TViewTab } from "@/app/attendance/types";
 
 export default function DateNavigator({
     attendanceDate,

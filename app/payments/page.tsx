@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { formatEthiopianDate, todayInEth } from "@/utils/calendar";
 import { CheckIcon, ChevronLeft, ChevronRight, SettingsIcon } from "@/components/Icons";
 import { parseDate } from "@internationalized/date";
+import { ServerAvatar } from "@/app/components/ServerAvatar";
 
 export default function PaymentsList() {
     const [filter, setFilter] = useState<"all" | "pending" | "paid">("all");
@@ -112,10 +113,10 @@ export default function PaymentsList() {
                         payments.map((payment) => (
                             <div key={payment._id} className="neo-box" style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
                                 <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-                                    <img
-                                        src={payment.childAvatar || "/profile.png"}
+                                    <ServerAvatar
+                                        src={payment.childAvatar}
                                         alt="Child"
-                                        style={{ width: "3rem", height: "3rem", borderRadius: "50%", objectFit: "cover" }}
+                                        style={{ width: "3rem", height: "3rem", borderRadius: "50%" }}
                                     />
                                     <div>
                                         <h4 style={{ margin: 0 }}>{payment.childName}</h4>

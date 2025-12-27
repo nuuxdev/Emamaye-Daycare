@@ -9,6 +9,7 @@ import SearchPill from "@/components/SearchPill";
 import { parseDate } from "@internationalized/date";
 import { calculateAge } from "@/utils/calculateAge";
 import { CallIcon, InfantIcon, InfoIcon, PreschoolerIcon, ToddlerIcon } from "@/components/Icons";
+import { ServerAvatar } from "@/app/components/ServerAvatar";
 
 const ageGroupsTabs: (TAgeGroup | "all children")[] = [
   "all children",
@@ -107,13 +108,10 @@ export default function ChildrenList() {
                       position: "relative",
                     }}
                   >
-                    <img
-                      src={child.avatar || "/profile.png"}
+                    <ServerAvatar
+                      src={child.avatar}
                       alt="child avatar"
                       style={{
-                        width: "100%",
-                        height: "100%",
-                        objectFit: "cover",
                         borderRadius: "50%",
                       }}
                     />

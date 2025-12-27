@@ -3,6 +3,7 @@ import { Doc, Id } from "@/convex/_generated/dataModel";
 import { TStatus } from "@/convex/types/attendance";
 import { TAgeGroup } from "@/convex/types/children";
 import { JSX } from "react";
+import { ServerAvatar } from "@/app/components/ServerAvatar";
 
 const ageGroupIcons: Record<TAgeGroup, JSX.Element> = {
   infant: <InfantIcon />,
@@ -73,14 +74,9 @@ export default function AttendanceCard({
           }}
         >
           {previousChild ? (
-            <img
+            <ServerAvatar
               src={previousChild.avatar}
               alt={previousChild.fullName}
-              style={{
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
-              }}
             />
           ) : (
             <div style={{ width: "100%", height: "100%", background: "#ccc" }} />
@@ -89,13 +85,10 @@ export default function AttendanceCard({
 
         {/* Current Child Avatar */}
         <div style={{ position: "relative", width: "8rem", height: "8rem" }}>
-          <img
+          <ServerAvatar
             src={currentChild.avatar}
             alt={currentChild.fullName}
             style={{
-              width: "100%",
-              height: "100%",
-              objectFit: "cover",
               borderRadius: "50%",
             }}
           />
@@ -131,14 +124,9 @@ export default function AttendanceCard({
           }}
         >
           {nextChild ? (
-            <img
+            <ServerAvatar
               src={nextChild.avatar}
               alt={nextChild.fullName}
-              style={{
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
-              }}
             />
           ) : (
             <div style={{ width: "100%", height: "100%", background: "#ccc" }} />

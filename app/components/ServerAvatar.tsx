@@ -1,25 +1,32 @@
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { useQuery } from "convex/react";
+import { useState, useEffect, CSSProperties } from "react";
 
 export const ServerAvatar = ({
     storageId,
+    src,
     className = "avatar-img",
-    alt = "Avatar"
+    alt = "Avatar",
+    style
 }: {
     storageId?: Id<"_storage">;
+    src?: string;
     className?: string;
     alt?: string;
+    style?: CSSProperties;
 }) => {
+    const [error, setError] = useState(false);
     const imageUrl = useQuery(api.images.getImageUrl, storageId ? { storageId } : "skip");
 
-    if (!storageId) {
-        return <img src="/profile.png" alt={alt} className={className} />;
-    }
+    // Reset error if src or storageId changes
+    useEffect(() => {
+        setError(false);
+    }, [src, storageId]);
 
-    if (imageUrl === undefined) {
+    if (storageId && imageUrl === undefined && !error) {
         return (
-            <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f0f0f0' }}>
+            <div className={className} style={{ ...style, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f0f0f0' }}>
                 <div className="spinner" style={{
                     width: '24px',
                     height: '24px',
@@ -33,5 +40,15 @@ export const ServerAvatar = ({
         );
     }
 
-    return <img src={imageUrl || "/profile.png"} alt={alt} className={className} />;
+    const finalSrc = error ? "/profile.png" : (src || imageUrl || "/profile.png");
+
+    return (
+        <img
+            src={finalSrc}
+            alt={alt}
+            className={className}
+            style={style}
+            onError={() => setError(true)}
+        />
+    );
 };

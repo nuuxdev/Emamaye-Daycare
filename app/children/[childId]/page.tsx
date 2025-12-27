@@ -13,8 +13,7 @@ import { parseDate } from "@internationalized/date";
 import { toast } from "sonner";
 import ChildAttendanceGrid from "@/app/views/attendance/ChildAttendanceGrid";
 
-// Placeholder image for users without avatar
-const PLACEHOLDER_AVATAR = "/profile.png";
+import { ServerAvatar } from "@/app/components/ServerAvatar";
 
 // Reusable HorizontalProgress component
 const HorizontalProgress = ({ progress }: { progress: number }) => {
@@ -162,20 +161,18 @@ const AvatarUploader = ({
     };
 
     const displayUrl = localPreviewUrl || currentAvatarUrl;
-    const hasRealImage = !!currentAvatarUrl && currentAvatarUrl !== PLACEHOLDER_AVATAR;
-    const showPlaceholder = !displayUrl || displayUrl === PLACEHOLDER_AVATAR;
+    const hasRealImage = !!currentAvatarUrl && currentAvatarUrl !== "/profile.png";
 
     return (
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
             <div style={{ position: "relative", display: "inline-block" }}>
-                <img
-                    src={showPlaceholder ? PLACEHOLDER_AVATAR : displayUrl}
+                <ServerAvatar
+                    src={displayUrl}
                     alt="Avatar"
                     style={{
                         width: size,
                         height: size,
                         borderRadius: "50%",
-                        objectFit: "cover",
                         opacity: isUploading ? 0.7 : 1,
                         transition: "opacity 0.2s"
                     }}

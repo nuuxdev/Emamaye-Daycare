@@ -16,7 +16,7 @@ import PreviewView from "../views/attendance/PreviewView";
 import SummaryView from "../views/attendance/SummaryView";
 import WarningDialog from "../views/attendance/WarningDialog";
 
-export type TViewTab = "daily" | "weekly" | "monthly";
+import { TViewTab } from "./types";
 
 export default function Attendance() {
   const [attendanceDate, setAttendanceDate] = useState(todayInEth.toString());

@@ -1,9 +1,10 @@
 import { Fragment } from "react";
 import { Doc, Id } from "@/convex/_generated/dataModel";
 import { parseDate } from "@internationalized/date";
-import { TViewTab } from "@/app/attendance/page";
+import { TViewTab } from "@/app/attendance/types";
 import { todayInEth } from "@/utils/calendar";
 import Link from "next/link";
+import { ServerAvatar } from "@/app/components/ServerAvatar";
 
 export default function SummaryView({
     childrenData,
@@ -54,14 +55,13 @@ export default function SummaryView({
                     <Fragment key={child._id}>
                         <div style={{ display: "flex", gap: "1rem", alignItems: "center", justifyContent: "space-between", padding: "0.5rem 0" }}>
                             <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
-                                <img
+                                <ServerAvatar
                                     src={child.avatar}
                                     alt={child.fullName}
                                     style={{
                                         width: "3rem",
                                         height: "3rem",
                                         borderRadius: "50%",
-                                        objectFit: "cover",
                                     }}
                                 />
                                 <h4 style={{ margin: 0, fontSize: "inherit", textTransform: "capitalize" }}>{child.fullName}</h4>

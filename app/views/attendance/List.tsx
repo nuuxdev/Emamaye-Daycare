@@ -4,6 +4,7 @@ import { Doc, Id } from "@/convex/_generated/dataModel";
 import { TStatus } from "@/convex/types/attendance";
 import { useMutation } from "convex/react";
 import { Fragment } from "react";
+import { ServerAvatar } from "@/app/components/ServerAvatar";
 
 export default function AttendanceList({
   childrenData,
@@ -61,14 +62,13 @@ export default function AttendanceList({
           <Fragment key={child._id}>
             <div style={{ display: "flex", gap: "1rem", alignItems: "center", justifyContent: "space-between", padding: "0.5rem 0" }}>
               <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
-                <img
+                <ServerAvatar
                   src={child.avatar}
                   alt={child.fullName}
                   style={{
                     width: "3rem",
                     height: "3rem",
                     borderRadius: "50%",
-                    objectFit: "cover",
                   }}
                 />
                 <h4 style={{ margin: 0, fontSize: "inherit", textTransform: "capitalize" }}>{child.fullName}</h4>
