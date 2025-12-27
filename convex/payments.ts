@@ -1,6 +1,7 @@
 import { v } from "convex/values";
 import { internalMutation, mutation, query } from "./_generated/server";
 import { getAuthUserId } from "@convex-dev/auth/server";
+import { today, getLocalTimeZone, EthiopicCalendar, toCalendar } from "@internationalized/date";
 
 // --- Payment Settings ---
 
@@ -61,11 +62,20 @@ export const getPayments = query({
     args: {
         status: v.optional(v.string()),
         childId: v.optional(v.id("children")),
+        dueDate: v.optional(v.string()),
     },
     handler: async (ctx, args) => {
         let payments;
 
-        if (args.status) {
+        if (args.dueDate) {
+            payments = await ctx.db
+                .query("payments")
+                .withIndex("by_due_date", (q) => q.eq("dueDate", args.dueDate!))
+                .collect();
+            if (args.status) {
+                payments = payments.filter(p => p.status === args.status);
+            }
+        } else if (args.status) {
             payments = await ctx.db
                 .query("payments")
                 .withIndex("by_status", (q) => q.eq("status", args.status!))
@@ -114,51 +124,56 @@ export const markAsPaid = mutation({
 
 // This mutation checks all children and creates payments if they are due.
 // Logic: Children pay on either month-end (30th) or month-half (15th) based on their paymentSchedule.
+async function performPaymentGeneration(ctx: any, dueDate: string) {
+    const children = await ctx.db.query("children").collect();
+    const paymentSettings = await ctx.db.query("paymentSettings").collect();
+    const settingsMap = new Map(paymentSettings.map((s: any) => [s.ageGroup, s.amount]));
+
+    let createdCount = 0;
+
+    for (const child of children) {
+        // Check if payment already exists for this child and due date
+        const existingPayments = await ctx.db
+            .query("payments")
+            .withIndex("by_child", (q: any) => q.eq("childId", child._id))
+            .collect();
+
+        const alreadyExists = existingPayments.some((p: any) => p.dueDate === dueDate);
+
+        if (!alreadyExists) {
+            const amount = settingsMap.get(child.ageGroup) || child.paymentAmount || 0;
+
+            await ctx.db.insert("payments", {
+                childId: child._id,
+                amount,
+                dueDate: dueDate,
+                status: "pending",
+            });
+            createdCount++;
+        }
+    }
+
+    return { createdCount, totalChildren: children.length };
+}
+
+export const generateMonthlyPaymentsInternal = internalMutation({
+    args: {
+        dueDate: v.string(),
+    },
+    handler: async (ctx, { dueDate }) => {
+        return await performPaymentGeneration(ctx, dueDate);
+    }
+});
+
 export const generateMonthlyPayments = mutation({
     args: {
-        year: v.number(),
-        month: v.number(), // 0-indexed (0=Jan, 11=Dec)
+        dueDate: v.string(),
     },
-    handler: async (ctx, { year, month }) => {
+    handler: async (ctx, { dueDate }) => {
         const userId = await getAuthUserId(ctx);
         if (!userId) throw new Error("Unauthorized");
 
-        const children = await ctx.db.query("children").collect();
-        const paymentSettings = await ctx.db.query("paymentSettings").collect();
-        const settingsMap = new Map(paymentSettings.map(s => [s.ageGroup, s.amount]));
-
-        let createdCount = 0;
-
-        for (const child of children) {
-            // Use paymentSchedule to determine due day (15 or 30)
-            const dueDay = child.paymentSchedule === "month_half" ? 15 : 30;
-
-            // Calculate due date for this month
-            const dueDate = new Date(year, month, dueDay);
-            const dueDateStr = dueDate.toISOString().split('T')[0]; // YYYY-MM-DD
-
-            // Check if payment already exists for this child and due date
-            const existingPayments = await ctx.db
-                .query("payments")
-                .withIndex("by_child", (q) => q.eq("childId", child._id))
-                .collect();
-
-            const alreadyExists = existingPayments.some(p => p.dueDate === dueDateStr);
-
-            if (!alreadyExists) {
-                const amount = settingsMap.get(child.ageGroup) || child.paymentAmount || 0;
-
-                await ctx.db.insert("payments", {
-                    childId: child._id,
-                    amount,
-                    dueDate: dueDateStr,
-                    status: "pending",
-                });
-                createdCount++;
-            }
-        }
-
-        return { createdCount, totalChildren: children.length };
+        return await performPaymentGeneration(ctx, dueDate);
     }
 });
 
@@ -166,11 +181,12 @@ export const generateMonthlyPayments = mutation({
 export const autoGeneratePayments = internalMutation({
     args: {},
     handler: async (ctx) => {
-        const today = new Date();
-        const day = today.getDate();
+        const todayGreg = today(getLocalTimeZone());
+        const todayEth = toCalendar(todayGreg, new EthiopicCalendar());
+        const dayEth = todayEth.day;
 
-        // Only run on 15th or 30th of the month
-        if (day !== 15 && day !== 30) return { skipped: true };
+        // Only run on Ethiopian 15th or 30th
+        if (dayEth !== 15 && dayEth !== 30) return { skipped: true, dayEth };
 
         const children = await ctx.db.query("children").collect();
         const paymentSettings = await ctx.db.query("paymentSettings").collect();
@@ -179,14 +195,14 @@ export const autoGeneratePayments = internalMutation({
         let createdCount = 0;
 
         for (const child of children) {
-            // Only process children whose schedule matches today's date
+            // Only process children whose schedule matches today's Ethiopian date
             const shouldProcess =
-                (day === 15 && child.paymentSchedule === "month_half") ||
-                (day === 30 && child.paymentSchedule === "month_end");
+                (dayEth === 15 && child.paymentSchedule === "month_half") ||
+                (dayEth === 30 && child.paymentSchedule === "month_end");
 
             if (!shouldProcess) continue;
 
-            const dueDateStr = today.toISOString().split('T')[0];
+            const dueDateStr = todayGreg.toString(); // YYYY-MM-DD
 
             const existingPayments = await ctx.db
                 .query("payments")
@@ -208,6 +224,6 @@ export const autoGeneratePayments = internalMutation({
             }
         }
 
-        return { createdCount };
+        return { createdCount, dayEth };
     }
 });

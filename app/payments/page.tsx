@@ -5,17 +5,34 @@ import GlassHeader from "@/components/GlassHeader";
 import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
-import { formatEthiopianDate, todayInEth } from "@/utils/calendar";
+import { formatEthiopianDate, todayInEth, EthiopianCalendar } from "@/utils/calendar";
 import { CheckIcon, ChevronLeft, ChevronRight, SettingsIcon } from "@/components/Icons";
-import { parseDate } from "@internationalized/date";
+import { parseDate, toCalendar, GregorianCalendar } from "@internationalized/date";
 import { ServerAvatar } from "@/app/components/ServerAvatar";
 
 export default function PaymentsList() {
     const [filter, setFilter] = useState<"all" | "pending" | "paid">("all");
-    const [selectedDate, setSelectedDate] = useState(todayInEth.toString());
+
+    // Initialize to the closest payment date (15th or 30th)
+    const getInitialPeriod = () => {
+        const today = todayInEth;
+        // If we are past the 22nd, show the 30th (upcoming or current)
+        // Otherwise show the 15th
+        if (today.day <= 22) {
+            return today.set({ day: 15 });
+        } else {
+            return today.set({ day: 30 });
+        }
+    };
+
+    const [currentPeriod, setCurrentPeriod] = useState(getInitialPeriod());
+
+    // Convert Ethiopian period to Gregorian dueDate string for the query
+    const dueDate = toCalendar(currentPeriod, new GregorianCalendar()).toString();
 
     const payments = useQuery(api.payments.getPayments, {
-        status: filter === "all" ? undefined : filter
+        status: filter === "all" ? undefined : filter,
+        dueDate: dueDate
     });
     const markAsPaid = useMutation(api.payments.markAsPaid);
 
@@ -29,20 +46,30 @@ export default function PaymentsList() {
         }
     };
 
-    // Navigate month
-    const navigateMonth = (direction: "prev" | "next") => {
-        const currentDate = parseDate(selectedDate);
-        const newDate = direction === "prev"
-            ? currentDate.subtract({ months: 1 })
-            : currentDate.add({ months: 1 });
-        setSelectedDate(newDate.toString());
+    // Navigate between 15th and 30th
+    const navigatePeriod = (direction: "prev" | "next") => {
+        let newPeriod;
+        if (direction === "prev") {
+            if (currentPeriod.day === 30) {
+                newPeriod = currentPeriod.set({ day: 15 });
+            } else {
+                // Move to 30th of previous month
+                newPeriod = currentPeriod.subtract({ months: 1 }).set({ day: 30 });
+            }
+        } else {
+            if (currentPeriod.day === 15) {
+                newPeriod = currentPeriod.set({ day: 30 });
+            } else {
+                // Move to 15th of next month
+                newPeriod = currentPeriod.add({ months: 1 }).set({ day: 15 });
+            }
+        }
+        setCurrentPeriod(newPeriod);
     };
 
-    // Format month display (Ethiopian month and year only)
-    const getMonthDisplayString = () => {
-        const ethDate = formatEthiopianDate(selectedDate);
-        const parts = ethDate.split(" ");
-        return `${parts[0]} ${parts[2]}`; // e.g., "ታህሳስ 2017"
+    // Format display string (e.g., "ታህሳስ 15, 2017")
+    const getPeriodDisplayString = () => {
+        return formatEthiopianDate(toCalendar(currentPeriod, new GregorianCalendar()).toString());
     };
 
     // Filter tabs labels
@@ -81,25 +108,38 @@ export default function PaymentsList() {
                 </div>
 
                 {/* Month Navigation */}
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "1rem", marginBottom: "1rem" }}>
-                    <button
-                        onClick={() => navigateMonth("prev")}
-                        className="glass-pill"
-                        style={{ padding: "0.5rem", cursor: "pointer" }}
-                    >
-                        <ChevronLeft />
-                    </button>
-                    <h3 style={{ textAlign: "center", margin: 0, fontSize: "1rem", width: "8rem", padding: "0.5rem" }}>
-                        {getMonthDisplayString()}
-                    </h3>
-                    <button
-                        onClick={() => navigateMonth("next")}
-                        className="glass-pill"
-                        style={{ padding: "0.5rem", cursor: "pointer" }}
-                        disabled={parseDate(selectedDate).compare(todayInEth) >= 0}
-                    >
-                        <ChevronRight />
-                    </button>
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.5rem", marginBottom: "1.5rem" }}>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "1rem" }}>
+                        <button
+                            onClick={() => navigatePeriod("prev")}
+                            className="glass-pill"
+                            style={{ padding: "0.5rem", cursor: "pointer" }}
+                        >
+                            <ChevronLeft />
+                        </button>
+                        <h3 style={{ textAlign: "center", margin: 0, fontSize: "1rem", width: "12rem", padding: "0.5rem" }}>
+                            {getPeriodDisplayString()}
+                        </h3>
+                        <button
+                            onClick={() => navigatePeriod("next")}
+                            className="glass-pill"
+                            style={{ padding: "0.5rem", cursor: "pointer" }}
+                            disabled={currentPeriod.compare(todayInEth) >= 0}
+                        >
+                            <ChevronRight />
+                        </button>
+                    </div>
+                    <span style={{
+                        display: "inline-block",
+                        padding: "0.25rem 0.75rem",
+                        borderRadius: "12px",
+                        fontSize: "0.8rem",
+                        fontWeight: 700,
+                        background: currentPeriod.day === 15 ? "var(--secondary-color)" : "var(--info-color)",
+                        color: "white",
+                    }}>
+                        {currentPeriod.day === 15 ? "ወር አጋማሽ (15)" : "የወር መጨረሻ (30)"}
+                    </span>
                 </div>
 
                 <div style={{ display: "flex", flexDirection: "column", gap: "1rem", padding: "1rem" }}>
@@ -120,18 +160,6 @@ export default function PaymentsList() {
                                     />
                                     <div>
                                         <h4 style={{ margin: 0 }}>{payment.childName}</h4>
-                                        <span style={{
-                                            display: "inline-block",
-                                            padding: "0.2rem 0.5rem",
-                                            borderRadius: "12px",
-                                            fontSize: "0.75rem",
-                                            fontWeight: 600,
-                                            background: payment.paymentSchedule === "month_half" ? "var(--warning-color)" : "var(--info-color)",
-                                            color: "white",
-                                            marginTop: "0.25rem"
-                                        }}>
-                                            {payment.paymentSchedule === "month_half" ? "ወር አጋማሽ" : "የወር መጨረሻ"}
-                                        </span>
                                         <p style={{ margin: "0.25rem 0 0 0", fontSize: "0.9rem", fontWeight: 600, color: "var(--primary-color)" }}>
                                             {payment.amount} ብር
                                         </p>

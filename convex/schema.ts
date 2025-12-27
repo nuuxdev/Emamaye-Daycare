@@ -44,5 +44,5 @@ export default defineSchema({
     dueDate: v.string(), // ISO date string
     status: v.string(), // "pending", "paid"
     paidAt: v.optional(v.string()),
-  }).index("by_child", ["childId"]).index("by_status", ["status"]),
+  }).index("by_child", ["childId"]).index("by_status", ["status"]).index("by_due_date", ["dueDate"]),
 });
