@@ -29,6 +29,12 @@ export default function ChildAttendanceGrid({
 
     const childAttendances = attendances?.filter(att => att.childId === childId) || [];
 
+    const dayOfWeek = startOfMonthEth.toDate("UTC").getDay();
+    // Adjust to make Monday (1) the first day (index 0)
+    // Sunday (0) becomes index 6
+    const firstDayIndex = (dayOfWeek + 6) % 7;
+    const emptyCells = Array.from({ length: firstDayIndex }, (_, i) => i);
+    const dayLabels = ["ሰ", "ማ", "ረ", "ሐ", "አ", "ቅ", "እ"];
     const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
 
     return (
@@ -44,6 +50,22 @@ export default function ChildAttendanceGrid({
                 gap: "0.5rem",
                 width: "100%"
             }}>
+                {dayLabels.map(label => (
+                    <div key={label} style={{
+                        textAlign: "center",
+                        fontSize: "0.75rem",
+                        fontWeight: "700",
+                        opacity: 0.5,
+                        paddingBottom: "0.5rem"
+                    }}>
+                        {label}
+                    </div>
+                ))}
+
+                {emptyCells.map(i => (
+                    <div key={`empty-${i}`} />
+                ))}
+
                 {days.map(day => {
                     const date = startOfMonthEth.set({ day });
                     const dateStr = toCalendar(date, new GregorianCalendar()).toString();
