@@ -19,7 +19,16 @@ import WarningDialog from "../views/attendance/WarningDialog";
 import { TViewTab } from "./types";
 
 export default function Attendance() {
-  const [attendanceDate, setAttendanceDate] = useState(todayInEth.toString());
+  const getInitialDate = () => {
+    let date = todayInEth;
+    // 0 = Sunday, 6 = Saturday
+    while (date.toDate("UTC").getDay() === 0 || date.toDate("UTC").getDay() === 6) {
+      date = date.subtract({ days: 1 });
+    }
+    return date.toString();
+  };
+
+  const [attendanceDate, setAttendanceDate] = useState(getInitialDate());
   const [currentChildIndex, setCurrentChildIndex] = useState(0);
   const [view, setView] = useState<"card" | "list" | "preview">("card");
   const [viewTab, setViewTab] = useState<TViewTab>("daily");
@@ -89,7 +98,11 @@ export default function Attendance() {
       const isToday = selectedDate.getTime() === today.getTime();
       const isYesterday = selectedDate.getTime() === yesterday.getTime();
 
-      if (isToday || isYesterday) {
+      const selectedDateObj = parseDate(attendanceDate);
+      const dayOfWeek = selectedDateObj.toDate("UTC").getDay();
+      const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+
+      if ((isToday || isYesterday) && !isWeekend) {
         setView("card");
       } else {
         setView("list");
@@ -152,6 +165,18 @@ export default function Attendance() {
   const renderContent = () => {
     if (childrenData === undefined || attendancesByDate === undefined) {
       return <div style={{ textAlign: "center", padding: "2rem" }}>Loading Attendance...</div>;
+    }
+
+    const selectedDateObj = parseDate(attendanceDate);
+    const dayOfWeek = selectedDateObj.toDate("UTC").getDay();
+    const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+
+    if (isWeekend && viewTab === "daily") {
+      return (
+        <div className="neo-box" style={{ textAlign: "center", padding: "3rem 1rem" }}>
+          <p style={{ opacity: 0.6, fontSize: "1.1rem" }}>የሳምንት እረፍት (ቅዳሜ/እሁድ) አቴንዳንስ የለም</p>
+        </div>
+      );
     }
 
     switch (view) {

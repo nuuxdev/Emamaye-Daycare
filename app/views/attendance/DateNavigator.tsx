@@ -39,7 +39,15 @@ export default function DateNavigator({
         const today = todayInEth;
 
         if (viewTab === "daily") {
-            return currentDate.compare(toCalendar(today, new GregorianCalendar())) >= 0;
+            const todayGreg = toCalendar(today, new GregorianCalendar());
+            if (currentDate.compare(todayGreg) >= 0) return true;
+
+            // Check if next weekday is in the future
+            let nextWeekday = currentEth.add({ days: 1 });
+            while (nextWeekday.toDate("UTC").getDay() === 0 || nextWeekday.toDate("UTC").getDay() === 6) {
+                nextWeekday = nextWeekday.add({ days: 1 });
+            }
+            return toCalendar(nextWeekday, new GregorianCalendar()).compare(todayGreg) > 0;
         } else if (viewTab === "weekly") {
             const dayOfWeek = today.toDate("UTC").getDay();
             const daysToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
@@ -64,6 +72,10 @@ export default function DateNavigator({
 
         if (viewTab === "daily") {
             newDateEth = direction === "prev" ? currentEth.subtract({ days: 1 }) : currentEth.add({ days: 1 });
+            // Skip weekends (0 = Sunday, 6 = Saturday)
+            while (newDateEth.toDate("UTC").getDay() === 0 || newDateEth.toDate("UTC").getDay() === 6) {
+                newDateEth = direction === "prev" ? newDateEth.subtract({ days: 1 }) : newDateEth.add({ days: 1 });
+            }
         } else if (viewTab === "weekly") {
             newDateEth = direction === "prev" ? currentEth.subtract({ weeks: 1 }) : currentEth.add({ weeks: 1 });
         } else {
