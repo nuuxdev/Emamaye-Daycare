@@ -17,8 +17,10 @@ export default function SignIn() {
       <header className="signin-header">
         <div className="signin-header-bg">
           <svg
-            width="100%"
-            height="100%"
+            style={{
+              width: "100%",
+              maxHeight: "300px"
+            }}
             viewBox="0 0 360 309"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
