@@ -25,6 +25,7 @@ import type * as images from "../images.js";
 import type * as migrations from "../migrations.js";
 import type * as myFunctions from "../myFunctions.js";
 import type * as payments from "../payments.js";
+import type * as stats from "../stats.js";
 import type * as types_attendance from "../types/attendance.js";
 import type * as types_children from "../types/children.js";
 import type * as types_guardians from "../types/guardians.js";
@@ -50,6 +51,7 @@ declare const fullApi: ApiFromModules<{
   migrations: typeof migrations;
   myFunctions: typeof myFunctions;
   payments: typeof payments;
+  stats: typeof stats;
   "types/attendance": typeof types_attendance;
   "types/children": typeof types_children;
   "types/guardians": typeof types_guardians;

@@ -2,6 +2,7 @@
 import Link from "next/link";
 import GlassHeader from "@/components/GlassHeader";
 import { ClipboardIcon, MoneyIcon, AttendanceIcon, PreschoolerIcon } from "@/components/Icons";
+import KPIStats from "@/app/components/KPIStats";
 
 export default function Home() {
   const cardStyle = {
@@ -16,9 +17,11 @@ export default function Home() {
   return (
     <>
       <GlassHeader title="Emamaye Daycare Pro" />
-      <main className="center">
+      <main>
+        <KPIStats />
 
         <div
+
           style={{
             display: "grid",
             gridTemplateColumns: "repeat(2, 1fr)",
