@@ -1,0 +1,32 @@
+@layer reset {
+    *:not(dialog) {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    *:focus-visible {
+        outline: 2px solid var(--primary-color);
+        outline-offset: 2px;
+    }
+
+    fieldset {
+        border: none;
+    }
+
+    ::selection {
+        background: #ff336633;
+        color: currentColor;
+    }
+
+    ::-moz-selection {
+        background: #ff336633;
+        color: currentColor;
+    }
+
+    body:has(dialog[open]) {
+        overflow: hidden;
+    }
+
+}

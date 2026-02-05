@@ -1,0 +1,56 @@
+@layer variables {
+    :root {
+        interpolate-size: allow-keywords;
+        /* Core Colors - Vibrant & Fluent Inspired */
+        --background: #eef2f6;
+        /* Slightly lighter, cooler grey */
+        --foreground: #2d3436;
+        --primary-color: #f36;
+        /* Vibrant Pink/Red */
+        --primary-hover: #d63031;
+        --secondary-color: #0984e3;
+        /* Vibrant Blue */
+        --accent-color: #00cec9;
+        --success-color: #00b894;
+        --info-color: #00cec9;
+        --warning-color: yellow;
+        --error-color: #d63031;
+        /* Teal */
+        --white: #ffffff;
+
+        /* Neomorphic Shadows - Softer & Cleaner */
+        --shadow-light: -6px -6px 14px rgba(255, 255, 255, 0.8);
+        --shadow-dark: 6px 6px 10px rgba(163, 177, 198, 0.4);
+        /* Reduced opacity for cleaner look */
+        --shadow-inset-light: inset -4px -4px 8px rgba(255, 255, 255, 0.8);
+        --shadow-inset-dark: inset 4px 4px 8px rgba(163, 177, 198, 0.3);
+        /* input shadow variable */
+        --input-shadow: 11.2114px -11.2114px 22.4229px rgba(255, 255, 255, 0.85),
+            -3.73714px 7.47429px 11.2114px rgba(0, 0, 0, 0.06),
+            -3.73714px 11.2114px 37.3714px rgba(0, 0, 0, 0.12),
+            inset 9.34286px -9.34286px 22.4229px rgba(255, 255, 255, 0.9),
+            inset -3.73714px 7.47429px 14.9486px rgba(0, 0, 0, 0.06),
+            inset -3.73714px 11.2114px 44.8457px rgba(0, 0, 0, 0.12);
+
+        /* Fluent / Glassmorphism */
+        --glass-bg: rgba(255, 255, 255, 0.65);
+        --glass-border: rgba(255, 255, 255, 0.4);
+        --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+        --glass-shadow-sm: 0 4px 16px 0 rgba(31, 38, 135, 0.1);
+        --acrylic-blur: blur(12px);
+
+        /* Status Colors */
+        --color-infant: #ff7675;
+        --color-toddler: #fdcb6e;
+        --color-preschooler: #74b9ff;
+
+        /* Fonts */
+        --font-sans: 'Outfit', 'Inter', system-ui, -apple-system, sans-serif;
+        /* Modern Geometric Sans */
+        --font-serif: 'Playfair Display', serif;
+
+        /* Animation */
+        --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        --transition-smooth: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+}

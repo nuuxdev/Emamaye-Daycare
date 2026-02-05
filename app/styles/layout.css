@@ -1,0 +1,22 @@
+@layer layout {
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    main {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-height: 100vh;
+        padding: 0.5rem;
+        gap: 1rem;
+        /* for the fixed header space  */
+        padding-top: 5rem;
+
+        &.center {
+            justify-content: center;
+        }
+    }
+}

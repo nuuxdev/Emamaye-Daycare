@@ -16,7 +16,7 @@ export default function SignIn() {
     <main className="signin-container">
       <header className="signin-header">
         <div className="signin-header-bg">
-          <svg
+          {/* <svg
             style={{
               width: "100%",
               maxHeight: "300px"
@@ -89,7 +89,7 @@ export default function SignIn() {
                 <stop offset="1" stopColor="#F6465A" />
               </linearGradient>
             </defs>
-          </svg>
+          </svg> */}
         </div>
 
         <div className="signin-icon-wrapper">

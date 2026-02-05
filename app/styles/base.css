@@ -1,0 +1,66 @@
+@layer base {
+    body {
+        color: var(--foreground);
+        background: var(--background);
+        font-family: var(--font-sans);
+        min-height: 100svh;
+        line-height: 1.6;
+        background-image:
+            radial-gradient(at 0% 0%, rgba(255, 107, 107, 0.1) 0px, transparent 50%),
+            radial-gradient(at 100% 0%, rgba(84, 160, 255, 0.1) 0px, transparent 50%),
+            radial-gradient(at 100% 100%, rgba(254, 202, 87, 0.1) 0px, transparent 50%);
+        background-attachment: fixed;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        font-family: var(--font-sans);
+        /* Switch to sans for cleaner look, or keep serif if preferred */
+        font-weight: 700;
+        color: var(--foreground);
+        margin-bottom: 1rem;
+        letter-spacing: -0.02em;
+        text-transform: capitalize;
+    }
+
+    input,
+    button,
+    select,
+    textarea {
+        font-family: inherit;
+        font-size: 1rem;
+        border: none;
+        background: transparent;
+    }
+
+    label:not(:has(input[type="radio"])),
+    legend {
+        display: block;
+        margin-left: 0.5rem;
+        font-weight: 600;
+        color: var(--foreground);
+    }
+
+    a {
+        text-decoration: none;
+        color: var(--primary-color);
+        transition: color var(--transition-fast);
+
+        &:hover {
+            color: var(--primary-hover);
+        }
+    }
+
+    hr {
+        border: none;
+        height: 1px;
+        background: rgba(0, 0, 0, 0.1);
+        margin: 0.5rem 0;
+        width: 100%;
+        flex-shrink: 0;
+    }
+}
