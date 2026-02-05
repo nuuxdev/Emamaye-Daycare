@@ -7,14 +7,6 @@ import { PreschoolerIcon, AttendanceIcon, MoneyIcon } from "@/components/Icons";
 export default function KPIStats() {
     const stats = useQuery(api.stats.getSummary);
 
-    if (!stats) {
-        return (
-            <div className="neo-box" style={{ minHeight: "80px", justifyContent: "center" }}>
-                <span className="opacity-50">Loading stats...</span>
-            </div>
-        );
-    }
-
     const separatorStyle = {
         width: "1px",
         height: "32px",
@@ -41,12 +33,15 @@ export default function KPIStats() {
         fontSize: "1.125rem",
         fontWeight: 700,
         color: "var(--primary-color)",
+        minWidth: "1ch",
+        textAlign: "center" as const,
     };
 
     return (
         <div
-            className="neo-box"
+            // className="neo-box"
             style={{
+                display: "flex",
                 flexDirection: "row",
                 padding: "1rem",
                 gap: "0.5rem",
@@ -60,7 +55,7 @@ export default function KPIStats() {
                 <span style={labelStyle}>ልጆች</span>
                 <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                     <PreschoolerIcon />
-                    <span style={valueStyle}>{stats.totalActiveChildren}</span>
+                    <span style={valueStyle}>{stats ? stats.totalActiveChildren : "—"}</span>
                 </div>
             </div>
 
@@ -70,7 +65,7 @@ export default function KPIStats() {
                 <span style={labelStyle}>አቴንዳንስ</span>
                 <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                     <AttendanceIcon />
-                    <span style={valueStyle}>{stats.presentToday}</span>
+                    <span style={valueStyle}>{stats ? stats.presentToday : "—"}</span>
                 </div>
             </div>
 
@@ -80,7 +75,7 @@ export default function KPIStats() {
                 <span style={labelStyle}>ክፍያ</span>
                 <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                     <MoneyIcon />
-                    <span style={valueStyle}>{stats.pendingPaymentsTotal.toLocaleString()}</span>
+                    <span style={valueStyle}>{stats ? stats.pendingPaymentsTotal.toLocaleString() : "—"}</span>
                 </div>
             </div>
         </div>
