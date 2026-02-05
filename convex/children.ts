@@ -59,6 +59,7 @@ export const addChild = mutation({
       paymentSchedule: args.childData.paymentSchedule,
       avatar: await getChildAvatarUrl(),
       primaryGuardian: guardianId,
+      isActive: true,
     });
     if (!childId) throw new Error("Child not added");
 
@@ -67,11 +68,23 @@ export const addChild = mutation({
 });
 
 export const getChildrenWithPrimaryGuardian = query({
-  handler: async (ctx) => {
+  args: {
+    isActive: v.optional(v.boolean()),
+  },
+  handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
     if (!userId) throw new Error("Unauthorized");
 
-    const children = await ctx.db.query("children").collect();
+    let childrenQuery = ctx.db.query("children");
+
+    // Default to active only if not specified, 
+    // or use the specific value provided
+    const activeFilter = args.isActive !== undefined ? args.isActive : true;
+
+    const children = await childrenQuery
+      .filter((q) => q.eq(q.field("isActive"), activeFilter))
+      .collect();
+
     return await Promise.all(
       children.map(async (child) => {
         const primaryGuardian = await ctx.db.get(child.primaryGuardian);
@@ -118,5 +131,50 @@ export const updateChildAvatar = mutation({
 
     await ctx.db.patch(args.childId, { avatar: avatarUrl });
     return "Avatar updated successfully";
+  },
+});
+
+export const deactivateChild = mutation({
+  args: {
+    childId: v.id("children"),
+    leaveType: v.string(),
+    leaveReason: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) throw new Error("Unauthorized");
+
+    const child = await ctx.db.get(args.childId);
+    if (!child) throw new Error("Child not found");
+
+    await ctx.db.patch(args.childId, {
+      isActive: false,
+      leaveType: args.leaveType,
+      leaveReason: args.leaveReason,
+      leaveDate: new Date().toISOString(),
+    });
+    return "Child deactivated successfully";
+  },
+});
+
+export const reactivateChild = mutation({
+  args: {
+    childId: v.id("children"),
+  },
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) throw new Error("Unauthorized");
+
+    const child = await ctx.db.get(args.childId);
+    if (!child) throw new Error("Child not found");
+
+    await ctx.db.patch(args.childId, {
+      isActive: true,
+      leaveType: undefined,
+      leaveReason: undefined,
+      leaveDate: undefined,
+    });
+
+    return "Child reactivated successfully";
   },
 });

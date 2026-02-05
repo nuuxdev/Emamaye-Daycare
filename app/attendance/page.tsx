@@ -35,7 +35,7 @@ export default function Attendance() {
   const [pendingDate, setPendingDate] = useState<string | null>(null);
   const warningDialogRef = useRef<HTMLDialogElement>(null);
 
-  const childrenData = useQuery(api.children.getChildrenWithPrimaryGuardian);
+  const childrenData = useQuery(api.children.getChildrenWithPrimaryGuardian, { isActive: true });
   const attendancesByDate = useQuery(api.attendance.getAttendanceByDate, {
     date: attendanceDate,
   });

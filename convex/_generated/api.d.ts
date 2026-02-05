@@ -22,6 +22,7 @@ import type * as guardians from "../guardians.js";
 import type * as http from "../http.js";
 import type * as imageOptimizer from "../imageOptimizer.js";
 import type * as images from "../images.js";
+import type * as migrations from "../migrations.js";
 import type * as myFunctions from "../myFunctions.js";
 import type * as payments from "../payments.js";
 import type * as types_attendance from "../types/attendance.js";
@@ -46,6 +47,7 @@ declare const fullApi: ApiFromModules<{
   http: typeof http;
   imageOptimizer: typeof imageOptimizer;
   images: typeof images;
+  migrations: typeof migrations;
   myFunctions: typeof myFunctions;
   payments: typeof payments;
   "types/attendance": typeof types_attendance;

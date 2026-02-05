@@ -8,21 +8,23 @@ import GlassHeader from "@/components/GlassHeader";
 import SearchPill from "@/components/SearchPill";
 import { parseDate } from "@internationalized/date";
 import { calculateAge } from "@/utils/calculateAge";
-import { CallIcon, InfantIcon, InfoIcon, PreschoolerIcon, ToddlerIcon } from "@/components/Icons";
+import { CallIcon, DeactivatedChildIcon, InfantIcon, InfoIcon, PreschoolerIcon, ToddlerIcon } from "@/components/Icons";
 import { ServerAvatar } from "@/app/components/ServerAvatar";
 
-const ageGroupsTabs: (TAgeGroup | "all children")[] = [
+const ageGroupsTabs: (TAgeGroup | "all children" | "inactive")[] = [
   "all children",
   "infant",
   "toddler",
   "preschooler",
+  "inactive",
 ];
 
-const ageGroupAmh: Record<TAgeGroup | "all children", string> = {
+const ageGroupAmh: Record<TAgeGroup | "all children" | "inactive", string> = {
   "all children": "ሁሉም ልጆቼ",
   infant: "ጨቅላ",
   toddler: "ህፃን",
   preschooler: "ታዳጊ",
+  inactive: "የለቀቁ",
 };
 
 const ageGroupIcons: Record<TAgeGroup, JSX.Element> = {
@@ -32,28 +34,34 @@ const ageGroupIcons: Record<TAgeGroup, JSX.Element> = {
 };
 
 export default function ChildrenList() {
-  const children = useQuery(api.children.getChildrenWithPrimaryGuardian);
+  const [tab, setTab] = useState<TAgeGroup | "all children" | "inactive">("all children");
+
+  const activeChildren = useQuery(api.children.getChildrenWithPrimaryGuardian, { isActive: true });
+  const inactiveChildren = useQuery(api.children.getChildrenWithPrimaryGuardian, { isActive: false });
+  const children = tab === "inactive" ? inactiveChildren : activeChildren;
+
   const [filteredChildren, setFilteredChildren] = useState(children);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchExpanded, setSearchExpanded] = useState(false);
-  const [counts, setCounts] = useState<{ [key in TAgeGroup | "all children"]: number }>({
+  const [counts, setCounts] = useState<{ [key in TAgeGroup | "all children" | "inactive"]: number }>({
     "all children": 0,
     infant: 0,
     toddler: 0,
     preschooler: 0,
+    inactive: 0,
   });
-  const [tab, setTab] = useState<TAgeGroup | "all children">("all children");
   useEffect(() => {
     let result = children;
-    let initCounts: { [key in TAgeGroup | "all children"]: number } = {
-      "all children": children?.length || 0,
-      infant: children?.filter((child) => child.ageGroup === "infant")?.length || 0,
-      toddler: children?.filter((child) => child.ageGroup === "toddler")?.length || 0,
-      preschooler: children?.filter((child) => child.ageGroup === "preschooler")?.length || 0,
+    let initCounts: { [key in TAgeGroup | "all children" | "inactive"]: number } = {
+      "all children": activeChildren?.length || 0,
+      infant: activeChildren?.filter((child) => child.ageGroup === "infant")?.length || 0,
+      toddler: activeChildren?.filter((child) => child.ageGroup === "toddler")?.length || 0,
+      preschooler: activeChildren?.filter((child) => child.ageGroup === "preschooler")?.length || 0,
+      inactive: inactiveChildren?.length || 0,
     }
 
     // Filter by age group
-    if (tab !== "all children") {
+    if (tab !== "all children" && tab !== "inactive") {
       result = result?.filter((child) => child.ageGroup === tab);
     }
 
@@ -67,7 +75,7 @@ export default function ChildrenList() {
     setCounts(initCounts);
 
     setFilteredChildren(result);
-  }, [tab, children, searchQuery]);
+  }, [tab, activeChildren, inactiveChildren, children, searchQuery]);
 
   return (
     <>
@@ -86,7 +94,13 @@ export default function ChildrenList() {
               onClick={() => setTab(ageGroupTab)}
               className={`tabs secondary ${ageGroupTab}`}
             >
-              {ageGroupTab !== "all children" ? ageGroupIcons[ageGroupTab] : ""}
+              {ageGroupTab === "inactive" ? (
+                <DeactivatedChildIcon />
+              ) : ageGroupTab !== "all children" ? (
+                ageGroupIcons[ageGroupTab]
+              ) : (
+                ""
+              )}
               <span style={{ textWrap: "nowrap" }}>{ageGroupAmh[ageGroupTab]}</span>
               {counts[ageGroupTab]}
             </button>
@@ -129,7 +143,7 @@ export default function ChildrenList() {
                         borderRadius: "100vw",
                       }}
                     >
-                      {ageGroupIcons[child.ageGroup]}
+                      {child.isActive ? ageGroupIcons[child.ageGroup as TAgeGroup] : <DeactivatedChildIcon />}
                     </span>
                   </Link>
 

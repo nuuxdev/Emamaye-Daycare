@@ -21,6 +21,10 @@ export default defineSchema({
     paymentSchedule: v.optional(v.union(v.literal("month_end"), v.literal("month_half"))), // 30th or 15th
     avatar: v.optional(v.string()),
     primaryGuardian: v.id("guardians"),
+    isActive: v.optional(v.boolean()),
+    leaveType: v.optional(v.string()),
+    leaveReason: v.optional(v.string()),
+    leaveDate: v.optional(v.string()),
   }),
   guardians: defineTable({
     fullName: v.string(),

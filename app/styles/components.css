@@ -15,19 +15,24 @@
         transition: transform var(--transition-smooth);
     }
 
-    input:not([type="radio"]) {
+    input:not([type="radio"]),
+    textarea,
+    .neo-input {
         --_outline-size: 0px;
         --_bg-opacity: 0.01;
         width: 100%;
         padding: 16px 24px;
         border-radius: 16px;
-        background: rgba(255, 255, 255, var(--_bg-opacity));
+        background: rgba(255, 255, 255, var(--_bg-opacity)) !important;
         border: 1px solid rgba(255, 255, 255, 0.2);
         box-shadow: var(--input-shadow);
         color: var(--foreground);
         font-weight: 500;
         transition: all 50ms ease-out;
         outline: var(--_outline-size) solid var(--primary-color);
+        appearance: none;
+        -webkit-appearance: none;
+        box-sizing: border-box;
 
         &:focus {
             --_bg-opacity: 0.5;
@@ -36,7 +41,14 @@
 
         &::placeholder {
             color: rgba(45, 52, 54, 0.5);
+            opacity: 0.7;
         }
+    }
+
+    textarea.neo-input {
+        min-height: 100px;
+        resize: vertical;
+        line-height: 1.5;
     }
 
     .neo-radio-group {
@@ -126,6 +138,12 @@
     .preschooler {
         color: var(--color-preschooler);
         background-color: var(--white);
+    }
+
+    .deactivated {
+        color: var(--foreground);
+        background-color: var(--white);
+        opacity: 0.6;
     }
 
     button {

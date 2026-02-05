@@ -6,12 +6,13 @@ import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import GlassHeader from "@/components/GlassHeader";
 import { JSX, useEffect, useState, useRef } from "react";
-import { ArrowRight, CallIcon, CameraIcon, CloseIcon, InfantIcon, MessageIcon, PlusIcon, PreschoolerIcon, RecycleIcon, ToddlerIcon, UploadIcon } from "@/components/Icons";
+import { ArrowRight, CallIcon, CameraIcon, CloseIcon, DeactivatedChildIcon, InfantIcon, MessageIcon, PlusIcon, PreschoolerIcon, RecycleIcon, ToddlerIcon, UploadIcon, SettingsIcon } from "@/components/Icons";
 import { formatEthiopianDate, todayInEth } from "@/utils/calendar";
 import { calculateAge } from "@/utils/calculateAge";
 import { parseDate } from "@internationalized/date";
 import { toast } from "sonner";
 import ChildAttendanceGrid from "@/app/views/attendance/ChildAttendanceGrid";
+import DeactivateChildModal from "@/app/components/DeactivateChildModal";
 
 import { ServerAvatar } from "@/app/components/ServerAvatar";
 
@@ -288,6 +289,7 @@ export default function ChildInfo() {
 
     const [activeTab, setActiveTab] = useState<TTab>(initialTab);
     const [showConfetti, setShowConfetti] = useState(false);
+    const [isDeactivateModalOpen, setIsDeactivateModalOpen] = useState(false);
 
     const child = useQuery(api.children.getChild, {
         id: childId as Id<"children">,
@@ -295,6 +297,7 @@ export default function ChildInfo() {
 
     const updateChildAvatar = useMutation(api.children.updateChildAvatar);
     const updateGuardianAvatar = useMutation(api.guardians.updateGuardianAvatar);
+    const reactivateChild = useMutation(api.children.reactivateChild);
 
     const isBirthday = child ? calculateAge(parseDate(child.dateOfBirth))?.age === "happy birthday!" : false;
 
@@ -317,6 +320,7 @@ export default function ChildInfo() {
         infant: <InfantIcon />,
         toddler: <ToddlerIcon />,
         preschooler: <PreschoolerIcon />,
+        deactivated: <DeactivatedChildIcon />,
     };
 
     const handleChildAvatarUpload = async (storageId: Id<"_storage">) => {
@@ -339,6 +343,14 @@ export default function ChildInfo() {
         <>
             {showConfetti && <Confetti />}
             <GlassHeader title="Child Info" backHref="/children" />
+
+            <DeactivateChildModal
+                childId={child._id}
+                childName={child.fullName}
+                isOpen={isDeactivateModalOpen}
+                onClose={() => setIsDeactivateModalOpen(false)}
+                onDeactivated={() => router.push("/children")}
+            />
             <main style={{ width: "100%", maxWidth: "600px", marginInline: "auto" }}>
                 <div style={{ display: "flex", flexDirection: "column", gap: "1rem", width: "100%" }}>
                     {/* Tabs */}
@@ -364,7 +376,7 @@ export default function ChildInfo() {
                                     currentAvatarUrl={child.avatar}
                                     onUploadComplete={handleChildAvatarUpload}
                                     size="10rem"
-                                    ageGroup={child.ageGroup}
+                                    ageGroup={child.isActive ? child.ageGroup : "deactivated"}
                                 />
                                 {isBirthday && (
                                     <span style={{
@@ -382,7 +394,7 @@ export default function ChildInfo() {
                             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.5rem" }}>
                                 <h3 style={{ margin: 0 }}>{child.fullName}</h3>
                                 <div
-                                    className={`tabs secondary ${child.ageGroup}`}
+                                    className={`tabs secondary ${child.isActive ? child.ageGroup : "deactivated"}`}
                                     style={{
                                         display: "flex",
                                         alignItems: "center",
@@ -392,8 +404,10 @@ export default function ChildInfo() {
                                         width: "fit-content"
                                     }}
                                 >
-                                    {ageGroupIcons[child.ageGroup]}
-                                    <span style={{ textTransform: "capitalize" }}>{child.ageGroup}</span>
+                                    {child.isActive ? ageGroupIcons[child.ageGroup] : <DeactivatedChildIcon />}
+                                    <span style={{ textTransform: "capitalize" }}>
+                                        {child.isActive ? child.ageGroup : "Inactive"}
+                                    </span>
                                 </div>
                             </div>
 
@@ -405,7 +419,6 @@ export default function ChildInfo() {
                                 ) : (
                                     ageInAmharic && <span style={{ fontWeight: 500 }} dangerouslySetInnerHTML={{ __html: ageInAmharic }} />
                                 )}
-                                <span>🎂{ethiopianBirthdate}🎂</span>
                             </div>
                         </div>
                     )}
@@ -467,8 +480,48 @@ export default function ChildInfo() {
                             />
                         </div>
                     )}
+
+                    {/* Status Card - Always visible below the main info */}
+                    <div className="neo-box" style={{ alignItems: "start", gap: "1.5rem" }}>
+                        <h3 className="text-primary" style={{ margin: 0, fontSize: "1.1rem" }}>Status</h3>
+                        {child.isActive ? (
+                            <button
+                                onClick={() => setIsDeactivateModalOpen(true)}
+                                className="secondary"
+                                style={{
+                                    width: "100%",
+                                    borderColor: "var(--primary-color)",
+                                    color: "var(--primary-color)",
+                                    opacity: 0.8
+                                }}
+                            >
+                                ልጁን አሰናብት (Deactivate Child)
+                            </button>
+                        ) : (
+                            <button
+                                onClick={async () => {
+                                    const promise = reactivateChild({ childId: child._id });
+                                    toast.promise(promise, {
+                                        loading: "ልጁን በመመለስ ላይ (Reactivating)...",
+                                        success: "ልጁ በስኬት ተመልሷል (Child reactivated)!",
+                                        error: "ልጁን መመለስ አልተቻለም (Failed to reactivate)",
+                                    });
+                                    await promise;
+                                }}
+                                className="secondary"
+                                style={{
+                                    width: "100%",
+                                    borderColor: "var(--success-color)",
+                                    color: "var(--success-color)",
+                                    opacity: 0.8
+                                }}
+                            >
+                                ልጁን መልስ (Reactivate Child)
+                            </button>
+                        )}
+                    </div>
                 </div>
-            </main>
+            </main >
         </>
     );
 }
