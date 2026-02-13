@@ -71,7 +71,7 @@ export default function AttendanceList({
                     borderRadius: "50%",
                   }}
                 />
-                <h4 style={{ margin: 0, fontSize: "inherit", textTransform: "capitalize" }}>{child.fullName}</h4>
+                <h4 style={{ margin: 0, fontSize: "inherit", textTransform: "capitalize" }}>{child.fullNameAmh || child.fullName}</h4>
               </div>
               <button
                 onClick={() => toggleAttendance(child._id)}

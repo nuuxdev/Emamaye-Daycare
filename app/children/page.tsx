@@ -68,7 +68,8 @@ export default function ChildrenList() {
     // Filter by search query
     if (searchQuery.trim()) {
       result = result?.filter((child) =>
-        child.fullName.toLowerCase().includes(searchQuery.toLowerCase())
+        child.fullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        child.fullNameAmh?.includes(searchQuery)
       );
     }
 
@@ -155,7 +156,7 @@ export default function ChildrenList() {
                     }}
                   >
                     <div>
-                      <h4 style={{ fontSize: "inherit", margin: 0, textTransform: "capitalize" }}>{child.fullName}</h4>
+                      <h4 style={{ fontSize: "inherit", margin: 0, textTransform: "capitalize" }}>{child.fullNameAmh || child.fullName}</h4>
                       <p>{child.gender}</p>
                     </div>
                     <div

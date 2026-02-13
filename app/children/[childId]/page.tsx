@@ -346,7 +346,7 @@ export default function ChildInfo() {
 
             <DeactivateChildModal
                 childId={child._id}
-                childName={child.fullName}
+                childName={child.fullNameAmh || child.fullName}
                 isOpen={isDeactivateModalOpen}
                 onClose={() => setIsDeactivateModalOpen(false)}
                 onDeactivated={() => router.push("/children")}
@@ -392,7 +392,7 @@ export default function ChildInfo() {
                                 )}
                             </div>
                             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.5rem" }}>
-                                <h3 style={{ margin: 0 }}>{child.fullName}</h3>
+                                <h3 style={{ margin: 0 }}>{child.fullNameAmh || child.fullName}</h3>
                                 <div
                                     className={`tabs secondary ${child.isActive ? child.ageGroup : "deactivated"}`}
                                     style={{
@@ -432,7 +432,7 @@ export default function ChildInfo() {
                                 size="6rem"
                             />
                             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.25rem" }}>
-                                <h4 style={{ margin: 0, fontSize: "1.1rem" }}>{child.primaryGuardian.fullName}</h4>
+                                <h4 style={{ margin: 0, fontSize: "1.1rem" }}>{child.primaryGuardian.fullNameAmh || child.primaryGuardian.fullName}</h4>
                                 <span style={{ opacity: 0.7, textTransform: "capitalize" }}>
                                     {child.primaryGuardian.relationToChild}
                                 </span>

@@ -40,7 +40,7 @@ export default function PreviewView({
                                         borderRadius: "50%",
                                     }}
                                 />
-                                <span>{child.fullName}</span>
+                                <span>{child.fullNameAmh || child.fullName}</span>
                             </div>
                             <button
                                 onClick={() => toggleAttendance(child._id)}
