@@ -8,6 +8,7 @@ export const addChild = mutation({
   args: {
     childData: v.object({
       fullName: v.string(),
+      fullNameAmh: v.optional(v.string()),
       gender: VGender,
       dateOfBirth: v.string(),
       ageGroup: VAgeGroup,
@@ -17,6 +18,7 @@ export const addChild = mutation({
     }),
     guardianData: v.object({
       fullName: v.string(),
+      fullNameAmh: v.optional(v.string()),
       relationToChild: VRelationToChild,
       address: v.string(),
       phoneNumber: v.string(),
@@ -38,6 +40,7 @@ export const addChild = mutation({
     }
     const guardianId = await ctx.db.insert("guardians", {
       fullName: args.guardianData.fullName,
+      fullNameAmh: args.guardianData.fullNameAmh,
       relationToChild: args.guardianData.relationToChild,
       address: args.guardianData.address,
       phoneNumber: args.guardianData.phoneNumber,
@@ -52,6 +55,7 @@ export const addChild = mutation({
     }
     const childId = await ctx.db.insert("children", {
       fullName: args.childData.fullName,
+      fullNameAmh: args.childData.fullNameAmh,
       gender: args.childData.gender,
       dateOfBirth: args.childData.dateOfBirth,
       ageGroup: args.childData.ageGroup,

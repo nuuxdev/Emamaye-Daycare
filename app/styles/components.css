@@ -639,6 +639,21 @@
         animation: fadeIn 0.5s ease-out forwards;
     }
 
+    .animate-spin {
+        aspect-ratio: 1/1;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        from {
+            transform: rotate(0deg);
+        }
+
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
     @keyframes fadeIn {
         from {
             opacity: 0;

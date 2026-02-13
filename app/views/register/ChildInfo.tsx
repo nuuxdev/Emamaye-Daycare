@@ -1,5 +1,5 @@
 import { TChildInfo, TSavedSteps } from "@/app/register/page";
-import { Dispatch, SetStateAction, useEffect } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { InputDate } from "./Calendar";
 import { TAgeGroup } from "@/convex/types/children";
@@ -8,6 +8,9 @@ import { calculateAge, getAgeGroup, getPaymentAmount } from "@/utils/calculateAg
 import { fromEthDateString, todayInGreg } from "@/utils/calendar";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
+import { translateName } from "@/app/actions";
+import { toast } from "sonner";
+import { SpinnerIcon, CloseIcon } from "@/components/Icons";
 
 export default function ChildInfo({
   saveSteps,
@@ -22,11 +25,14 @@ export default function ChildInfo({
 }) {
   const defaultValues: TChildInfo = savedSteps[step] as TChildInfo;
 
-  const { register, trigger, getValues, setValue, watch } = useForm<TChildInfo>({
+  const { register, trigger, getValues, setValue, watch, resetField } = useForm<TChildInfo>({
     defaultValues,
   });
 
   const ageGroup = watch("ageGroup");
+  const fullNameAmh = watch("fullNameAmh");
+  const fullName = watch("fullName");
+  const [isTranslating, setIsTranslating] = useState(false);
 
 
   const paymentSettings = useQuery(api.payments.getPaymentSettings);
@@ -73,19 +79,76 @@ export default function ChildInfo({
     }
   }, [ageGroup, setValue, paymentSettings]);
 
+  const handleFullNameBlur = async (e: React.FocusEvent<HTMLInputElement>) => {
+    const name = e.target.value;
+    if (name && !getValues("fullNameAmh")) {
+      setIsTranslating(true);
+      try {
+        const translated = await translateName(name);
+        if (translated) {
+          setValue("fullNameAmh", translated);
+        }
+      } catch (error) {
+        console.error("Translation failed", error);
+        // Optionally show a toast here, but silence might be better for UX on minor failures
+      } finally {
+        setIsTranslating(false);
+      }
+    }
+  };
+
+  const handleClearInput = () => {
+    setValue("fullName", "");
+    setValue("fullNameAmh", undefined);
+  }
+
   return (
     <form className="grid-gap-1 form-container">
       <h2 className="text-center mb-1">የልጅ መረጃ</h2>
 
       <div className="mb-1">
-        <label htmlFor="fullName" className="label-text">ሙሉ ስም</label>
-        <input
-          className="neo-input"
-          id="fullName"
-          {...register("fullName", { required: true })}
-          placeholder="ምሳሌ፡ ዳግም አስካል"
-        />
+        <label htmlFor="fullName" className="label-text">ሙሉ ስም (እንግሊዝኛ)</label>
+        <div className="relative">
+          <input
+            className="neo-input"
+            id="fullName"
+            {...register("fullName", { required: true, onBlur: handleFullNameBlur })}
+            placeholder="Example: Dagim Askal"
+          />
+          {isTranslating && (
+            <div style={{ position: "absolute", right: "1.5rem", top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}>
+              <div className="animate-spin text-primary" style={{ height: "1.5rem", width: "1.5rem" }}>
+                <SpinnerIcon />
+              </div>
+            </div>
+          )}
+          {!isTranslating && fullName && (
+            <div
+              onMouseDown={(e) => {
+                e.preventDefault();
+                handleClearInput();
+              }}
+              style={{ position: "absolute", right: "1.5rem", top: "50%", transform: "translateY(-50%)", cursor: "pointer", opacity: 0.5 }} className="hover:opacity-100 transition-opacity">
+              <div style={{ height: "1.5rem", width: "1.5rem" }}>
+                <CloseIcon />
+              </div>
+            </div>
+          )}
+        </div>
       </div>
+
+      {fullNameAmh && (
+        <div className="mb-1 animate-fade-in">
+          <label htmlFor="fullNameAmh" className="label-text">ሙሉ ስም (አማርኛ)</label>
+          <input
+            className="neo-input"
+            id="fullNameAmh"
+            {...register("fullNameAmh")}
+            placeholder="ምሳሌ፡ ዳግም አስካል"
+          />
+        </div>
+      )}
+
 
       <fieldset className="fieldset-reset">
         <legend className="label-text">ጾታ</legend>

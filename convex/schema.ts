@@ -14,6 +14,7 @@ export default defineSchema({
   }),
   children: defineTable({
     fullName: v.string(),
+    fullNameAmh: v.optional(v.string()),
     gender: VGender,
     dateOfBirth: v.string(),
     ageGroup: VAgeGroup,
@@ -28,6 +29,7 @@ export default defineSchema({
   }),
   guardians: defineTable({
     fullName: v.string(),
+    fullNameAmh: v.optional(v.string()),
     relationToChild: VRelationToChild,
     address: v.string(),
     phoneNumber: v.string(),

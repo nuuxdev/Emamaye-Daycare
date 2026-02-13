@@ -202,3 +202,16 @@ export function DeactivatedChildIcon() {
         <path d="M2.5 20C2.5 16.134 5.63401 13 9.5 13C10.775 13 11.9704 13.3409 13 13.9365" />
     </svg>
 }
+
+export function SpinnerIcon() {
+    return <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" color="currentColor" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+        <path d="M12 3V6" />
+        <path d="M12 18V21" />
+        <path d="M21 12L18 12" />
+        <path d="M6 12L3 12" />
+        <path d="M18.3635 5.63672L16.2422 7.75804" />
+        <path d="M7.75804 16.2422L5.63672 18.3635" />
+        <path d="M18.3635 18.3635L16.2422 16.2422" />
+        <path d="M7.75804 7.75804L5.63672 5.63672" />
+    </svg>
+}

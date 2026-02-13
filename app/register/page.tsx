@@ -17,6 +17,7 @@ import { fromEthDateString } from "@/utils/calendar";
 
 export type TChildInfo = {
   fullName: string;
+  fullNameAmh?: string;
   gender: TGender;
   dateOfBirth: string;
   ageGroup: TAgeGroup;
@@ -26,6 +27,7 @@ export type TChildInfo = {
 
 export type TGuardianInfo = {
   fullName: string;
+  fullNameAmh?: string;
   relationToChild: TRelationToChild;
   address: string;
   phoneNumber: string;
@@ -48,6 +50,7 @@ export default function Register() {
   const [savedSteps, saveSteps] = useState<TSavedSteps>([
     {
       fullName: "",
+      fullNameAmh: "",
       gender: "" as TGender,
       dateOfBirth: "",
       ageGroup: "" as TAgeGroup,
@@ -56,6 +59,7 @@ export default function Register() {
     },
     {
       fullName: "",
+      fullNameAmh: "",
       relationToChild: "" as TRelationToChild,
       address: "",
       phoneNumber: "",
@@ -97,6 +101,7 @@ export default function Register() {
     saveSteps([
       {
         fullName: "",
+        fullNameAmh: "",
         gender: "" as TGender,
         dateOfBirth: "",
         ageGroup: "" as TAgeGroup,
@@ -105,6 +110,7 @@ export default function Register() {
       },
       {
         fullName: "",
+        fullNameAmh: "",
         relationToChild: "" as TRelationToChild,
         address: "",
         phoneNumber: "",

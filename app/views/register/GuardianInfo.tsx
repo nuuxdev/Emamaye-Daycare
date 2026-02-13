@@ -2,6 +2,9 @@ import { TGuardianInfo, TSavedSteps } from "@/app/register/page";
 import { Dispatch, SetStateAction } from "react";
 import { useForm } from "react-hook-form";
 import Select from "@/components/Select";
+import { translateName } from "@/app/actions";
+import { SpinnerIcon, CloseIcon } from "@/components/Icons";
+import { useState } from "react";
 
 export default function GuardianInfo({
   saveSteps,
@@ -16,9 +19,14 @@ export default function GuardianInfo({
 }) {
   const defaultValues: TGuardianInfo = savedSteps[step] as TGuardianInfo;
 
-  const { register, trigger, getValues, setValue } = useForm<TGuardianInfo>({
+  const { register, trigger, getValues, setValue, watch } = useForm<TGuardianInfo>({
     defaultValues,
   });
+
+  const fullNameAmh = watch("fullNameAmh");
+  const fullName = watch("fullName");
+  const [isTranslating, setIsTranslating] = useState(false);
+
 
   const submitHandler = async (direction: "next" | "previous") => {
     const data = getValues();
@@ -36,20 +44,77 @@ export default function GuardianInfo({
     saveSteps(savedStateCopy);
   };
 
+  const handleFullNameBlur = async (e: React.FocusEvent<HTMLInputElement>) => {
+    const name = e.target.value;
+    if (name && !getValues("fullNameAmh")) {
+      setIsTranslating(true);
+      try {
+        const translated = await translateName(name);
+        if (translated) {
+          setValue("fullNameAmh", translated);
+        }
+      } catch (error) {
+        console.error("Translation failed", error);
+      } finally {
+        setIsTranslating(false);
+      }
+    }
+  };
+
+  const handleClearInput = () => {
+    setValue("fullName", "");
+    setValue("fullNameAmh", undefined);
+  }
+
+
   return (
     <form className="grid-gap-1 form-container">
       <h2 className="text-center mb-1">የወላጅ መረጃ</h2>
 
       <div className="mb-1">
-        <label htmlFor="fullName">ሙሉ ስም</label>
-        <input
-          id="fullName"
-          type="text"
-          className="neo-input"
-          {...register("fullName", { required: true })}
-          placeholder="ምሳሌ፡ አበበ ከበደ"
-        />
+        <label htmlFor="fullName">ሙሉ ስም (እንግሊዝኛ)</label>
+        <div className="relative">
+          <input
+            id="fullName"
+            type="text"
+            className="neo-input"
+            {...register("fullName", { required: true, onBlur: handleFullNameBlur })}
+            placeholder="Example: Abebe Kebede"
+          />
+          {isTranslating && (
+            <div style={{ position: "absolute", right: "1.5rem", top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}>
+              <div className="animate-spin text-primary" style={{ height: "1.5rem", width: "1.5rem" }}>
+                <SpinnerIcon />
+              </div>
+            </div>
+          )}
+          {!isTranslating && fullName && (
+            <div
+              onMouseDown={(e) => {
+                e.preventDefault();
+                handleClearInput();
+              }}
+              style={{ position: "absolute", right: "1.5rem", top: "50%", transform: "translateY(-50%)", cursor: "pointer", opacity: 0.5 }} className="hover:opacity-100 transition-opacity">
+              <div style={{ height: "1.5rem", width: "1.5rem" }}>
+                <CloseIcon />
+              </div>
+            </div>
+          )}
+        </div>
       </div>
+
+      {fullNameAmh && (
+        <div className="mb-1 animate-fade-in">
+          <label htmlFor="fullNameAmh" className="label-text">ሙሉ ስም (አማርኛ)</label>
+          <input
+            className="neo-input"
+            id="fullNameAmh"
+            {...register("fullNameAmh")}
+            placeholder="ምሳሌ፡ አበበ ከበደ"
+          />
+        </div>
+      )}
+
 
       <Select
         id="relationToChild"

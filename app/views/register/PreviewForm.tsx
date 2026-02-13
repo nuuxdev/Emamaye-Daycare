@@ -22,7 +22,8 @@ export default function PreviewForm({
               <ServerAvatar storageId={savedSteps[2].childStorageId} />
             </div>
             <div>
-              <div className="font-bold" style={{ fontSize: '1.125rem' }}>{savedSteps[0].fullName}</div>
+              <div className="font-bold" style={{ fontSize: '1.125rem' }}>{savedSteps[0].fullNameAmh || savedSteps[0].fullName}</div>
+              <div className="text-sm opacity-60">{savedSteps[0].fullName}</div>
               <div className="opacity-60">{savedSteps[0].gender}</div>
             </div>
           </div>
@@ -53,7 +54,8 @@ export default function PreviewForm({
               <ServerAvatar storageId={savedSteps[2].guardianStorageId} />
             </div>
             <div>
-              <div className="font-bold" style={{ fontSize: '1.125rem' }}>{savedSteps[1].fullName}</div>
+              <div className="font-bold" style={{ fontSize: '1.125rem' }}>{savedSteps[1].fullNameAmh || savedSteps[1].fullName}</div>
+              <div className="text-sm opacity-60">{savedSteps[1].fullName}</div>
               <div className="opacity-60">{savedSteps[1].relationToChild}</div>
             </div>
           </div>
