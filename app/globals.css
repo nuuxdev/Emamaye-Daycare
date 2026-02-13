@@ -1,6 +1,7 @@
 /* @import "tailwindcss"; */
 @layer variables, reset, base, layout, components, utilities;
 
+@import "./styles/typography.css";
 @import "./styles/variables.css";
 
 @import "./styles/reset.css";
