@@ -95,6 +95,7 @@ export const getChildrenWithPrimaryGuardian = query({
         return {
           ...child,
           primaryGuardianFullName: primaryGuardian?.fullName,
+          primaryGuardianFullNameAmh: primaryGuardian?.fullNameAmh,
           primaryGuardianPhoneNumber: primaryGuardian?.phoneNumber,
         };
       }),

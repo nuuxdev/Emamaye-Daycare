@@ -282,7 +282,7 @@ export default function ChildrenList() {
                   >
                     <div>
                       <h4 style={{ fontSize: "inherit", margin: 0, textTransform: "capitalize" }}>{child.fullNameAmh || child.fullName}</h4>
-                      <p>{child.gender}</p>
+                      <p>{child.gender === "male" ? "ወንድ" : "ሴት"}</p>
                     </div>
                     <div
                       style={{
@@ -308,7 +308,7 @@ export default function ChildrenList() {
                     style={{ color: "var(--success-color)" }}
                   >
                     <CallIcon />
-                    {child.primaryGuardianFullName?.split(" ")[0]}
+                    {(child.primaryGuardianFullNameAmh || child.primaryGuardianFullName)?.split(" ")[0]}
                   </Link>
                   <Link
                     href={`/children/${child._id}`}
