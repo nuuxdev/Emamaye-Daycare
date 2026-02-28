@@ -6,7 +6,7 @@ import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import GlassHeader from "@/components/GlassHeader";
 import { JSX, useEffect, useState, useRef } from "react";
-import { ArrowRight, CallIcon, CameraIcon, CloseIcon, DeactivatedChildIcon, InfantIcon, MessageIcon, PlusIcon, PreschoolerIcon, RecycleIcon, ToddlerIcon, UploadIcon, SettingsIcon } from "@/components/Icons";
+import { ArrowRight, CallIcon, CameraIcon, CloseIcon, DeactivatedChildIcon, EditIcon, InfantIcon, MessageIcon, PlusIcon, PreschoolerIcon, RecycleIcon, ToddlerIcon, UploadIcon, SettingsIcon } from "@/components/Icons";
 import { formatEthiopianDate, todayInEth } from "@/utils/calendar";
 import { calculateAge } from "@/utils/calculateAge";
 import { parseDate } from "@internationalized/date";
@@ -342,7 +342,15 @@ export default function ChildInfo() {
     return (
         <>
             {showConfetti && <Confetti />}
-            <GlassHeader title="Child Info" backHref="/children" />
+            <GlassHeader
+                title="Child Info"
+                backHref="/children"
+                action={
+                    <Link href={`/children/${child._id}/edit`} className="glass-pill">
+                        <EditIcon />
+                    </Link>
+                }
+            />
 
             <DeactivateChildModal
                 childId={child._id}

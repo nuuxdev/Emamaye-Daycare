@@ -182,3 +182,25 @@ export const reactivateChild = mutation({
     return "Child reactivated successfully";
   },
 });
+
+export const updateChild = mutation({
+  args: {
+    childId: v.id("children"),
+    fullName: v.string(),
+    fullNameAmh: v.optional(v.string()),
+    gender: VGender,
+    dateOfBirth: v.string(),
+    ageGroup: VAgeGroup,
+    paymentAmount: v.number(),
+    paymentSchedule: v.union(v.literal("month_end"), v.literal("month_half")),
+  },
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) throw new Error("Unauthorized");
+
+    const { childId, ...fields } = args;
+    await ctx.db.patch(childId, fields);
+    return "Child updated successfully";
+  },
+});
+

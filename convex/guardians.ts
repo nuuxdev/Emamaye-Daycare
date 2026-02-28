@@ -1,6 +1,7 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { getAuthUserId } from "@convex-dev/auth/server";
+import { VRelationToChild } from "./types/guardians";
 
 export const getGuardianPhoneNumber = query({
   args: {
@@ -41,3 +42,23 @@ export const updateGuardianAvatar = mutation({
     return "Avatar updated successfully";
   },
 });
+
+export const updateGuardian = mutation({
+  args: {
+    guardianId: v.id("guardians"),
+    fullName: v.string(),
+    fullNameAmh: v.optional(v.string()),
+    relationToChild: VRelationToChild,
+    address: v.string(),
+    phoneNumber: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) throw new Error("Unauthorized");
+
+    const { guardianId, ...fields } = args;
+    await ctx.db.patch(guardianId, fields);
+    return "Guardian updated successfully";
+  },
+});
+
