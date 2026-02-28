@@ -11,6 +11,7 @@ import { api } from "@/convex/_generated/api";
 import { translateName } from "@/app/actions";
 import { toast } from "sonner";
 import { SpinnerIcon, CloseIcon } from "@/components/Icons";
+import { regenerateIcon } from "@/components/Icons";
 
 export default function ChildInfo({
   saveSteps,
@@ -100,7 +101,22 @@ export default function ChildInfo({
   const handleClearInput = () => {
     setValue("fullName", "");
     setValue("fullNameAmh", undefined);
-  }
+  };
+
+  const handleRegenerateTranslation = async () => {
+    const name = getValues("fullName");
+    if (!name) return;
+    setValue("fullNameAmh", undefined);
+    setIsTranslating(true);
+    try {
+      const translated = await translateName(name);
+      if (translated) setValue("fullNameAmh", translated);
+    } catch (error) {
+      console.error("Translation failed", error);
+    } finally {
+      setIsTranslating(false);
+    }
+  };
 
   return (
     <form className="grid-gap-1 form-container">
@@ -123,13 +139,25 @@ export default function ChildInfo({
             </div>
           )}
           {!isTranslating && fullName && (
-            <div
-              onMouseDown={(e) => {
-                e.preventDefault();
-                handleClearInput();
-              }}
-              style={{ position: "absolute", right: "1.5rem", top: "50%", transform: "translateY(-50%)", cursor: "pointer", opacity: 0.5 }} className="hover:opacity-100 transition-opacity">
-              <div style={{ height: "1.5rem", width: "1.5rem" }}>
+            <div style={{ position: "absolute", right: "0.75rem", top: "50%", transform: "translateY(-50%)", display: "flex", gap: "0.25rem", alignItems: "center" }}>
+              <div
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  handleRegenerateTranslation();
+                }}
+                style={{ cursor: "pointer", color: "var(--primary-color)", height: "1.5rem", width: "1.5rem" }}
+                title="ትርጉም እንደገና ፍጠር"
+              >
+                {regenerateIcon()}
+              </div>
+              <div
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  handleClearInput();
+                }}
+                style={{ cursor: "pointer", opacity: 0.5, height: "1.5rem", width: "1.5rem" }}
+                className="hover:opacity-100 transition-opacity"
+              >
                 <CloseIcon />
               </div>
             </div>

@@ -12,6 +12,7 @@ import { calculateAge, getAgeGroup } from "@/utils/calculateAge";
 import { fromEthDateString, todayInGreg } from "@/utils/calendar";
 import { translateName } from "@/app/actions";
 import { SpinnerIcon, CloseIcon } from "@/components/Icons";
+import { regenerateIcon } from "@/components/Icons";
 import { TAgeGroup, TGender } from "@/convex/types/children";
 import { TRelationToChild } from "@/convex/types/guardians";
 import { toast } from "sonner";
@@ -125,6 +126,19 @@ export default function EditChildPage() {
         }
     };
 
+    const handleRegenerateChildTranslation = async () => {
+        const name = cGetValues("fullName");
+        if (!name) return;
+        cSetValue("fullNameAmh", "");
+        setIsTranslatingChild(true);
+        try {
+            const translated = await translateName(name);
+            if (translated) cSetValue("fullNameAmh", translated);
+        } finally {
+            setIsTranslatingChild(false);
+        }
+    };
+
     const handleGuardianNameBlur = async (e: React.FocusEvent<HTMLInputElement>) => {
         const name = e.target.value;
         if (name && !gGetValues("fullNameAmh")) {
@@ -135,6 +149,19 @@ export default function EditChildPage() {
             } finally {
                 setIsTranslatingGuardian(false);
             }
+        }
+    };
+
+    const handleRegenerateGuardianTranslation = async () => {
+        const name = gGetValues("fullName");
+        if (!name) return;
+        gSetValue("fullNameAmh", "");
+        setIsTranslatingGuardian(true);
+        try {
+            const translated = await translateName(name);
+            if (translated) gSetValue("fullNameAmh", translated);
+        } finally {
+            setIsTranslatingGuardian(false);
         }
     };
 
@@ -233,11 +260,20 @@ export default function EditChildPage() {
                                     </div>
                                 )}
                                 {!isTranslatingChild && childFullName && (
-                                    <div
-                                        onMouseDown={(e) => { e.preventDefault(); cSetValue("fullName", ""); cSetValue("fullNameAmh", ""); }}
-                                        style={{ position: "absolute", right: "1.5rem", top: "50%", transform: "translateY(-50%)", cursor: "pointer", opacity: 0.5 }}
-                                    >
-                                        <div style={{ height: "1.5rem", width: "1.5rem" }}><CloseIcon /></div>
+                                    <div style={{ position: "absolute", right: "0.75rem", top: "50%", transform: "translateY(-50%)", display: "flex", gap: "0.25rem", alignItems: "center" }}>
+                                        <div
+                                            onMouseDown={(e) => { e.preventDefault(); handleRegenerateChildTranslation(); }}
+                                            style={{ cursor: "pointer", color: "var(--primary-color)", height: "1.5rem", width: "1.5rem" }}
+                                            title="ትርጉም እንደገና ፍጠር"
+                                        >
+                                            {regenerateIcon()}
+                                        </div>
+                                        <div
+                                            onMouseDown={(e) => { e.preventDefault(); cSetValue("fullName", ""); cSetValue("fullNameAmh", ""); }}
+                                            style={{ cursor: "pointer", opacity: 0.5, height: "1.5rem", width: "1.5rem" }}
+                                        >
+                                            <CloseIcon />
+                                        </div>
                                     </div>
                                 )}
                             </div>
@@ -352,11 +388,20 @@ export default function EditChildPage() {
                                     </div>
                                 )}
                                 {!isTranslatingGuardian && guardianFullName && (
-                                    <div
-                                        onMouseDown={(e) => { e.preventDefault(); gSetValue("fullName", ""); gSetValue("fullNameAmh", ""); }}
-                                        style={{ position: "absolute", right: "1.5rem", top: "50%", transform: "translateY(-50%)", cursor: "pointer", opacity: 0.5 }}
-                                    >
-                                        <div style={{ height: "1.5rem", width: "1.5rem" }}><CloseIcon /></div>
+                                    <div style={{ position: "absolute", right: "0.75rem", top: "50%", transform: "translateY(-50%)", display: "flex", gap: "0.25rem", alignItems: "center" }}>
+                                        <div
+                                            onMouseDown={(e) => { e.preventDefault(); handleRegenerateGuardianTranslation(); }}
+                                            style={{ cursor: "pointer", color: "var(--primary-color)", height: "1.5rem", width: "1.5rem" }}
+                                            title="ትርጉም እንደገና ፍጠር"
+                                        >
+                                            {regenerateIcon()}
+                                        </div>
+                                        <div
+                                            onMouseDown={(e) => { e.preventDefault(); gSetValue("fullName", ""); gSetValue("fullNameAmh", ""); }}
+                                            style={{ cursor: "pointer", opacity: 0.5, height: "1.5rem", width: "1.5rem" }}
+                                        >
+                                            <CloseIcon />
+                                        </div>
                                     </div>
                                 )}
                             </div>
