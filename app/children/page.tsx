@@ -8,7 +8,7 @@ import GlassHeader from "@/components/GlassHeader";
 import SearchPill from "@/components/SearchPill";
 import { parseDate } from "@internationalized/date";
 import { calculateAge } from "@/utils/calculateAge";
-import { CallIcon, DeactivatedChildIcon, InfantIcon, InfoIcon, PreschoolerIcon, SortIcon, ToddlerIcon } from "@/components/Icons";
+import { CallIcon, DeactivatedChildIcon, InfantIcon, InfoIcon, PreschoolerIcon, SortIcon, SwapIcon, ToddlerIcon } from "@/components/Icons";
 import { ServerAvatar } from "@/app/components/ServerAvatar";
 
 const ageGroupsTabs: (TAgeGroup | "all children" | "inactive")[] = [
@@ -34,60 +34,61 @@ const ageGroupIcons: Record<TAgeGroup, JSX.Element> = {
 };
 
 type SortKey =
-  | "reg-desc"
-  | "reg-asc"
-  | "name-az"
-  | "name-za"
-  | "age-asc"
-  | "age-desc"
-  | "sex-mf"
-  | "sex-fm"
+  | "reg"
+  | "name"
+  | "age"
+  | "sex"
   | "birthdate";
 
-const DEFAULT_SORT: SortKey = "reg-desc";
+const DEFAULT_SORT: SortKey = "reg";
+const DEFAULT_ORDER: "asc" | "desc" = "asc";
 
-const sortOptions: { value: SortKey; label: string }[] = [
-  { value: "reg-desc", label: "ምዝገባ ↓ (አዲስ መጀመሪያ)" },
-  { value: "reg-asc", label: "ምዝገባ ↑ (ቀዳሚ መጀመሪያ)" },
-  { value: "name-az", label: "ስም ሀ–ፐ  (A → Z)" },
-  { value: "name-za", label: "ስም ፐ–ሀ  (Z → A)" },
-  { value: "age-asc", label: "ዕድሜ ↑ (ታናሽ መጀመሪያ)" },
-  { value: "age-desc", label: "ዕድሜ ↓ (ትልቅ መጀመሪያ)" },
-  { value: "sex-mf", label: "ፆታ ወ → ሴ  (M → F)" },
-  { value: "sex-fm", label: "ፆታ ሴ → ወ  (F → M)" },
-  { value: "birthdate", label: "ልደት (ቅርብ ቀን መጀመሪያ)" },
+const sortOptions: { value: SortKey; label: string; hasOrder: boolean }[] = [
+  { value: "reg", label: "ምዝገባ", hasOrder: true },
+  { value: "name", label: "ስም", hasOrder: true },
+  { value: "age", label: "ዕድሜ", hasOrder: true },
+  { value: "sex", label: "ፆታ", hasOrder: true },
+  { value: "birthdate", label: "ልደት", hasOrder: false },
 ];
 
 function sortChildren(
   children: any[],
-  sortKey: SortKey
+  sortKey: SortKey,
+  sortOrder: "asc" | "desc"
 ): any[] {
   const sorted = [...children];
   switch (sortKey) {
-    case "reg-desc":
-      return sorted.sort((a, b) => (b._creationTime ?? 0) - (a._creationTime ?? 0));
-    case "reg-asc":
-      return sorted.sort((a, b) => (a._creationTime ?? 0) - (b._creationTime ?? 0));
-    case "name-az":
+    case "reg":
       return sorted.sort((a, b) =>
-        (a.fullNameAmh || a.fullName).localeCompare(b.fullNameAmh || b.fullName)
+        sortOrder === "desc"
+          ? (b._creationTime ?? 0) - (a._creationTime ?? 0)
+          : (a._creationTime ?? 0) - (b._creationTime ?? 0)
       );
-    case "name-za":
+    case "name":
+      return sorted.sort((a, b) => {
+        const nameA = a.fullNameAmh || a.fullName;
+        const nameB = b.fullNameAmh || b.fullName;
+        return sortOrder === "asc"
+          ? nameA.localeCompare(nameB)
+          : nameB.localeCompare(nameA);
+      });
+    case "age":
+      return sorted.sort((a, b) => {
+        const timeA = new Date(a.dateOfBirth).getTime();
+        const timeB = new Date(b.dateOfBirth).getTime();
+        return sortOrder === "asc"
+          ? timeB - timeA // Ascending age = older birthdate (smaller time) first? No, younger first is asc age.
+          : timeA - timeB; // Descending age = older first.
+        // wait: age-asc (younger first) means birthdate is closer to today (larger time)
+        // new Date("2020").getTime() > new Date("2010").getTime()
+        // age-asc: larger time first.
+      });
+    case "sex":
       return sorted.sort((a, b) =>
-        (b.fullNameAmh || b.fullName).localeCompare(a.fullNameAmh || a.fullName)
+        sortOrder === "asc"
+          ? a.gender.localeCompare(b.gender)
+          : b.gender.localeCompare(a.gender)
       );
-    case "age-asc":
-      return sorted.sort(
-        (a, b) => new Date(b.dateOfBirth).getTime() - new Date(a.dateOfBirth).getTime()
-      );
-    case "age-desc":
-      return sorted.sort(
-        (a, b) => new Date(a.dateOfBirth).getTime() - new Date(b.dateOfBirth).getTime()
-      );
-    case "sex-mf":
-      return sorted.sort((a, b) => a.gender.localeCompare(b.gender));
-    case "sex-fm":
-      return sorted.sort((a, b) => b.gender.localeCompare(a.gender));
     case "birthdate": {
       const today = new Date();
       const nextBirthday = (dob: string) => {
@@ -106,6 +107,7 @@ function sortChildren(
 export default function ChildrenList() {
   const [tab, setTab] = useState<TAgeGroup | "all children" | "inactive">("all children");
   const [sortKey, setSortKey] = useState<SortKey>(DEFAULT_SORT);
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">(DEFAULT_ORDER);
   const sortDialogRef = useRef<HTMLDialogElement>(null);
 
   const activeChildren = useQuery(api.children.getChildrenWithPrimaryGuardian, { isActive: true });
@@ -147,14 +149,18 @@ export default function ChildrenList() {
     }
 
     // Sort
-    if (result) result = sortChildren(result, sortKey);
+    if (result) result = sortChildren(result, sortKey, sortOrder);
 
     setCounts(initCounts);
     setFilteredChildren(result);
-  }, [tab, activeChildren, inactiveChildren, children, searchQuery, sortKey]);
+  }, [tab, activeChildren, inactiveChildren, children, searchQuery, sortKey, sortOrder]);
 
-  const handleSort = (key: SortKey) => {
-    setSortKey(key);
+  const handleSort = (key: SortKey | "asc" | "desc") => {
+    if (key === "asc" || key === "desc") {
+      setSortOrder(key);
+    } else {
+      setSortKey(key);
+    }
     sortDialogRef.current?.close();
   };
 
@@ -178,7 +184,7 @@ export default function ChildrenList() {
               flexShrink: 0,
               // marginBlock: "1rem",
               marginInline: "0.5rem",
-              color: sortKey !== DEFAULT_SORT ? "var(--primary-color)" : undefined,
+              color: (sortKey !== DEFAULT_SORT || sortOrder !== DEFAULT_ORDER) ? "var(--primary-color)" : undefined,
             }}
           >
             <SortIcon />
@@ -210,23 +216,54 @@ export default function ChildrenList() {
         {/* Sort dialog */}
         <dialog ref={sortDialogRef}>
           <h3 className="dialog-title">ደርድር</h3>
-          <div className="select-list">
-            {sortOptions.map((option, index) => (
+
+          {/* Direction Toggle Group */}
+          <div style={{ display: "flex", justifyContent: "center", padding: "0.5rem 1rem", borderBottom: "1px solid var(--glass-border)" }}>
+            <button
+              onClick={() => handleSort("asc")}
+              className="tabs secondary"
+              style={{
+                flex: 1,
+                justifyContent: "center",
+                color: sortOrder === "asc" ? "var(--primary-color)" : "inherit",
+              }}
+            >
+              <SwapIcon direction="up" />
+              {/* <span>ቀዳሚ</span> */}
+            </button>
+            <button
+              onClick={() => handleSort("desc")}
+              className="tabs secondary"
+              style={{
+                flex: 1,
+                justifyContent: "center",
+                color: sortOrder === "desc" ? "var(--primary-color)" : "inherit",
+              }}
+            >
+              <SwapIcon direction="down" />
+              {/* <span>ሰቃይ</span> */}
+            </button>
+          </div>
+
+          <div className="select-list" style={{ margin: 0, paddingRight: 0 }}>
+            {sortOptions.map((option) => (
               <Fragment key={option.value}>
-                <label
-                  className="select-option"
+                <div
+                  className={`select-option ${sortKey === option.value ? "active" : ""}`}
+                  style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingBlock: "0.25rem" }}
                   onClick={() => handleSort(option.value)}
                 >
-                  <input
-                    type="radio"
-                    name="sort-option"
-                    value={option.value}
-                    checked={sortKey === option.value}
-                    readOnly
-                  />
-                  <span>{option.label}</span>
-                </label>
-                {index < sortOptions.length - 1 && <hr />}
+                  <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", flex: 1, cursor: "pointer", paddingBlock: "0.5rem" }}>
+                    <input
+                      type="radio"
+                      name="sort-option"
+                      value={option.value}
+                      checked={sortKey === option.value}
+                      readOnly
+                    />
+                    <span>{option.label}</span>
+                  </label>
+                </div>
               </Fragment>
             ))}
           </div>
