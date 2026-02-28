@@ -9,7 +9,7 @@ import { useEffect, useState } from "react";
 import Select from "@/components/Select";
 import { InputDate } from "@/app/views/register/Calendar";
 import { calculateAge, getAgeGroup } from "@/utils/calculateAge";
-import { fromEthDateString, todayInGreg } from "@/utils/calendar";
+import { fromEthDateString, gregorianToEthDateString, todayInGreg } from "@/utils/calendar";
 import { translateName } from "@/app/actions";
 import { SpinnerIcon, CloseIcon } from "@/components/Icons";
 import { regenerateIcon } from "@/components/Icons";
@@ -79,7 +79,7 @@ export default function EditChildPage() {
             fullName: child.fullName,
             fullNameAmh: child.fullNameAmh || "",
             gender: child.gender as TGender,
-            dateOfBirth: child.dateOfBirth,
+            dateOfBirth: gregorianToEthDateString(child.dateOfBirth),
             ageGroup: child.ageGroup as TAgeGroup,
             paymentAmount: child.paymentAmount,
             paymentSchedule: child.paymentSchedule as "month_end" | "month_half",
@@ -184,7 +184,7 @@ export default function EditChildPage() {
                     fullName: cData.fullName,
                     fullNameAmh: cData.fullNameAmh || undefined,
                     gender: cData.gender,
-                    dateOfBirth: cData.dateOfBirth,
+                    dateOfBirth: fromEthDateString(cData.dateOfBirth),
                     ageGroup: cData.ageGroup,
                     paymentAmount: cData.paymentAmount ?? 0,
                     paymentSchedule: cData.paymentSchedule,
@@ -201,7 +201,7 @@ export default function EditChildPage() {
             ]);
 
             toast.success("መረጃ ተዘምኗ ✓");
-            router.push(`/children/${childId}`);
+            router.back();
         } catch (err) {
             console.error(err);
             toast.error("ማስቀመጥ አልተሳካም");
@@ -221,7 +221,7 @@ export default function EditChildPage() {
         <>
             <GlassHeader
                 title="አርም"
-                backHref={`/children/${childId}`}
+                onBack={() => router.back()}
             />
             <main style={{ maxWidth: "600px", marginInline: "auto", justifyContent: "start" }}>
                 {/* Section tabs */}

@@ -5,14 +5,19 @@ import { ArrowLeft } from "./Icons";
 type GlassHeaderProps = {
     title: string;
     backHref?: string;
+    onBack?: () => void;
     action?: ReactNode;
     isCompact?: boolean;
 };
 
-export default function GlassHeader({ title, backHref, action, isCompact }: GlassHeaderProps) {
+export default function GlassHeader({ title, backHref, action, isCompact, onBack }: GlassHeaderProps) {
     return (
         <header className="glass-header-wrapper">
-            {backHref ? (
+            {onBack ? (
+                <div onClick={onBack} className="glass-pill" style={{ cursor: "pointer" }}>
+                    <ArrowLeft />
+                </div>
+            ) : backHref ? (
                 <Link href={backHref} className="glass-pill">
                     <ArrowLeft />
                 </Link>

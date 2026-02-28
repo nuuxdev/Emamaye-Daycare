@@ -51,7 +51,22 @@ export function fromEthDateString(dateString: string) {
     parseInt(month),
     parseInt(date),
   );
-  return dateInEt.toString();
+  // Convert to Gregorian and return as string (YYYY-MM-DD)
+  return toCalendar(dateInEt, new GregorianCalendar()).toString();
 }
+
+export function gregorianToEthDateString(gregorianDateString: string): string {
+  try {
+    const gregDate = parseDate(gregorianDateString);
+    const ethDate = toCalendar(gregDate, EthiopianCalendar);
+    const month = ethDate.month < 10 ? `0${ethDate.month}` : ethDate.month;
+    const day = ethDate.day < 10 ? `0${ethDate.day}` : ethDate.day;
+    return `${month}-${day}-${ethDate.year}`;
+  } catch (error) {
+    console.error("Error converting date:", error);
+    return todayInEthString;
+  }
+}
+
 export const todayInEthString = `${currentMonth < 10 ? `0${currentMonth}` : currentMonth}-${currentDate < 10 ? `0${currentDate}` : currentDate}-${currentYear}`;
 
