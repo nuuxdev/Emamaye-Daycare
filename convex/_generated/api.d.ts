@@ -16,6 +16,7 @@ import type {
 import type * as admin from "../admin.js";
 import type * as attendance from "../attendance.js";
 import type * as auth from "../auth.js";
+import type * as backfill from "../backfill.js";
 import type * as children from "../children.js";
 import type * as crons from "../crons.js";
 import type * as guardians from "../guardians.js";
@@ -42,6 +43,7 @@ declare const fullApi: ApiFromModules<{
   admin: typeof admin;
   attendance: typeof attendance;
   auth: typeof auth;
+  backfill: typeof backfill;
   children: typeof children;
   crons: typeof crons;
   guardians: typeof guardians;
