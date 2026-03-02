@@ -9,6 +9,7 @@ import { formatEthiopianDate, todayInEth, EthiopianCalendar } from "@/utils/cale
 import { CheckIcon, ChevronLeft, ChevronRight, SettingsIcon } from "@/components/Icons";
 import { parseDate, toCalendar, GregorianCalendar } from "@internationalized/date";
 import { ServerAvatar } from "@/app/components/ServerAvatar";
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function PaymentsList() {
     const [filter, setFilter] = useState<"all" | "pending" | "paid">("all");
@@ -72,17 +73,19 @@ export default function PaymentsList() {
         return formatEthiopianDate(toCalendar(currentPeriod, new GregorianCalendar()).toString());
     };
 
+    const { t } = useLanguage();
+
     // Filter tabs labels
     const filterLabels: Record<"all" | "pending" | "paid", string> = {
-        all: "ሁሉም",
-        pending: "ያልተከፈለ",
-        paid: "የተከፈለ"
+        all: t("payments.tabs.all"),
+        pending: t("payments.tabs.pending"),
+        paid: t("payments.tabs.paid")
     };
 
     return (
         <>
             <GlassHeader
-                title="ክፍያዎች"
+                title={t("payments.title")}
                 backHref="/"
                 action={
                     <Link href="/payments/settings" className="glass-pill">
@@ -138,16 +141,16 @@ export default function PaymentsList() {
                         background: currentPeriod.day === 15 ? "var(--secondary-color)" : "var(--info-color)",
                         color: "white",
                     }}>
-                        {currentPeriod.day === 15 ? "ወር አጋማሽ (15)" : "የወር መጨረሻ (30)"}
+                        {currentPeriod.day === 15 ? t("payments.periods.midMonth") : t("payments.periods.endMonth")}
                     </span>
                 </div>
 
                 <div style={{ display: "flex", flexDirection: "column", gap: "1rem", padding: "1rem" }}>
                     {payments === undefined ? (
-                        <p>Loading...</p>
+                        <p>{t("common.loading")}</p>
                     ) : payments.length === 0 ? (
                         <div className="neo-box" style={{ textAlign: "center", padding: "3rem 1rem" }}>
-                            <p style={{ opacity: 0.6 }}>ምንም ክፍያ አልተገኘም</p>
+                            <p style={{ opacity: 0.6 }}>{t("payments.messages.noPayments")}</p>
                         </div>
                     ) : (
                         payments.map((payment) => (
@@ -192,7 +195,7 @@ export default function PaymentsList() {
                                         fontSize: "0.8rem",
                                         fontWeight: 600
                                     }}>
-                                        ተከፍሏል
+                                        {t("payments.status.paid")}
                                     </div>
                                 )}
                             </div>

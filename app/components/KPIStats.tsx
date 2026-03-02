@@ -14,6 +14,7 @@ import {
     LockIcon
 } from "@/components/Icons";
 import { useState, useRef, useEffect, Fragment } from "react";
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function KPIStats() {
     const stats = useQuery(api.stats.getSummary);
@@ -84,6 +85,8 @@ export default function KPIStats() {
         zIndex: 2,
     };
 
+    const { t } = useLanguage();
+
     const renderStatGroup = (title: string, items: { label: string, value: any, icon: any }[]) => (
         <div style={{ flexShrink: 0, width: "100%", padding: "0 4px", position: "relative", scrollSnapAlign: "start" }}>
             <span style={categoryLabelStyle}>{title}</span>
@@ -138,24 +141,24 @@ export default function KPIStats() {
                 className="no-scrollbar"
             >
                 {/* Slide 1: Children */}
-                {renderStatGroup("ልጆች", [
-                    { label: "አክቲቭ", value: stats?.children.active, icon: <PreschoolerIcon /> },
-                    { label: "ያልነቁ", value: stats?.children.inactive, icon: <DeactivatedChildIcon /> },
-                    { label: "አዲስ", value: stats?.children.new, icon: <PlusIcon /> },
+                {renderStatGroup(t("kpi.categoryChildren"), [
+                    { label: t("kpi.active"), value: stats?.children.active, icon: <PreschoolerIcon /> },
+                    { label: t("kpi.inactive"), value: stats?.children.inactive, icon: <DeactivatedChildIcon /> },
+                    { label: t("kpi.new"), value: stats?.children.new, icon: <PlusIcon /> },
                 ])}
 
                 {/* Slide 2: Attendance */}
-                {renderStatGroup("አቴንዳንስ", [
-                    { label: "ተገኝተዋል", value: stats?.attendance.present, icon: <CheckIcon /> },
-                    { label: "ቀሩ", value: stats?.attendance.absent, icon: <CloseIcon /> },
-                    { label: "ሁኔታ", value: stats?.attendance.isFilled ? "ተሞልቷል" : "አልተሞላም", icon: <AttendanceIcon /> },
+                {renderStatGroup(t("kpi.categoryAttendance"), [
+                    { label: t("kpi.present"), value: stats?.attendance.present, icon: <CheckIcon /> },
+                    { label: t("kpi.absent"), value: stats?.attendance.absent, icon: <CloseIcon /> },
+                    { label: t("kpi.status"), value: stats?.attendance.isFilled ? t("kpi.filled") : t("kpi.notFilled"), icon: <AttendanceIcon /> },
                 ])}
 
                 {/* Slide 3: Payments */}
-                {renderStatGroup("ክፍያ", [
-                    { label: "የሚጠበቅ", value: stats?.payments.expected.toLocaleString(), icon: <InfoIcon /> },
-                    { label: "የተከፈለ", value: stats?.payments.paid.toLocaleString(), icon: <MoneyIcon /> },
-                    { label: "ያልተከፈለ", value: stats?.payments.unpaid.toLocaleString(), icon: <LockIcon /> },
+                {renderStatGroup(t("kpi.categoryPayments"), [
+                    { label: t("kpi.expected"), value: stats?.payments.expected.toLocaleString(), icon: <InfoIcon /> },
+                    { label: t("kpi.paid"), value: stats?.payments.paid.toLocaleString(), icon: <MoneyIcon /> },
+                    { label: t("kpi.unpaid"), value: stats?.payments.unpaid.toLocaleString(), icon: <LockIcon /> },
                 ])}
             </div>
 

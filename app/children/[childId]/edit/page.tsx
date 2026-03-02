@@ -16,6 +16,7 @@ import { regenerateIcon } from "@/components/Icons";
 import { TAgeGroup, TGender } from "@/convex/types/children";
 import { TRelationToChild } from "@/convex/types/guardians";
 import { toast } from "sonner";
+import { useLanguage } from "@/context/LanguageContext";
 
 type TChildForm = {
     fullName: string;
@@ -36,6 +37,7 @@ type TGuardianForm = {
 };
 
 export default function EditChildPage() {
+    const { t, language } = useLanguage();
     const { childId } = useParams<{ childId: string }>();
     const router = useRouter();
 
@@ -169,7 +171,7 @@ export default function EditChildPage() {
         const childValid = await cTrigger();
         const guardianValid = await gTrigger();
         if (!childValid || !guardianValid) {
-            toast.error("እባክዎ ሁሉንም መስኮች ይሙሉ");
+            toast.error(t("common.fillAllFields"));
             return;
         }
 
@@ -200,11 +202,11 @@ export default function EditChildPage() {
                 }),
             ]);
 
-            toast.success("መረጃ ተዘምኗ ✓");
+            toast.success(t("common.updated"));
             router.back();
         } catch (err) {
             console.error(err);
-            toast.error("ማስቀመጥ አልተሳካም");
+            toast.error(t("childInfo.messages.photoUploadError")); // Reusing error toast key
         } finally {
             setIsSaving(false);
         }
@@ -213,14 +215,14 @@ export default function EditChildPage() {
     if (!child) return null;
 
     const sectionTabs = [
-        { id: "child" as const, label: "ልጅ" },
-        { id: "guardian" as const, label: "አሳዳጊ" },
+        { id: "child" as const, label: t("registration.steps.child") },
+        { id: "guardian" as const, label: t("registration.steps.guardian") },
     ];
 
     return (
         <>
             <GlassHeader
-                title="አርም"
+                title={t("common.edit")}
                 onBack={() => router.back()}
             />
             <main style={{ maxWidth: "600px", marginInline: "auto", justifyContent: "start" }}>
@@ -242,17 +244,17 @@ export default function EditChildPage() {
                 {/* Child section */}
                 {activeSection === "child" && (
                     <form className="grid-gap-1 form-container animate-fade-in">
-                        <h2 className="text-center mb-1">የልጅ መረጃ</h2>
+                        <h2 className="text-center mb-1">{t("registration.steps.child")}</h2>
 
                         {/* Full Name */}
                         <div className="mb-1">
-                            <label htmlFor="c-fullName" className="label-text">ሙሉ ስም (እንግሊዝኛ)</label>
+                            <label htmlFor="c-fullName" className="label-text">{language === "am" ? "ሙሉ ስም (እንግሊዝኛ)" : "Full Name (English)"}</label>
                             <div className="relative">
                                 <input
                                     className="neo-input"
                                     id="c-fullName"
                                     {...cReg("fullName", { required: true, onBlur: handleChildNameBlur })}
-                                    placeholder="Example: Dagim Askal"
+                                    placeholder={language === "am" ? "ምሳሌ፡ Dagim Askal" : "Example: Dagim Askal"}
                                 />
                                 {isTranslatingChild && (
                                     <div style={{ position: "absolute", right: "1.5rem", top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}>
@@ -264,7 +266,7 @@ export default function EditChildPage() {
                                         <div
                                             onMouseDown={(e) => { e.preventDefault(); handleRegenerateChildTranslation(); }}
                                             style={{ cursor: "pointer", color: "var(--primary-color)", height: "1.5rem", width: "1.5rem" }}
-                                            title="ትርጉም እንደገና ፍጠር"
+                                            title={language === "am" ? "ትርጉም እንደገና ፍጠር" : "Regenerate translation"}
                                         >
                                             {regenerateIcon()}
                                         </div>
@@ -282,22 +284,22 @@ export default function EditChildPage() {
                         {/* Amharic Name */}
                         {childFullNameAmh && (
                             <div className="mb-1 animate-fade-in">
-                                <label htmlFor="c-fullNameAmh" className="label-text">ሙሉ ስም (አማርኛ)</label>
-                                <input className="neo-input" id="c-fullNameAmh" {...cReg("fullNameAmh")} placeholder="ምሳሌ፡ ዳግም አስካል" />
+                                <label htmlFor="c-fullNameAmh" className="label-text">{language === "am" ? "ሙሉ ስም (አማርኛ)" : "Full Name (Amharic)"}</label>
+                                <input className="neo-input" id="c-fullNameAmh" {...cReg("fullNameAmh")} placeholder={language === "am" ? "ምሳሌ፡ ዳግም አስካል" : "Example: Dagim Askal"} />
                             </div>
                         )}
 
                         {/* Gender */}
                         <fieldset className="fieldset-reset">
-                            <legend className="label-text">ጾታ</legend>
+                            <legend className="label-text">{t("children.sort.gender")}</legend>
                             <div className="neo-radio-group grid-2-col">
                                 <label htmlFor="male" className="justify-center">
                                     <input type="radio" id="male" value="male" {...cReg("gender", { required: true })} />
-                                    ወንድ
+                                    {t("common.male")}
                                 </label>
                                 <label htmlFor="female" className="justify-center">
                                     <input type="radio" id="female" value="female" {...cReg("gender", { required: true })} />
-                                    ሴት
+                                    {t("common.female")}
                                 </label>
                             </div>
                         </fieldset>
@@ -322,46 +324,46 @@ export default function EditChildPage() {
                         {/* Age Group */}
                         <Select
                             id="ageGroup"
-                            label="የእድሜ ክልል"
+                            label={t("children.sort.age")}
                             register={cReg}
                             setValue={cSetValue}
                             options={[
-                                { value: "infant", label: "ጨቅላ (0-1 ዓመት)" },
-                                { value: "toddler", label: "ታዳጊ (1-3 ዓመት)" },
-                                { value: "preschooler", label: "ቅድመ ትምህርት (3-6 ዓመት)" },
+                                { value: "infant", label: `${t("ageGroups.infant")} (0-1 ${t("childInfo.labels.year")})` },
+                                { value: "toddler", label: `${t("ageGroups.toddler")} (1-3 ${t("childInfo.labels.years")})` },
+                                { value: "preschooler", label: `${t("ageGroups.preschooler")} (3-6 ${t("childInfo.labels.years")})` },
                             ]}
                             value={childAgeGroup}
-                            placeholder="የእድሜ ክልል ይምረጡ"
+                            placeholder={t("settings.selectLanguage")}
                         />
                         <div className="hidden"><input type="hidden" {...cReg("ageGroup")} /></div>
 
                         {/* Payment Schedule */}
                         <Select
                             id="paymentSchedule"
-                            label="የክፍያ ጊዜ"
+                            label={t("payments.label")}
                             register={cReg}
                             setValue={cSetValue}
                             options={[
-                                { value: "month_end", label: "የወር መጨረሻ (30)" },
-                                { value: "month_half", label: "ወር አጋማሽ (15)" },
+                                { value: "month_end", label: t("payments.periods.endMonth") },
+                                { value: "month_half", label: t("payments.periods.midMonth") },
                             ]}
                             value={cWatch("paymentSchedule")}
-                            placeholder="የክፍያ ጊዜ ይምረጡ"
+                            placeholder={language === "am" ? "የክፍያ ጊዜ ይምረጡ" : "Choose payment schedule"}
                         />
 
                         {/* Payment Amount */}
                         <div className="mb-1">
-                            <label htmlFor="paymentAmount" className="mb-1 label-text">የክፍያ መጠን</label>
+                            <label htmlFor="paymentAmount" className="mb-1 label-text">{t("kpi.categoryPayments")}</label>
                             <div className="relative">
                                 <input
                                     id="paymentAmount"
                                     type="number"
                                     className="neo-input pl-3"
                                     {...cReg("paymentAmount", { required: true, valueAsNumber: true })}
-                                    placeholder="መጠን በብር"
+                                    placeholder={language === "am" ? "መጠን በብር" : "Amount in ETB"}
                                     readOnly
                                 />
-                                <span className="input-prefix">ብር</span>
+                                <span className="input-prefix">{language === "am" ? "ብር" : "ETB"}</span>
                             </div>
                         </div>
                     </form>
@@ -370,17 +372,17 @@ export default function EditChildPage() {
                 {/* Guardian section */}
                 {activeSection === "guardian" && (
                     <form className="grid-gap-1 form-container animate-fade-in">
-                        <h2 className="text-center mb-1">የአሳዳጊ መረጃ</h2>
+                        <h2 className="text-center mb-1">{t("registration.steps.guardian")}</h2>
 
                         {/* Full Name */}
                         <div className="mb-1">
-                            <label htmlFor="g-fullName" className="label-text">ሙሉ ስም (እንግሊዝኛ)</label>
+                            <label htmlFor="g-fullName" className="label-text">{language === "am" ? "ሙሉ ስም (እንግሊዝኛ)" : "Full Name (English)"}</label>
                             <div className="relative">
                                 <input
                                     className="neo-input"
                                     id="g-fullName"
                                     {...gReg("fullName", { required: true, onBlur: handleGuardianNameBlur })}
-                                    placeholder="Example: Tigist Alemu"
+                                    placeholder={language === "am" ? "ምሳሌ፡ Tigist Alemu" : "Example: Tigist Alemu"}
                                 />
                                 {isTranslatingGuardian && (
                                     <div style={{ position: "absolute", right: "1.5rem", top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}>
@@ -392,7 +394,7 @@ export default function EditChildPage() {
                                         <div
                                             onMouseDown={(e) => { e.preventDefault(); handleRegenerateGuardianTranslation(); }}
                                             style={{ cursor: "pointer", color: "var(--primary-color)", height: "1.5rem", width: "1.5rem" }}
-                                            title="ትርጉም እንደገና ፍጠር"
+                                            title={language === "am" ? "ትርጉም እንደገና ፍጠር" : "Regenerate translation"}
                                         >
                                             {regenerateIcon()}
                                         </div>
@@ -410,38 +412,38 @@ export default function EditChildPage() {
                         {/* Amharic Name */}
                         {guardianFullNameAmh && (
                             <div className="mb-1 animate-fade-in">
-                                <label htmlFor="g-fullNameAmh" className="label-text">ሙሉ ስም (አማርኛ)</label>
-                                <input className="neo-input" id="g-fullNameAmh" {...gReg("fullNameAmh")} placeholder="ምሳሌ፡ ጥጋስት አለሙ" />
+                                <label htmlFor="g-fullNameAmh" className="label-text">{language === "am" ? "ሙሉ ስም (አማርኛ)" : "Full Name (Amharic)"}</label>
+                                <input className="neo-input" id="g-fullNameAmh" {...gReg("fullNameAmh")} placeholder={language === "am" ? "ምሳሌ፡ ጥጋስት አለሙ" : "Example: Dagim Askal"} />
                             </div>
                         )}
 
                         {/* Relation */}
                         <Select
                             id="relationToChild"
-                            label="ከልጁ ጋር ያለው ዝምድና"
+                            label={language === "am" ? "ከልጁ ጋር ያለው ዝምድና" : "Relation to Child"}
                             register={gReg}
                             setValue={gSetValue}
                             options={[
-                                { value: "mother", label: "እናት" },
-                                { value: "father", label: "አባት" },
-                                { value: "grandparent", label: "አያት" },
-                                { value: "aunt_uncle", label: "አክስት / አጎት" },
-                                { value: "sibling", label: "ወንድም / እህት" },
-                                { value: "other", label: "ሌላ" },
+                                { value: "mother", label: language === "am" ? "እናት" : "Mother" },
+                                { value: "father", label: language === "am" ? "አባት" : "Father" },
+                                { value: "grandparent", label: language === "am" ? "አያት" : "Grandparent" },
+                                { value: "aunt_uncle", label: language === "am" ? "አክስት / አጎት" : "Aunt / Uncle" },
+                                { value: "sibling", label: language === "am" ? "ወንድም / እህት" : "Sibling" },
+                                { value: "other", label: language === "am" ? "ሌላ" : "Other" },
                             ]}
                             value={gWatch("relationToChild")}
-                            placeholder="ዝምድና ይምረጡ"
+                            placeholder={language === "am" ? "ዝምድና ይምረጡ" : "Select relation"}
                         />
 
                         {/* Address */}
                         <div className="mb-1">
-                            <label htmlFor="g-address" className="label-text">አድራሻ</label>
-                            <input className="neo-input" id="g-address" {...gReg("address", { required: true })} placeholder="ሰፈር / ቀበሌ" />
+                            <label htmlFor="g-address" className="label-text">{language === "am" ? "አድራሻ" : "Address"}</label>
+                            <input className="neo-input" id="g-address" {...gReg("address", { required: true })} placeholder={language === "am" ? "ሰፈር / ቀበሌ" : "Neighborhood / Kebele"} />
                         </div>
 
                         {/* Phone */}
                         <div className="mb-1">
-                            <label htmlFor="g-phone" className="label-text">ስልክ ቁጥር</label>
+                            <label htmlFor="g-phone" className="label-text">{language === "am" ? "ስልክ ቁጥር" : "Phone Number"}</label>
                             <input
                                 className="neo-input"
                                 id="g-phone"
@@ -461,7 +463,7 @@ export default function EditChildPage() {
                         onClick={handleSave}
                         disabled={isSaving}
                     >
-                        {isSaving ? "እየተቀመጠ..." : "አስቀምጥ"}
+                        {isSaving ? t("common.save") + "..." : t("common.save")}
                     </button>
                 </div>
             </main>

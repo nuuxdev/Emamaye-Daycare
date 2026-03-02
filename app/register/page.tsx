@@ -14,6 +14,7 @@ import GlassHeader from "@/components/GlassHeader";
 import { TAgeGroup, TGender } from "@/convex/types/children";
 import { TRelationToChild } from "@/convex/types/guardians";
 import { fromEthDateString } from "@/utils/calendar";
+import { useLanguage } from "@/context/LanguageContext";
 
 export type TChildInfo = {
   fullName: string;
@@ -43,6 +44,7 @@ export type TAvatarFiles = {
 export type TSavedSteps = [TChildInfo, TGuardianInfo, TAvatarFiles];
 
 export default function Register() {
+  const { t, language } = useLanguage();
   const { isTelegram, setPageTitle, showBackButton, hideBackButton } = useTelegram();
   const [step, setStep] = useState(0);
   const router = useRouter();
@@ -77,7 +79,7 @@ export default function Register() {
 
   // Manage Telegram back button
   useEffect(() => {
-    setPageTitle("Registration");
+    setPageTitle(t("registration.title"));
 
     if (isTelegram) {
       if (step > 0) {
@@ -159,7 +161,7 @@ export default function Register() {
       dialogRef.current?.showModal();
     } catch (error) {
       console.error(error);
-      toast.error("Failed to Register Child");
+      toast.error(language === "am" ? "ምዝገባው አልተሳካም" : "Failed to Register Child");
       setIsPending(false); // Only stop pending on error
       return;
     }
@@ -198,7 +200,7 @@ export default function Register() {
 
   return (
     <>
-      <GlassHeader title="ምዝገባ" backHref="/" />
+      <GlassHeader title={t("registration.title")} backHref="/" />
       <main className="animate-fade-in" style={{ justifyContent: 'start' }}>
         <div className="neo-box centered-container" style={{ maxWidth: '600px' }}>
 
@@ -263,15 +265,15 @@ export default function Register() {
 
       <dialog ref={dialogRef}>
         <div className="dialog-title">
-          <h2 style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>ምዝገባው ተሳክቷል!</h2>
-          <p style={{ opacity: 0.8 }}>የልጁ መረጃ በተሳካ ሁኔታ ተመዝግቧል።</p>
+          <h2 style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>{t("registration.success.title")}</h2>
+          <p style={{ opacity: 0.8 }}>{t("registration.success.message")}</p>
         </div>
         <div className="dialog-actions" style={{ flexDirection: 'column', gap: '0.75rem' }}>
           <button className="neo-btn primary w-full" onClick={handleHome}>
-            ወደ ዋናው ገጽ ይመለሱ
+            {t("registration.success.returnHome")}
           </button>
           <button className="secondary w-full" onClick={handleReset}>
-            ሌላ ልጅ ያስመዝግቡ
+            {t("registration.success.registerAnother")}
           </button>
         </div>
       </dialog>

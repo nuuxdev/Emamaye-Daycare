@@ -6,9 +6,10 @@ type SearchPillProps = {
     onSearch: (query: string) => void;
     onExpandChange?: (isExpanded: boolean) => void;
     debounceMs?: number;
+    placeholder?: string;
 };
 
-export default function SearchPill({ onSearch, onExpandChange, debounceMs = 300 }: SearchPillProps) {
+export default function SearchPill({ onSearch, onExpandChange, debounceMs = 300, placeholder = "Search..." }: SearchPillProps) {
     const [isExpanded, setIsExpanded] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
     const inputRef = useRef<HTMLInputElement>(null);
@@ -49,7 +50,7 @@ export default function SearchPill({ onSearch, onExpandChange, debounceMs = 300 
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search children..."
+                placeholder={placeholder}
                 style={{
                     cursor: isExpanded ? "text" : "pointer",
                     pointerEvents: isExpanded ? "auto" : "none"

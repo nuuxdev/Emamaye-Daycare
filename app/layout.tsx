@@ -5,6 +5,8 @@ import { ConvexAuthNextjsServerProvider } from "@convex-dev/auth/nextjs/server";
 import ConvexClientProvider from "@/components/ConvexClientProvider";
 import { Toaster } from "sonner";
 import TelegramProvider from "@/providers/TelegramProvider";
+import { LanguageProvider } from "@/context/LanguageContext";
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -42,7 +44,9 @@ export default function RootLayout({
         >
           <TelegramProvider />
           <Toaster position="top-center" />
-          <ConvexClientProvider>{children}</ConvexClientProvider>
+          <LanguageProvider>
+            <ConvexClientProvider>{children}</ConvexClientProvider>
+          </LanguageProvider>
 
           {/* SVG Filters for Button Effects */}
           <svg xmlns="http://www.w3.org/2000/svg" version="1.1" height="0" width="0" style={{ position: 'absolute', width: 0, height: 0 }}>

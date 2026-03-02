@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { UseFormRegister } from "react-hook-form";
 import { EthiopianCalendar, todayInEth } from "@/utils/calendar";
 import { CalendarIcon } from "@/components/Icons";
+import { useLanguage } from "@/context/LanguageContext";
 
 const { year: thisYear, month: thisMonth, day: thisDay } = todayInEth;
 
@@ -28,11 +29,11 @@ export const months = [
 const days = Array.from({ length: 30 }, (_, i) => i + 1);
 
 export const InputDate = ({ register, onSelect, value }: { register: UseFormRegister<TChildInfo>, onSelect: (date: CalendarDate) => void, value: string }) => {
-
+  const { t } = useLanguage();
   const dialogRef = useRef<HTMLDialogElement>(null);
 
   return <div className="mb-1">
-    <label htmlFor="dateOfBirth">የልደት ቀን</label>
+    <label htmlFor="dateOfBirth">{t("childInfo.labels.birthDate")}</label>
     <div className="relative">
       <input
         className="neo-input"
@@ -41,7 +42,7 @@ export const InputDate = ({ register, onSelect, value }: { register: UseFormRegi
         onBeforeInput={() => dialogRef.current?.showModal()}
         type="text"
         id="dateOfBirth"
-        placeholder="ወር-ቀን-አመት"
+        placeholder={t("childInfo.labels.birthDatePlaceholder")}
         {...register("dateOfBirth", { required: true })}
         readOnly
       />
@@ -55,8 +56,9 @@ export const InputDate = ({ register, onSelect, value }: { register: UseFormRegi
 
 export const SelectDate = ({ onSelect, value }: { onSelect: (date: CalendarDate) => void, value?: string }) => {
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const { t } = useLanguage();
   return <>
-    <div style={{ cursor: "pointer", height: "1.5rem" }} role="button" onClick={() => dialogRef.current?.showModal()}>
+    <div style={{ cursor: "pointer", height: "1.5rem" }} role="button" onClick={() => dialogRef.current?.showModal()} title={t("childInfo.labels.birthDate")}>
       <CalendarIcon />
     </div>
     <Dialog dialogRef={dialogRef} onSelect={onSelect} value={value} />

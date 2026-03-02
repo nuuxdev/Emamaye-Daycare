@@ -10,6 +10,7 @@ import { useConvex } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import { Doc, Id } from "@/convex/_generated/dataModel";
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function GuardianInfo({
   saveSteps,
@@ -22,6 +23,7 @@ export default function GuardianInfo({
   setStep: Dispatch<SetStateAction<number>>;
   step: number;
 }) {
+  const { t, language } = useLanguage();
   const defaultValues: TGuardianInfo = savedSteps[step] as TGuardianInfo;
   const convex = useConvex();
 
@@ -145,21 +147,21 @@ export default function GuardianInfo({
 
   return (
     <form className="grid-gap-1 form-container">
-      <h2 className="text-center mb-1">የወላጅ መረጃ</h2>
+      <h2 className="text-center mb-1">{t("registration.steps.guardian")}</h2>
 
       <div className="neo-box secondary p-1 mb-1 text-center" style={{ fontSize: "0.9rem", color: "var(--primary-color)" }}>
-        <p>ወላጁ ከዚህ ቀደም ሌላ ልጅ አስመዝግበው ያውቃሉ?</p>
+        <p>{t("registration.guardianCheck.notice")}</p>
       </div>
 
       <div className="mb-1">
-        <label htmlFor="phoneNumber">ስልክ ቁጥር</label>
+        <label htmlFor="phoneNumber">{language === "am" ? "ስልክ ቁጥር" : "Phone Number"}</label>
         <div className="relative">
           <input
             id="phoneNumber"
             type="tel"
             className="neo-input"
             {...register("phoneNumber", { required: true, onBlur: handlePhoneNumberBlur })}
-            placeholder="ምሳሌ፡ 0911121314"
+            placeholder={language === "am" ? "ምሳሌ፡ 0911121314" : "Example: 0911121314"}
           />
           {isCheckingPhone && (
             <div style={{ position: "absolute", right: "1rem", top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}>
@@ -170,7 +172,7 @@ export default function GuardianInfo({
       </div>
 
       <div className="mb-1">
-        <label htmlFor="fullName">ሙሉ ስም (እንግሊዝኛ)</label>
+        <label htmlFor="fullName">{language === "am" ? "ሙሉ ስም (እንግሊዝኛ)" : "Full Name (English)"}</label>
         <div className="relative">
           <input
             id="fullName"
@@ -178,7 +180,7 @@ export default function GuardianInfo({
             className="neo-input"
             readOnly={isReadOnly}
             {...register("fullName", { required: true, onBlur: handleFullNameBlur })}
-            placeholder="Example: Abebe Kebede"
+            placeholder={language === "am" ? "ምሳሌ፡ Abebe Kebede" : "Example: Abebe Kebede"}
           />
           {isTranslating && (
             <div style={{ position: "absolute", right: "1.5rem", top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}>
@@ -214,13 +216,13 @@ export default function GuardianInfo({
 
       {(fullNameAmh || isReadOnly) && (
         <div className="mb-1 animate-fade-in">
-          <label htmlFor="fullNameAmh" className="label-text">ሙሉ ስም (አማርኛ)</label>
+          <label htmlFor="fullNameAmh" className="label-text">{language === "am" ? "ሙሉ ስም (አማርኛ)" : "Full Name (Amharic)"}</label>
           <input
             className="neo-input"
             id="fullNameAmh"
             readOnly={isReadOnly}
             {...register("fullNameAmh")}
-            placeholder="ምሳሌ፡ አበበ ከበደ"
+            placeholder={language === "am" ? "ምሳሌ፡ አበበ ከበደ" : "Example: Abebe Kebede"}
           />
         </div>
       )}
@@ -228,31 +230,31 @@ export default function GuardianInfo({
 
       <Select
         id="relationToChild"
-        label="ዝምድና"
+        label={language === "am" ? "ዝምድና" : "Relation"}
         register={register}
         setValue={setValue}
         disabled={isReadOnly}
         value={watch("relationToChild")}
         options={[
-          { value: "mother", label: "እናት" },
-          { value: "father", label: "አባት" },
-          { value: "grandparent", label: "አያት" },
-          { value: "aunt", label: "አክስት" },
-          { value: "uncle", label: "አጎት" },
-          { value: "other", label: "ሌላ" },
+          { value: "mother", label: language === "am" ? "እናት" : "Mother" },
+          { value: "father", label: language === "am" ? "አባት" : "Father" },
+          { value: "grandparent", label: language === "am" ? "አያት" : "Grandparent" },
+          { value: "aunt", label: language === "am" ? "አክስት" : "Aunt" },
+          { value: "uncle", label: language === "am" ? "አጎት" : "Uncle" },
+          { value: "other", label: language === "am" ? "ሌላ" : "Other" },
         ]}
         defaultValue={defaultValues?.relationToChild}
-        placeholder="ዝምድና ይምረጡ"
+        placeholder={language === "am" ? "ዝምድና ይምረጡ" : "Select relation"}
       />
 
       <div className="mb-1">
-        <label htmlFor="address">አድራሻ</label>
+        <label htmlFor="address">{language === "am" ? "አድራሻ" : "Address"}</label>
         <input
           id="address"
           className="neo-input"
           readOnly={isReadOnly}
           {...register("address", { required: true })}
-          placeholder="ምሳሌ፡ ቦሌ፣ አዲስ አበባ"
+          placeholder={language === "am" ? "ምሳሌ፡ ቦሌ፣ አዲስ አበባ" : "Example: Bole, Addis Ababa"}
         />
       </div>
 
@@ -264,7 +266,7 @@ export default function GuardianInfo({
             submitHandler("previous");
           }}
         >
-          ወደኋላ
+          {t("common.back")}
         </button>
 
         <button
@@ -274,28 +276,28 @@ export default function GuardianInfo({
             submitHandler("next");
           }}
         >
-          ቀጣይ
+          {language === "am" ? "ቀጣይ" : "Next"}
         </button>
       </div>
 
       <dialog ref={guardianDialogRef}>
         <div className="dialog-title">
-          <h2 style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>አስቀድሞ የተመዘገበ ወላጅ!</h2>
+          <h2 style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>{t("registration.guardianCheck.foundTitle")}</h2>
           <p style={{ opacity: 0.8, fontSize: '0.9rem' }}>
-            ይህ ስልክ ቁጥር ከዚህ ቀደም በ <strong>{existingGuardian?.fullName}</strong> ስም ተመዝግቧል።
+            {t("registration.guardianCheck.foundMessage")} <strong>{existingGuardian?.fullName}</strong>.
           </p>
           {existingChildren.length > 0 && (
             <p style={{ opacity: 0.8, fontSize: '0.8rem', marginTop: '0.5rem' }}>
-              ያሏቸው ልጆች: {existingChildren.join(", ")}
+              {language === "am" ? "ያሏቸው ልጆች" : "Existing children"}: {existingChildren.join(", ")}
             </p>
           )}
         </div>
         <div className="dialog-actions" style={{ flexDirection: 'column', gap: '0.75rem' }}>
           <button type="button" className="neo-btn primary w-full" onClick={handleAcceptGuardian}>
-            ይህንን ወላጅ ተጠቀም
+            {t("registration.guardianCheck.accept")}
           </button>
           <button type="button" className="secondary w-full" onClick={handleChangePhone}>
-            የስልክ ቁጥር ቀይር
+            {t("registration.guardianCheck.change")}
           </button>
         </div>
       </dialog>

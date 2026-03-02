@@ -2,6 +2,8 @@ import { CalendarDate, toCalendar } from "@internationalized/date";
 import { EthiopianCalendar, todayInEth, todayInGreg } from "./calendar";
 import { toast } from "sonner";
 import { TAgeGroup } from "@/convex/types/children";
+import { useLanguage } from "@/context/LanguageContext";
+import { translations } from "@/lib/translations";
 
 /**
  * Gets the number of days in the previous month for an Ethiopian calendar date.
@@ -17,7 +19,16 @@ function getDaysInPreviousMonth(date: CalendarDate): number {
   return EthiopianCalendar.getDaysInMonth(prevMonthDate);
 }
 
-export function calculateAge(dateOfBirth: CalendarDate) {
+export type TAgeResult = {
+  years: number;
+  months: number;
+  days: number;
+  isBirthday: boolean;
+  isJustBorn: boolean;
+  ageInYears: number;
+};
+
+export function calculateAge(dateOfBirth: CalendarDate): TAgeResult | undefined {
   const isEthiopic = dateOfBirth.calendar.identifier === "ethiopic";
   const bdInEth = isEthiopic ? dateOfBirth : toCalendar(dateOfBirth, EthiopianCalendar);
   const { year: thisYear, month: thisMonth, day: thisDay } = todayInEth;
@@ -62,7 +73,7 @@ export function calculateAge(dateOfBirth: CalendarDate) {
     else if (ageInMonths === 0) {
       if (ageInDays < 0) {
         ageInYears--;
-        ageInMonths = 11;
+        ageInMonths = 12; // In Ethiopian 13 months, month indices are 1-13
         ageInDays += daysInPrevMonth;
       }
     }
@@ -73,20 +84,64 @@ export function calculateAge(dateOfBirth: CalendarDate) {
       }
     }
   }
-  const yearsString = ageInYears > 0 ? `<strong>${ageInYears}</strong> ዓመት ` : ""
-  const monthsString = ageInMonths > 0 ? `<strong>${ageInMonths}</strong> ወር ` : ""
-  const daysString = ageInDays > 0 ? `<strong>${ageInDays}</strong> ቀናት` : "";
-  const age: string = `${yearsString}${monthsString}${daysString}`;
-  const ageShort: string = `${yearsString}${monthsString}`;
-  if (ageInYears + ageInMonths + ageInDays === 0) {
-    return { age: "just born", ageInYears };
-  }
-  if (ageInYears > 0 && ageInMonths + ageInDays === 0) {
-    return { age: "happy birthday!", ageInYears };
-  }
 
+  const isJustBorn = ageInYears + ageInMonths + ageInDays === 0;
+  const isBirthday = ageInYears > 0 && ageInMonths + ageInDays === 0;
 
-  return { age, ageInYears, ageShort };
+  return {
+    years: ageInYears,
+    months: ageInMonths,
+    days: ageInDays,
+    isBirthday,
+    isJustBorn,
+    ageInYears,
+  };
+}
+
+export function useAge() {
+  const { language } = useLanguage();
+  const t = translations[language].childInfo.labels;
+
+  const formatAge = (age: TAgeResult | undefined) => {
+    if (!age) return "";
+    if (age.isJustBorn) return t.justBorn;
+
+    const parts = [];
+    if (age.years > 0) {
+      parts.push(`${age.years} ${age.years === 1 ? t.year : t.years}`);
+    }
+    if (age.months > 0) {
+      parts.push(`${age.months} ${age.months === 1 ? t.month : t.months}`);
+    }
+    if (age.years === 0 && age.months === 0 && age.days > 0) {
+      parts.push(`${age.days} ${age.days === 1 ? t.day : t.days}`);
+    }
+
+    if (language === "am") {
+      return parts.join(" ከ ");
+    }
+    return parts.join(", ");
+  };
+
+  const formatAgeShort = (age: TAgeResult | undefined) => {
+    if (!age) return "";
+    if (age.isJustBorn) return t.justBorn;
+
+    const parts = [];
+    if (age.years > 0) {
+      parts.push(`<span>${age.years}</span>${language === 'am' ? t.year : 'y'}`);
+    }
+    if (age.months > 0) {
+      parts.push(`<span>${age.months}</span>${language === 'am' ? t.month : 'm'}`);
+    }
+    if (age.years === 0 && age.months === 0 && age.days > 0) {
+      parts.push(`<span>${age.days}</span>${language === 'am' ? t.day : 'd'}`);
+    }
+
+    return parts.join(" ");
+  };
+
+  return { formatAge, formatAgeShort };
 }
 
 export function getAgeGroup(ageInYears: number) {

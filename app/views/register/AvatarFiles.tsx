@@ -6,6 +6,7 @@ import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { toast } from "sonner";
 import { ServerAvatar } from "@/app/components/ServerAvatar";
+import { useLanguage } from "@/context/LanguageContext";
 import { CameraIcon, UploadIcon } from "@/components/Icons";
 
 const HorizontalProgress = ({ progress }: { progress: number }) => {
@@ -64,6 +65,8 @@ const ImageUploader = ({
     }
   }, [uploadComplete, storageId, localPreviewUrl]);
 
+  const { t, language } = useLanguage();
+
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -97,7 +100,7 @@ const ImageUploader = ({
 
     } catch (error) {
       console.error("Error uploading image:", error);
-      toast.error("ምስሉን መጫን አልተቻለም");
+      toast.error(t("childInfo.messages.photoUploadError"));
       setIsUploading(false);
       setUploadProgress(0);
       if (localPreviewUrl) {
@@ -160,7 +163,7 @@ const ImageUploader = ({
             onClick={() => document.getElementById(`file-${label}`)?.click()}
             disabled={isUploading}
           >
-            {isUploading ? "እየጫነ..." : <><UploadIcon />ፋይል</>}
+            {isUploading ? t("common.loading") : <><UploadIcon />{t("childInfo.file")}</>}
           </button>
           <button
             type="button"
@@ -197,6 +200,7 @@ export default function AvatarFiles({
   setStep: Dispatch<SetStateAction<number>>;
   step: number;
 }) {
+  const { t, language } = useLanguage();
   const defaultValues: TAvatarFiles = savedSteps[step] as TAvatarFiles;
 
   const { control, setValue, getValues } = useForm<TAvatarFiles>({
@@ -221,7 +225,7 @@ export default function AvatarFiles({
 
   return (
     <form className="grid-gap-1 form-container">
-      <h2 className="text-center mb-1">ፎቶ ይጫኑ</h2>
+      <h2 className="text-center mb-1">{t("registration.steps.photos")}</h2>
 
       <div className="avatar-files-container">
         {/* Child Avatar */}
@@ -230,7 +234,7 @@ export default function AvatarFiles({
           control={control}
           render={({ field }) => (
             <ImageUploader
-              label="የልጅ ፎቶ (አማራጭ)"
+              label={language === "am" ? "የልጅ ፎቶ (አማራጭ)" : "Child Photo (Optional)"}
               storageId={field.value}
               uploadOptimizedImage={uploadOptimizedImage}
               onUploadComplete={(id, file) => {
@@ -255,7 +259,7 @@ export default function AvatarFiles({
           control={control}
           render={({ field }) => (
             <ImageUploader
-              label="የወላጅ ፎቶ (አማራጭ)"
+              label={language === "am" ? "የወላጅ ፎቶ (አማራጭ)" : "Guardian Photo (Optional)"}
               storageId={field.value}
               uploadOptimizedImage={uploadOptimizedImage}
               onUploadComplete={(id, file) => {
@@ -283,7 +287,7 @@ export default function AvatarFiles({
             submitHandler("previous");
           }}
         >
-          ወደኋላ
+          {t("common.back")}
         </button>
 
         <button
@@ -291,7 +295,7 @@ export default function AvatarFiles({
           className="neo-btn primary w-full"
           onClick={() => submitHandler("next")}
         >
-          ቀጣይ
+          {language === "am" ? "ቀጣይ" : "Next"}
         </button>
       </div>
     </form>

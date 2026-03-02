@@ -7,9 +7,10 @@ import { Fragment, JSX, useEffect, useRef, useState } from "react";
 import GlassHeader from "@/components/GlassHeader";
 import SearchPill from "@/components/SearchPill";
 import { parseDate } from "@internationalized/date";
-import { calculateAge } from "@/utils/calculateAge";
+import { calculateAge, useAge } from "@/utils/calculateAge";
 import { CallIcon, DeactivatedChildIcon, InfantIcon, InfoIcon, PreschoolerIcon, SortIcon, SwapIcon, ToddlerIcon } from "@/components/Icons";
 import { ServerAvatar } from "@/app/components/ServerAvatar";
+import { useLanguage } from "@/context/LanguageContext";
 
 const ageGroupsTabs: (TAgeGroup | "all children" | "inactive")[] = [
   "all children",
@@ -18,14 +19,6 @@ const ageGroupsTabs: (TAgeGroup | "all children" | "inactive")[] = [
   "preschooler",
   "inactive",
 ];
-
-const ageGroupAmh: Record<TAgeGroup | "all children" | "inactive", string> = {
-  "all children": "ሁሉም ልጆቼ",
-  infant: "ጨቅላ",
-  toddler: "ህፃን",
-  preschooler: "ታዳጊ",
-  inactive: "የለቀቁ",
-};
 
 const ageGroupIcons: Record<TAgeGroup, JSX.Element> = {
   infant: <InfantIcon />,
@@ -40,19 +33,6 @@ type SortKey =
   | "sex"
   | "birthdate";
 
-const sortOptions: {
-  value: SortKey;
-  label: string;
-  ascLabel: string;
-  descLabel: string;
-}[] = [
-    { value: "reg", label: "ምዝገባ ቀን", ascLabel: "ቅርብ", descLabel: "ሩቅ" },
-    { value: "name", label: "ስም", ascLabel: "A-Z", descLabel: "Z-A" },
-    { value: "age", label: "እድሜ", ascLabel: "ትንሽ", descLabel: "ትልቅ" },
-    { value: "sex", label: "ፆታ", ascLabel: "ወንድ", descLabel: "ሴት" },
-    { value: "birthdate", label: "ልደት ቀን", ascLabel: "ቅርብ", descLabel: "ሩቅ" },
-  ];
-
 function sortChildren(
   children: any[],
   sortKey: SortKey,
@@ -61,7 +41,6 @@ function sortChildren(
   const sorted = [...children];
   switch (sortKey) {
     case "reg":
-      // asc = ቅርብ (recently registered first = highest _creationTime first)
       return sorted.sort((a, b) =>
         sortOrder === "asc"
           ? (b._creationTime ?? 0) - (a._creationTime ?? 0)
@@ -80,14 +59,10 @@ function sortChildren(
         const timeA = new Date(a.dateOfBirth).getTime();
         const timeB = new Date(b.dateOfBirth).getTime();
         return sortOrder === "asc"
-          ? timeB - timeA // Ascending age = older birthdate (smaller time) first? No, younger first is asc age.
-          : timeA - timeB; // Descending age = older first.
-        // wait: age-asc (younger first) means birthdate is closer to today (larger time)
-        // new Date("2020").getTime() > new Date("2010").getTime()
-        // age-asc: larger time first.
+          ? timeB - timeA
+          : timeA - timeB;
       });
     case "sex":
-      // "asc" = ወንድ first (male < female reversed), "desc" = ሴት first
       return sorted.sort((a, b) =>
         sortOrder === "asc"
           ? b.gender.localeCompare(a.gender)
@@ -109,10 +84,10 @@ function sortChildren(
 }
 
 export default function ChildrenList() {
+  const { t, language } = useLanguage();
   const [tab, setTab] = useState<TAgeGroup | "all children" | "inactive">("all children");
   const [sortKey, setSortKey] = useState<SortKey | null>(null);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc" | null>(null);
-  // Pending selections — dialog only closes when both are chosen
   const [pendingKey, setPendingKey] = useState<SortKey | null>(null);
   const [pendingOrder, setPendingOrder] = useState<"asc" | "desc" | null>(null);
   const sortDialogRef = useRef<HTMLDialogElement>(null);
@@ -132,6 +107,27 @@ export default function ChildrenList() {
     inactive: 0,
   });
 
+  const sortOptions: {
+    value: SortKey;
+    label: string;
+    ascLabel: string;
+    descLabel: string;
+  }[] = [
+      { value: "reg", label: t("children.sort.regDate"), ascLabel: t("children.sort.near"), descLabel: t("children.sort.far") },
+      { value: "name", label: t("children.sort.name"), ascLabel: "A-Z", descLabel: "Z-A" },
+      { value: "age", label: t("children.sort.age"), ascLabel: t("children.sort.youngest"), descLabel: t("children.sort.oldest") },
+      { value: "sex", label: t("children.sort.gender"), ascLabel: t("common.male"), descLabel: t("common.female") },
+      { value: "birthdate", label: t("children.sort.birthday"), ascLabel: t("children.sort.near"), descLabel: t("children.sort.far") },
+    ];
+
+  const ageGroupLabels: Record<TAgeGroup | "all children" | "inactive", string> = {
+    "all children": t("ageGroups.all"),
+    infant: t("ageGroups.infant"),
+    toddler: t("ageGroups.toddler"),
+    preschooler: t("ageGroups.preschooler"),
+    inactive: t("ageGroups.inactive"),
+  };
+
   useEffect(() => {
     let result = children;
     let initCounts: { [key in TAgeGroup | "all children" | "inactive"]: number } = {
@@ -142,12 +138,10 @@ export default function ChildrenList() {
       inactive: inactiveChildren?.length || 0,
     }
 
-    // Filter by age group
     if (tab !== "all children" && tab !== "inactive") {
       result = result?.filter((child) => child.ageGroup === tab);
     }
 
-    // Filter by search query
     if (searchQuery.trim()) {
       result = result?.filter((child) =>
         child.fullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -155,7 +149,6 @@ export default function ChildrenList() {
       );
     }
 
-    // Sort
     if (result && sortKey && sortOrder) result = sortChildren(result, sortKey, sortOrder);
 
     setCounts(initCounts);
@@ -163,7 +156,6 @@ export default function ChildrenList() {
   }, [tab, activeChildren, inactiveChildren, children, searchQuery, sortKey, sortOrder]);
 
   const handlePendingKey = (key: SortKey) => {
-    // If switching to a different option, clear the pending order so user picks fresh
     if (key !== pendingKey) {
       setPendingKey(key);
       setPendingOrder(null);
@@ -172,7 +164,6 @@ export default function ChildrenList() {
 
   const handlePendingOrder = (order: "asc" | "desc") => {
     setPendingOrder(order);
-    // If a key is already pending, apply immediately
     if (pendingKey) {
       setSortKey(pendingKey);
       setSortOrder(order);
@@ -183,24 +174,23 @@ export default function ChildrenList() {
   };
 
   const openSortDialog = () => {
-    // Seed pending state from current applied sort
     setPendingKey(sortKey);
     setPendingOrder(sortOrder);
     sortDialogRef.current?.showModal();
   };
 
+  const { formatAge, formatAgeShort } = useAge();
+
   return (
     <>
       <GlassHeader
-        title="ልጆቼ"
+        title={t("children.title")}
         backHref="/"
         isCompact={searchExpanded}
-        action={<SearchPill onSearch={setSearchQuery} onExpandChange={setSearchExpanded} />}
+        action={<SearchPill onSearch={setSearchQuery} onExpandChange={setSearchExpanded} placeholder={t("children.searchPlaceholder")} />}
       />
       <main style={{ justifyContent: "start", maxWidth: "610px", marginInline: "auto" }}>
-        {/* Sort button + scrollable filter tabs */}
         <div style={{ marginInline: "auto", display: "flex", width: "100%", alignItems: "center" }}>
-          {/* Sort button — sits outside the scroll area */}
           <button
             onClick={openSortDialog}
             className="glass-pill"
@@ -214,7 +204,6 @@ export default function ChildrenList() {
             <SortIcon />
           </button>
 
-          {/* Scrollable filter tabs — same style as before */}
           <div style={{ marginInline: "auto", display: "flex", overflowX: "auto", paddingBlock: "1rem" }}>
             {ageGroupsTabs.map((ageGroupTab) => (
               <button
@@ -230,18 +219,16 @@ export default function ChildrenList() {
                 ) : (
                   ""
                 )}
-                <span style={{ textWrap: "nowrap" }}>{ageGroupAmh[ageGroupTab]}</span>
+                <span style={{ textWrap: "nowrap" }}>{ageGroupLabels[ageGroupTab]}</span>
                 {counts[ageGroupTab]}
               </button>
             ))}
           </div>
         </div>
 
-        {/* Sort dialog */}
         <dialog ref={sortDialogRef}>
-          <h3 className="dialog-title">ደርድር</h3>
+          <h3 className="dialog-title">{t("common.sortDialogTitle")}</h3>
 
-          {/* Shared direction button group — labels change based on the pending option */}
           {(() => {
             const active = sortOptions.find((o) => o.value === pendingKey);
             return (
@@ -293,97 +280,102 @@ export default function ChildrenList() {
         </dialog>
 
         <div style={{ display: "grid", gap: "0.5rem", width: "100%", paddingInline: "1rem" }}>
-          {children === undefined && <p>Loading...</p>}
-          {filteredChildren?.map((child) => (
-            <Fragment key={child._id}>
-              <details style={{ width: "100%", cursor: "pointer" }} name="children-list-item">
-                <summary
-                  style={{ display: "flex", gap: "1rem", alignItems: "start" }}
-                >
-                  <Link
-                    href={`/children/${child._id}`}
-                    style={{
-                      width: "5rem",
-                      aspectRatio: "1/1",
-                      position: "relative",
-                    }}
+          {children === undefined && <p>{t("common.loading")}</p>}
+          {filteredChildren?.map((child) => {
+            const displayName = (language === "am" && child.fullNameAmh) ? child.fullNameAmh : child.fullName;
+            const guardianDisplayName = (language === "am" && child.primaryGuardianFullNameAmh) ? child.primaryGuardianFullNameAmh : child.primaryGuardianFullName;
+
+            return (
+              <Fragment key={child._id}>
+                <details style={{ width: "100%", cursor: "pointer" }} name="children-list-item">
+                  <summary
+                    style={{ display: "flex", gap: "1rem", alignItems: "start" }}
                   >
-                    <ServerAvatar
-                      src={child.avatar}
-                      alt="child avatar"
+                    <Link
+                      href={`/children/${child._id}`}
                       style={{
-                        borderRadius: "50%",
-                      }}
-                    />
-                    <span
-                      className={child.ageGroup}
-                      style={{
-                        position: "absolute",
-                        bottom: "0",
-                        right: "-0.5rem",
-                        width: "2rem",
-                        height: "2rem",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        borderRadius: "100vw",
+                        width: "5rem",
+                        aspectRatio: "1/1",
+                        position: "relative",
                       }}
                     >
-                      {child.isActive ? ageGroupIcons[child.ageGroup as TAgeGroup] : <DeactivatedChildIcon />}
-                    </span>
-                  </Link>
+                      <ServerAvatar
+                        src={child.avatar}
+                        alt="child avatar"
+                        style={{
+                          borderRadius: "50%",
+                        }}
+                      />
+                      <span
+                        className={child.ageGroup}
+                        style={{
+                          position: "absolute",
+                          bottom: "0",
+                          right: "-0.5rem",
+                          width: "2rem",
+                          height: "2rem",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          borderRadius: "100vw",
+                        }}
+                      >
+                        {child.isActive ? ageGroupIcons[child.ageGroup as TAgeGroup] : <DeactivatedChildIcon />}
+                      </span>
+                    </Link>
 
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        width: "100%",
+                      }}
+                    >
+                      <div>
+                        <h4 style={{ fontSize: "inherit", margin: 0, textTransform: "capitalize" }}>{displayName}</h4>
+                        <p>{child.gender === "male" ? t("common.male") : t("common.female")}</p>
+                      </div>
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "end",
+                        }}
+                      >
+                        <p dangerouslySetInnerHTML={{ __html: formatAgeShort(calculateAge(parseDate(child.dateOfBirth))) }} />
+                      </div>
+                    </div>
+                  </summary>
                   <div
                     style={{
                       display: "flex",
                       justifyContent: "space-between",
-                      width: "100%",
+                      padding: "1.25rem 1.25rem 2rem 1.25rem",
                     }}
                   >
-                    <div>
-                      <h4 style={{ fontSize: "inherit", margin: 0, textTransform: "capitalize" }}>{child.fullNameAmh || child.fullName}</h4>
-                      <p>{child.gender === "male" ? "ወንድ" : "ሴት"}</p>
-                    </div>
-                    <div
-                      style={{
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "end",
-                      }}
+                    <Link
+                      href={`tel:${child.primaryGuardianPhoneNumber}`}
+                      className="glass-pill with-icon"
+                      style={{ color: "var(--success-color)" }}
                     >
-                      <p dangerouslySetInnerHTML={{ __html: calculateAge(parseDate(child.dateOfBirth))?.ageShort || calculateAge(parseDate(child.dateOfBirth))?.age || "" }} />
-                    </div>
+                      <CallIcon />
+                      {guardianDisplayName?.split(" ")[0]}
+                    </Link>
+                    <Link
+                      href={`/children/${child._id}`}
+                      className="glass-pill with-icon"
+                      style={{ color: "var(--info-color)" }}
+                    >
+                      <InfoIcon />
+                      {t("common.info")}
+                    </Link>
                   </div>
-                </summary>
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    padding: "1.25rem 1.25rem 2rem 1.25rem",
-                  }}
-                >
-                  <Link
-                    href={`tel:${child.primaryGuardianPhoneNumber}`}
-                    className="glass-pill with-icon"
-                    style={{ color: "var(--success-color)" }}
-                  >
-                    <CallIcon />
-                    {(child.primaryGuardianFullNameAmh || child.primaryGuardianFullName)?.split(" ")[0]}
-                  </Link>
-                  <Link
-                    href={`/children/${child._id}`}
-                    className="glass-pill with-icon"
-                    style={{ color: "var(--info-color)" }}
-                  >
-                    <InfoIcon />
-                    info
-                  </Link>
-                </div>
-              </details>
-              <hr />
-            </Fragment>
-          ))}
-          {filteredChildren?.length === 0 && <p>No children found</p>}
+                </details>
+                <hr />
+              </Fragment>
+            );
+          })}
+          {filteredChildren?.length === 0 && <p>{t("children.noChildren")}</p>}
         </div>
       </main>
     </>

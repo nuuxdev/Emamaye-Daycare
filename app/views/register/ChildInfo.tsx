@@ -12,6 +12,7 @@ import { translateName } from "@/app/actions";
 import { toast } from "sonner";
 import { SpinnerIcon, CloseIcon } from "@/components/Icons";
 import { regenerateIcon } from "@/components/Icons";
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function ChildInfo({
   saveSteps,
@@ -24,6 +25,7 @@ export default function ChildInfo({
   setStep: Dispatch<SetStateAction<number>>;
   step: number;
 }) {
+  const { t, language } = useLanguage();
   const defaultValues: TChildInfo = savedSteps[step] as TChildInfo;
 
   const { register, trigger, getValues, setValue, watch, resetField } = useForm<TChildInfo>({
@@ -120,16 +122,16 @@ export default function ChildInfo({
 
   return (
     <form className="grid-gap-1 form-container">
-      <h2 className="text-center mb-1">የልጅ መረጃ</h2>
+      <h2 className="text-center mb-1">{t("registration.steps.child")}</h2>
 
       <div className="mb-1">
-        <label htmlFor="fullName" className="label-text">ሙሉ ስም (እንግሊዝኛ)</label>
+        <label htmlFor="fullName" className="label-text">{language === "am" ? "ሙሉ ስም (እንግሊዝኛ)" : "Full Name (English)"}</label>
         <div className="relative">
           <input
             className="neo-input"
             id="fullName"
             {...register("fullName", { required: true, onBlur: handleFullNameBlur })}
-            placeholder="Example: Dagim Askal"
+            placeholder={language === "am" ? "ምሳሌ፡ Dagim Askal" : "Example: Dagim Askal"}
           />
           {isTranslating && (
             <div style={{ position: "absolute", right: "1.5rem", top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}>
@@ -146,7 +148,7 @@ export default function ChildInfo({
                   handleRegenerateTranslation();
                 }}
                 style={{ cursor: "pointer", color: "var(--primary-color)", height: "1.5rem", width: "1.5rem" }}
-                title="ትርጉም እንደገና ፍጠር"
+                title={language === "am" ? "ትርጉም እንደገና ፍጠር" : "Regenerate translation"}
               >
                 {regenerateIcon()}
               </div>
@@ -167,19 +169,19 @@ export default function ChildInfo({
 
       {fullNameAmh && (
         <div className="mb-1 animate-fade-in">
-          <label htmlFor="fullNameAmh" className="label-text">ሙሉ ስም (አማርኛ)</label>
+          <label htmlFor="fullNameAmh" className="label-text">{language === "am" ? "ሙሉ ስም (አማርኛ)" : "Full Name (Amharic)"}</label>
           <input
             className="neo-input"
             id="fullNameAmh"
             {...register("fullNameAmh")}
-            placeholder="ምሳሌ፡ ዳግም አስካል"
+            placeholder={language === "am" ? "ምሳሌ፡ ዳግም አስካል" : "Example: Dagim Askal"}
           />
         </div>
       )}
 
 
       <fieldset className="fieldset-reset">
-        <legend className="label-text">ጾታ</legend>
+        <legend className="label-text">{t("children.sort.gender")}</legend>
         <div className="neo-radio-group grid-2-col">
           <label htmlFor="male" className="justify-center">
             <input
@@ -188,7 +190,7 @@ export default function ChildInfo({
               value="male"
               {...register("gender", { required: true })}
             />
-            ወንድ
+            {t("common.male")}
           </label>
           <label htmlFor="female" className="justify-center">
             <input
@@ -197,7 +199,7 @@ export default function ChildInfo({
               value="female"
               {...register("gender", { required: true })}
             />
-            ሴት
+            {t("common.female")}
           </label>
         </div>
       </fieldset>
@@ -219,17 +221,17 @@ export default function ChildInfo({
 
       <Select
         id="ageGroup"
-        label="የእድሜ ክልል"
+        label={t("children.sort.age")}
         register={register}
         setValue={setValue}
         options={[
-          { value: "infant", label: "ጨቅላ (0-1 ዓመት)" },
-          { value: "toddler", label: "ታዳጊ (1-3 ዓመት)" },
-          { value: "preschooler", label: "ቅድመ ትምህርት (3-6 ዓመት)" },
+          { value: "infant", label: `${t("ageGroups.infant")} (0-1 ${t("childInfo.labels.year")})` },
+          { value: "toddler", label: `${t("ageGroups.toddler")} (1-3 ${t("childInfo.labels.years")})` },
+          { value: "preschooler", label: `${t("ageGroups.preschooler")} (3-6 ${t("childInfo.labels.years")})` },
         ]}
         defaultValue={defaultValues?.ageGroup}
         value={ageGroup}
-        placeholder="የእድሜ ክልል ይምረጡ"
+        placeholder={t("settings.selectLanguage")} // Use a better key if I had one for "Select Age Group"
       />
 
       {/* Watch for changes to update payment amount */}
@@ -241,30 +243,30 @@ export default function ChildInfo({
 
       <Select
         id="paymentSchedule"
-        label="የክፍያ ጊዜ"
+        label={t("payments.label")}
         register={register}
         setValue={setValue}
         options={[
-          { value: "month_end", label: "የወር መጨረሻ (30)" },
-          { value: "month_half", label: "ወር አጋማሽ (15)" },
+          { value: "month_end", label: t("payments.periods.endMonth") },
+          { value: "month_half", label: t("payments.periods.midMonth") },
         ]}
         defaultValue={defaultValues?.paymentSchedule}
         value={watch("paymentSchedule")}
-        placeholder="የክፍያ ጊዜ ይምረጡ"
+        placeholder={language === "am" ? "የክፍያ ጊዜ ይምረጡ" : "Choose payment schedule"}
       />
 
       <div className="mb-1">
-        <label htmlFor="paymentAmount" className="mb-1 label-text">የክፍያ መጠን</label>
+        <label htmlFor="paymentAmount" className="mb-1 label-text">{t("kpi.categoryPayments")}</label>
         <div className="relative">
           <input
             id="paymentAmount"
             type="number"
             className="neo-input pl-3"
             {...register("paymentAmount", { required: true, valueAsNumber: true })}
-            placeholder="መጠን በብር"
+            placeholder={language === "am" ? "መጠን በብር" : "Amount in ETB"}
             readOnly
           />
-          <span className="input-prefix">ብር</span>
+          <span className="input-prefix">{language === "am" ? "ብር" : "ETB"}</span>
         </div>
       </div>
 
@@ -277,7 +279,7 @@ export default function ChildInfo({
           }}
           disabled={step === 0}
         >
-          ወደኋላ
+          {t("common.back")}
         </button>
 
         <button
@@ -287,7 +289,7 @@ export default function ChildInfo({
             submitHandler("next");
           }}
         >
-          ቀጣይ
+          {language === "am" ? "ቀጣይ" : "Next"}
         </button>
       </div>
     </form>

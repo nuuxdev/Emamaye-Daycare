@@ -8,11 +8,12 @@ import GlassHeader from "@/components/GlassHeader";
 import { JSX, useEffect, useState, useRef } from "react";
 import { ArrowRight, CallIcon, CameraIcon, CloseIcon, DeactivatedChildIcon, EditIcon, InfantIcon, MessageIcon, PlusIcon, PreschoolerIcon, RecycleIcon, ToddlerIcon, UploadIcon, SettingsIcon } from "@/components/Icons";
 import { formatEthiopianDate, todayInEth } from "@/utils/calendar";
-import { calculateAge } from "@/utils/calculateAge";
 import { parseDate } from "@internationalized/date";
 import { toast } from "sonner";
 import ChildAttendanceGrid from "@/app/views/attendance/ChildAttendanceGrid";
 import DeactivateChildModal from "@/app/components/DeactivateChildModal";
+import { useLanguage } from "@/context/LanguageContext";
+import { useAge, calculateAge } from "@/utils/calculateAge";
 
 import { ServerAvatar } from "@/app/components/ServerAvatar";
 
@@ -99,17 +100,19 @@ const Confetti = () => {
 };
 
 // Avatar uploader
+// Avatar uploader
 const AvatarUploader = ({
     currentAvatarUrl,
     onUploadComplete,
     size = "10rem",
-    ageGroup
+    ageGroup,
 }: {
     currentAvatarUrl?: string;
     onUploadComplete: (storageId: Id<"_storage">) => void;
     size?: string;
     ageGroup?: string;
 }) => {
+    const { t } = useLanguage();
     const [isUploading, setIsUploading] = useState(false);
     const [uploadProgress, setUploadProgress] = useState(0);
     const [localPreviewUrl, setLocalPreviewUrl] = useState<string | null>(null);
@@ -142,7 +145,7 @@ const AvatarUploader = ({
                 setUploadProgress(100);
 
                 onUploadComplete(newStorageId as Id<"_storage">);
-                toast.success("ፎቶው ተጫነ");
+                toast.success(t("childInfo.messages.photoUploadSuccess"));
 
                 setTimeout(() => {
                     setIsUploading(false);
@@ -150,7 +153,7 @@ const AvatarUploader = ({
                 }, 500);
             } catch (error) {
                 console.error("Error uploading image:", error);
-                toast.error("ፎቶውን መጫን አልተቻለም");
+                toast.error(t("childInfo.messages.photoUploadError"));
                 URL.revokeObjectURL(previewUrl);
                 setLocalPreviewUrl(null);
                 setIsUploading(false);
@@ -231,7 +234,7 @@ const AvatarUploader = ({
             )}
 
             <dialog ref={dialogRef} style={{ borderRadius: "1rem", padding: "1.5rem" }}>
-                <h3 style={{ margin: "0 0 1rem 0", textAlign: "center" }}>ፎቶ ይምረጡ</h3>
+                <h3 style={{ margin: "0 0 1rem 0", textAlign: "center" }}>{t("childInfo.choosePhoto")}</h3>
                 <div style={{ display: "flex", flexDirection: "column", gap: "1rem", justifyContent: "center" }}>
                     <button
                         type="button"
@@ -239,7 +242,7 @@ const AvatarUploader = ({
                         onClick={() => fileInputRef.current?.click()}
                     >
                         <UploadIcon />
-                        <span>ፋይል</span>
+                        <span>{t("childInfo.file")}</span>
                     </button>
                     <button
                         type="button"
@@ -247,7 +250,7 @@ const AvatarUploader = ({
                         onClick={() => cameraInputRef.current?.click()}
                     >
                         <CameraIcon />
-                        <span>ካሜራ</span>
+                        <span>{t("childInfo.camera")}</span>
                     </button>
                 </div>
                 <button
@@ -291,6 +294,9 @@ export default function ChildInfo() {
     const [showConfetti, setShowConfetti] = useState(false);
     const [isDeactivateModalOpen, setIsDeactivateModalOpen] = useState(false);
 
+    const { t, language } = useLanguage();
+    const { formatAge } = useAge();
+
     const child = useQuery(api.children.getChild, {
         id: childId as Id<"children">,
     });
@@ -299,7 +305,7 @@ export default function ChildInfo() {
     const updateGuardianAvatar = useMutation(api.guardians.updateGuardianAvatar);
     const reactivateChild = useMutation(api.children.reactivateChild);
 
-    const isBirthday = child ? calculateAge(parseDate(child.dateOfBirth))?.age === "happy birthday!" : false;
+    const isBirthday = child ? calculateAge(parseDate(child.dateOfBirth))?.isBirthday : false;
 
     useEffect(() => {
         if (isBirthday) {
@@ -311,10 +317,9 @@ export default function ChildInfo() {
 
     if (!child) return null;
 
-    const ethiopianBirthdate = formatEthiopianDate(child.dateOfBirth);
     const birthDate = parseDate(child.dateOfBirth);
     const ageResult = calculateAge(birthDate);
-    const ageInAmharic = ageResult?.age || "";
+    const ageFormatted = formatAge(ageResult);
 
     const ageGroupIcons: Record<string, JSX.Element> = {
         infant: <InfantIcon />,
@@ -334,16 +339,19 @@ export default function ChildInfo() {
     };
 
     const tabs: { id: TTab; label: string }[] = [
-        { id: "details", label: "Details" },
-        { id: "guardian", label: "Guardian" },
-        { id: "attendance", label: "Attendance" },
+        { id: "details", label: t("childInfo.tabs.details") },
+        { id: "guardian", label: t("childInfo.tabs.guardian") },
+        { id: "attendance", label: t("childInfo.tabs.attendance") },
     ];
+
+    const displayName = (language === "am" && child.fullNameAmh) ? child.fullNameAmh : child.fullName;
+    const guardianDisplayName = (language === "am" && child.primaryGuardian?.fullNameAmh) ? child.primaryGuardian.fullNameAmh : child.primaryGuardian?.fullName;
 
     return (
         <>
             {showConfetti && <Confetti />}
             <GlassHeader
-                title="Child Info"
+                title={t("childInfo.title")}
                 backHref="/children"
                 action={
                     <Link href={`/children/${child._id}/edit`} className="glass-pill">
@@ -354,7 +362,7 @@ export default function ChildInfo() {
 
             <DeactivateChildModal
                 childId={child._id}
-                childName={child.fullNameAmh || child.fullName}
+                childName={displayName}
                 isOpen={isDeactivateModalOpen}
                 onClose={() => setIsDeactivateModalOpen(false)}
                 onDeactivated={() => router.push("/children")}
@@ -400,7 +408,7 @@ export default function ChildInfo() {
                                 )}
                             </div>
                             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.5rem" }}>
-                                <h3 style={{ margin: 0 }}>{child.fullNameAmh || child.fullName}</h3>
+                                <h3 style={{ margin: 0 }}>{displayName}</h3>
                                 <div
                                     className={`tabs secondary ${child.isActive ? child.ageGroup : "deactivated"}`}
                                     style={{
@@ -414,7 +422,7 @@ export default function ChildInfo() {
                                 >
                                     {child.isActive ? ageGroupIcons[child.ageGroup] : <DeactivatedChildIcon />}
                                     <span style={{ textTransform: "capitalize" }}>
-                                        {child.isActive ? child.ageGroup : "Inactive"}
+                                        {child.isActive ? child.ageGroup : t("childInfo.labels.inactive")}
                                     </span>
                                 </div>
                             </div>
@@ -422,10 +430,10 @@ export default function ChildInfo() {
                             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.25rem", opacity: 0.7 }}>
                                 {isBirthday ? (
                                     <span style={{ fontWeight: 600, fontSize: "1.1rem", color: "var(--primary-color)" }}>
-                                        🎉 Happy Birthday! 🎉
+                                        🎉 {t("childInfo.labels.happyBirthday")} 🎉
                                     </span>
                                 ) : (
-                                    ageInAmharic && <span style={{ fontWeight: 500 }} dangerouslySetInnerHTML={{ __html: ageInAmharic }} />
+                                    ageFormatted && <span style={{ fontWeight: 500 }} dangerouslySetInnerHTML={{ __html: ageFormatted }} />
                                 )}
                             </div>
                         </div>
@@ -433,14 +441,14 @@ export default function ChildInfo() {
 
                     {activeTab === "guardian" && child.primaryGuardian && (
                         <div className="neo-box animate-fade-in">
-                            <h4 style={{ textAlign: "center", margin: 0 }}>Primary Guardian</h4>
+                            <h4 style={{ textAlign: "center", margin: 0 }}>{t("childInfo.primaryGuardian")}</h4>
                             <AvatarUploader
                                 currentAvatarUrl={child.primaryGuardian.avatar}
                                 onUploadComplete={handleGuardianAvatarUpload}
                                 size="6rem"
                             />
                             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.25rem" }}>
-                                <h4 style={{ margin: 0, fontSize: "1.1rem" }}>{child.primaryGuardian.fullNameAmh || child.primaryGuardian.fullName}</h4>
+                                <h4 style={{ margin: 0, fontSize: "1.1rem" }}>{guardianDisplayName}</h4>
                                 <span style={{ opacity: 0.7, textTransform: "capitalize" }}>
                                     {child.primaryGuardian.relationToChild}
                                 </span>
@@ -491,7 +499,7 @@ export default function ChildInfo() {
 
                     {/* Status Card - Always visible below the main info */}
                     <div className="neo-box" style={{ alignItems: "start", gap: "1.5rem" }}>
-                        <h3 className="text-primary" style={{ margin: 0, fontSize: "1.1rem" }}>Status</h3>
+                        <h3 className="text-primary" style={{ margin: 0, fontSize: "1.1rem" }}>{t("childInfo.status")}</h3>
                         {child.isActive ? (
                             <button
                                 onClick={() => setIsDeactivateModalOpen(true)}
@@ -503,16 +511,16 @@ export default function ChildInfo() {
                                     opacity: 0.8
                                 }}
                             >
-                                ልጁን አሰናብት (Deactivate Child)
+                                {t("childInfo.deactivateChild")}
                             </button>
                         ) : (
                             <button
                                 onClick={async () => {
                                     const promise = reactivateChild({ childId: child._id });
                                     toast.promise(promise, {
-                                        loading: "ልጁን በመመለስ ላይ (Reactivating)...",
-                                        success: "ልጁ በስኬት ተመልሷል (Child reactivated)!",
-                                        error: "ልጁን መመለስ አልተቻለም (Failed to reactivate)",
+                                        loading: t("childInfo.messages.reactivating"),
+                                        success: t("childInfo.messages.reactivateSuccess"),
+                                        error: t("childInfo.messages.reactivateError"),
                                     });
                                     await promise;
                                 }}
@@ -524,7 +532,7 @@ export default function ChildInfo() {
                                     opacity: 0.8
                                 }}
                             >
-                                ልጁን መልስ (Reactivate Child)
+                                {t("childInfo.reactivateChild")}
                             </button>
                         )}
                     </div>

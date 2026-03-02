@@ -1,10 +1,13 @@
 "use client";
 import Link from "next/link";
 import GlassHeader from "@/components/GlassHeader";
-import { ClipboardIcon, MoneyIcon, AttendanceIcon, PreschoolerIcon } from "@/components/Icons";
+import { ClipboardIcon, MoneyIcon, AttendanceIcon, PreschoolerIcon, SettingsIcon } from "@/components/Icons";
 import KPIStats from "@/app/components/KPIStats";
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function Home() {
+  const { t } = useLanguage();
+
   const cardStyle = {
     aspectRatio: "1/1",
     display: "flex",
@@ -16,7 +19,14 @@ export default function Home() {
   };
   return (
     <>
-      <GlassHeader title="Emamaye Daycare Pro" />
+      <GlassHeader
+        title={t("home.title")}
+        action={
+          <Link href="/settings" className="glass-pill">
+            <SettingsIcon />
+          </Link>
+        }
+      />
       <main>
         <KPIStats />
 
@@ -31,19 +41,19 @@ export default function Home() {
         >
           <Link href="/children" style={cardStyle} className="neo-box">
             <PreschoolerIcon />
-            <span>ልጆቼ</span>
+            <span>{t("home.myChildren")}</span>
           </Link>
           <Link href="/attendance" style={cardStyle} className="neo-box">
             <AttendanceIcon />
-            <span>አቴንዳንስ</span>
+            <span>{t("home.attendance")}</span>
           </Link>
           <Link href="/register" style={cardStyle} className="neo-box">
             <ClipboardIcon />
-            <span>ምዝገባ</span>
+            <span>{t("home.registration")}</span>
           </Link>
           <Link href="/payments" style={cardStyle} className="neo-box">
             <MoneyIcon />
-            <span>ክፍያ</span>
+            <span>{t("home.payments")}</span>
           </Link>
         </div>
       </main>
