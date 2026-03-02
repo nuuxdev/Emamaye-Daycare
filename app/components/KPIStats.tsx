@@ -13,7 +13,7 @@ import {
     InfoIcon,
     LockIcon
 } from "@/components/Icons";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, Fragment } from "react";
 
 export default function KPIStats() {
     const stats = useQuery(api.stats.getSummary);
@@ -96,8 +96,8 @@ export default function KPIStats() {
                 border: "1px solid rgba(255, 255, 255, 0.2)",
             }}>
                 {items.map((item, i) => (
-                    <>
-                        <div style={statItemStyle} key={item.label}>
+                    <Fragment key={item.label}>
+                        <div style={statItemStyle}>
                             <span style={labelStyle}>{item.label}</span>
                             <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                                 <div style={{ color: "var(--primary-color)", opacity: 0.8 }}>{item.icon}</div>
@@ -105,7 +105,7 @@ export default function KPIStats() {
                             </div>
                         </div>
                         {i < items.length - 1 && <div style={separatorStyle} />}
-                    </>
+                    </Fragment>
                 ))}
             </div>
         </div>

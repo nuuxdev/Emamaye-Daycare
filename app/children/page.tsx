@@ -40,16 +40,18 @@ type SortKey =
   | "sex"
   | "birthdate";
 
-const DEFAULT_SORT: SortKey = "reg";
-const DEFAULT_ORDER: "asc" | "desc" = "asc";
-
-const sortOptions: { value: SortKey; label: string; hasOrder: boolean }[] = [
-  { value: "reg", label: "ምዝገባ", hasOrder: true },
-  { value: "name", label: "ስም", hasOrder: true },
-  { value: "age", label: "ዕድሜ", hasOrder: true },
-  { value: "sex", label: "ፆታ", hasOrder: true },
-  { value: "birthdate", label: "ልደት", hasOrder: false },
-];
+const sortOptions: {
+  value: SortKey;
+  label: string;
+  ascLabel: string;
+  descLabel: string;
+}[] = [
+    { value: "reg", label: "ምዝገባ ቀን", ascLabel: "ቅርብ", descLabel: "ሩቅ" },
+    { value: "name", label: "ስም", ascLabel: "A-Z", descLabel: "Z-A" },
+    { value: "age", label: "እድሜ", ascLabel: "ትንሽ", descLabel: "ትልቅ" },
+    { value: "sex", label: "ፆታ", ascLabel: "ወንድ", descLabel: "ሴት" },
+    { value: "birthdate", label: "ልደት ቀን", ascLabel: "ቅርብ", descLabel: "ሩቅ" },
+  ];
 
 function sortChildren(
   children: any[],
@@ -59,18 +61,19 @@ function sortChildren(
   const sorted = [...children];
   switch (sortKey) {
     case "reg":
+      // asc = ቅርብ (recently registered first = highest _creationTime first)
       return sorted.sort((a, b) =>
-        sortOrder === "desc"
+        sortOrder === "asc"
           ? (b._creationTime ?? 0) - (a._creationTime ?? 0)
           : (a._creationTime ?? 0) - (b._creationTime ?? 0)
       );
     case "name":
       return sorted.sort((a, b) => {
-        const nameA = a.fullNameAmh || a.fullName;
-        const nameB = b.fullNameAmh || b.fullName;
+        const nameA = a.fullName;
+        const nameB = b.fullName;
         return sortOrder === "asc"
-          ? nameA.localeCompare(nameB)
-          : nameB.localeCompare(nameA);
+          ? nameA.localeCompare(nameB, "en", { sensitivity: "base" })
+          : nameB.localeCompare(nameA, "en", { sensitivity: "base" });
       });
     case "age":
       return sorted.sort((a, b) => {
@@ -84,10 +87,11 @@ function sortChildren(
         // age-asc: larger time first.
       });
     case "sex":
+      // "asc" = ወንድ first (male < female reversed), "desc" = ሴት first
       return sorted.sort((a, b) =>
         sortOrder === "asc"
-          ? a.gender.localeCompare(b.gender)
-          : b.gender.localeCompare(a.gender)
+          ? b.gender.localeCompare(a.gender)
+          : a.gender.localeCompare(b.gender)
       );
     case "birthdate": {
       const today = new Date();
@@ -106,8 +110,11 @@ function sortChildren(
 
 export default function ChildrenList() {
   const [tab, setTab] = useState<TAgeGroup | "all children" | "inactive">("all children");
-  const [sortKey, setSortKey] = useState<SortKey>(DEFAULT_SORT);
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">(DEFAULT_ORDER);
+  const [sortKey, setSortKey] = useState<SortKey | null>(null);
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc" | null>(null);
+  // Pending selections — dialog only closes when both are chosen
+  const [pendingKey, setPendingKey] = useState<SortKey | null>(null);
+  const [pendingOrder, setPendingOrder] = useState<"asc" | "desc" | null>(null);
   const sortDialogRef = useRef<HTMLDialogElement>(null);
 
   const activeChildren = useQuery(api.children.getChildrenWithPrimaryGuardian, { isActive: true });
@@ -149,19 +156,37 @@ export default function ChildrenList() {
     }
 
     // Sort
-    if (result) result = sortChildren(result, sortKey, sortOrder);
+    if (result && sortKey && sortOrder) result = sortChildren(result, sortKey, sortOrder);
 
     setCounts(initCounts);
     setFilteredChildren(result);
   }, [tab, activeChildren, inactiveChildren, children, searchQuery, sortKey, sortOrder]);
 
-  const handleSort = (key: SortKey | "asc" | "desc") => {
-    if (key === "asc" || key === "desc") {
-      setSortOrder(key);
-    } else {
-      setSortKey(key);
+  const handlePendingKey = (key: SortKey) => {
+    // If switching to a different option, clear the pending order so user picks fresh
+    if (key !== pendingKey) {
+      setPendingKey(key);
+      setPendingOrder(null);
     }
-    sortDialogRef.current?.close();
+  };
+
+  const handlePendingOrder = (order: "asc" | "desc") => {
+    setPendingOrder(order);
+    // If a key is already pending, apply immediately
+    if (pendingKey) {
+      setSortKey(pendingKey);
+      setSortOrder(order);
+      setPendingKey(null);
+      setPendingOrder(null);
+      sortDialogRef.current?.close();
+    }
+  };
+
+  const openSortDialog = () => {
+    // Seed pending state from current applied sort
+    setPendingKey(sortKey);
+    setPendingOrder(sortOrder);
+    sortDialogRef.current?.showModal();
   };
 
   return (
@@ -177,14 +202,13 @@ export default function ChildrenList() {
         <div style={{ marginInline: "auto", display: "flex", width: "100%", alignItems: "center" }}>
           {/* Sort button — sits outside the scroll area */}
           <button
-            onClick={() => sortDialogRef.current?.showModal()}
+            onClick={openSortDialog}
             className="glass-pill"
             title="Sort"
             style={{
               flexShrink: 0,
-              // marginBlock: "1rem",
               marginInline: "0.5rem",
-              color: (sortKey !== DEFAULT_SORT || sortOrder !== DEFAULT_ORDER) ? "var(--primary-color)" : undefined,
+              color: (sortKey !== null) ? "var(--primary-color)" : undefined,
             }}
           >
             <SortIcon />
@@ -217,48 +241,47 @@ export default function ChildrenList() {
         <dialog ref={sortDialogRef}>
           <h3 className="dialog-title">ደርድር</h3>
 
-          {/* Direction Toggle Group */}
-          <div style={{ display: "flex", justifyContent: "center", padding: "0.5rem 1rem", borderBottom: "1px solid var(--glass-border)" }}>
-            <button
-              onClick={() => handleSort("asc")}
-              className="tabs secondary"
-              style={{
-                flex: 1,
-                justifyContent: "center",
-                color: sortOrder === "asc" ? "var(--primary-color)" : "inherit",
-              }}
-            >
-              <SwapIcon direction="up" />
-              {/* <span>ቀዳሚ</span> */}
-            </button>
-            <button
-              onClick={() => handleSort("desc")}
-              className="tabs secondary"
-              style={{
-                flex: 1,
-                justifyContent: "center",
-                color: sortOrder === "desc" ? "var(--primary-color)" : "inherit",
-              }}
-            >
-              <SwapIcon direction="down" />
-              {/* <span>ሰቃይ</span> */}
-            </button>
-          </div>
+          {/* Shared direction button group — labels change based on the pending option */}
+          {(() => {
+            const active = sortOptions.find((o) => o.value === pendingKey);
+            return (
+              <div style={{ display: "flex", justifyContent: "center", padding: "0.5rem 1rem", borderBottom: "1px solid var(--glass-border)" }}>
+                <button
+                  onClick={() => handlePendingOrder("asc")}
+                  className="tabs secondary"
+                  style={{ flex: 1, justifyContent: "center", color: pendingOrder === "asc" ? "var(--primary-color)" : "inherit" }}
+                >
+                  <SwapIcon direction="up" />
+                  {active && <span style={{ fontSize: "0.8rem" }}>{active.ascLabel}</span>}
+                </button>
+                <button
+                  onClick={() => handlePendingOrder("desc")}
+                  className="tabs secondary"
+                  style={{ flex: 1, justifyContent: "center", color: pendingOrder === "desc" ? "var(--primary-color)" : "inherit" }}
+                >
+                  <SwapIcon direction="down" />
+                  {active && <span style={{ fontSize: "0.8rem" }}>{active.descLabel}</span>}
+                </button>
+              </div>
+            );
+          })()}
 
           <div className="select-list" style={{ margin: 0, paddingRight: 0 }}>
             {sortOptions.map((option) => (
               <Fragment key={option.value}>
                 <div
-                  className={`select-option ${sortKey === option.value ? "active" : ""}`}
-                  style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingBlock: "0.25rem" }}
-                  onClick={() => handleSort(option.value)}
+                  className={`select-option ${pendingKey === option.value ? "active" : ""}`}
+                  style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingBlock: "0.25rem", gap: "0.5rem" }}
+                  onClick={() => handlePendingKey(option.value)}
                 >
-                  <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", flex: 1, cursor: "pointer", paddingBlock: "0.5rem" }}>
+                  <label
+                    style={{ display: "flex", alignItems: "center", gap: "0.5rem", flex: 1, cursor: "pointer", paddingBlock: "0.5rem" }}
+                  >
                     <input
                       type="radio"
                       name="sort-option"
                       value={option.value}
-                      checked={sortKey === option.value}
+                      checked={pendingKey === option.value}
                       readOnly
                     />
                     <span>{option.label}</span>
