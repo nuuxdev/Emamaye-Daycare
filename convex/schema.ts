@@ -34,7 +34,7 @@ export default defineSchema({
     address: v.string(),
     phoneNumber: v.string(),
     avatar: v.optional(v.string()),
-  }),
+  }).index("by_phone_number", ["phoneNumber"]),
   attendance: defineTable({
     childId: v.id("children"),
     status: VStatus,

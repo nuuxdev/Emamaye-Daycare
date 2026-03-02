@@ -15,6 +15,7 @@ type SelectProps<T extends FieldValues> = {
     placeholder?: string;
     defaultValue?: string;
     value?: string;
+    disabled?: boolean;
 };
 
 export default function Select<T extends FieldValues>({
@@ -26,6 +27,7 @@ export default function Select<T extends FieldValues>({
     placeholder = "Select an option",
     defaultValue,
     value,
+    disabled = false,
 }: SelectProps<T>) {
     const [selected, setSelected] = useState<string>("");
     const [displayValue, setDisplayValue] = useState<string>("");
@@ -44,7 +46,13 @@ export default function Select<T extends FieldValues>({
                 if (!value && defaultValue) {
                     setValue(id, defaultValue as PathValue<T, Path<T>>);
                 }
+            } else if (valToUse === "") {
+                setSelected("");
+                setDisplayValue("");
             }
+        } else {
+            setSelected("");
+            setDisplayValue("");
         }
     }, [value, defaultValue, options, setValue, id]);
 
@@ -52,7 +60,7 @@ export default function Select<T extends FieldValues>({
         const option = options.find((opt) => opt.value === value);
         if (option) {
             setSelected(value);
-            setValue(id, value as PathValue<T, Path<T>>, { shouldValidate: true, shouldDirty: true });
+            setValue(id, value as PathValue<T, Path<T>>, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
             setDisplayValue(option.label);
             dialogRef.current?.close();
         }
@@ -63,14 +71,15 @@ export default function Select<T extends FieldValues>({
             <label htmlFor={id} className="label-text">
                 {label}
             </label>
-            <div className="relative">
+            <div className={`relative ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}>
                 <input
                     className="neo-input"
-                    style={{ cursor: "pointer" }}
-                    onClick={() => dialogRef.current?.showModal()}
+                    style={{ cursor: disabled ? "not-allowed" : "pointer" }}
+                    onClick={() => !disabled && dialogRef.current?.showModal()}
                     value={displayValue}
                     readOnly
                     placeholder={placeholder}
+                    disabled={disabled}
                 />
                 <input type="hidden" {...register(id, { required: true })} />
                 <div style={{ position: "absolute", right: "1.5rem", top: "50%", transform: "translateY(-50%)", pointerEvents: "none", opacity: 0.5 }}>

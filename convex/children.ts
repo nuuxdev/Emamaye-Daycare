@@ -205,3 +205,15 @@ export const updateChild = mutation({
   },
 });
 
+export const getChildrenNamesByGuardian = query({
+  args: {
+    guardianId: v.id("guardians"),
+  },
+  handler: async (ctx, args) => {
+    const children = await ctx.db
+      .query("children")
+      .filter((q) => q.eq(q.field("primaryGuardian"), args.guardianId))
+      .collect();
+    return children.map((c) => c.fullName);
+  },
+});

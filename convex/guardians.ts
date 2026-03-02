@@ -43,6 +43,18 @@ export const updateGuardianAvatar = mutation({
   },
 });
 
+export const getGuardianByPhoneNumber = query({
+  args: {
+    phoneNumber: v.string(),
+  },
+  handler: async (ctx, args) => {
+    return await ctx.db
+      .query("guardians")
+      .withIndex("by_phone_number", (q) => q.eq("phoneNumber", args.phoneNumber))
+      .unique();
+  },
+});
+
 export const updateGuardian = mutation({
   args: {
     guardianId: v.id("guardians"),
