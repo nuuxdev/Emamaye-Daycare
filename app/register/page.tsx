@@ -211,7 +211,7 @@ export default function Register() {
               <div style={{
                 height: '100%',
                 width: `${(step / (stepsData.length - 1)) * 100}% `,
-                background: 'var(--primary-color)',
+                background: 'var(--color-primary)',
                 borderRadius: '2px',
                 transition: 'width 0.4s ease'
               }} />
@@ -237,7 +237,7 @@ export default function Register() {
                     width: '28px',
                     height: '28px',
                     borderRadius: '50%',
-                    background: index <= step ? 'var(--primary-color)' : 'var(--background)',
+                    background: index <= step ? 'var(--color-primary)' : 'var(--background)',
                     color: index <= step ? 'white' : 'var(--foreground)',
                     display: 'flex',
                     alignItems: 'center',

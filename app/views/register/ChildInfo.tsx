@@ -147,7 +147,7 @@ export default function ChildInfo({
                   e.preventDefault();
                   handleRegenerateTranslation();
                 }}
-                style={{ cursor: "pointer", color: "var(--primary-color)", height: "1.5rem", width: "1.5rem" }}
+                style={{ cursor: "pointer", color: "var(--color-primary)", height: "1.5rem", width: "1.5rem" }}
                 title={language === "am" ? "ትርጉም እንደገና ፍጠር" : "Regenerate translation"}
               >
                 {regenerateIcon()}

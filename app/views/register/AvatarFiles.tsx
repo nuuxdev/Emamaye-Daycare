@@ -22,7 +22,7 @@ const HorizontalProgress = ({ progress }: { progress: number }) => {
       <div style={{
         width: `${progress}%`,
         height: "100%",
-        backgroundColor: "var(--primary-color)",
+        backgroundColor: "var(--color-primary)",
         borderRadius: "2px",
         transition: "width 0.1s linear"
       }} />

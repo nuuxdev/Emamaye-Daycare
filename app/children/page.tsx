@@ -198,7 +198,7 @@ export default function ChildrenList() {
             style={{
               flexShrink: 0,
               marginInline: "0.5rem",
-              color: (sortKey !== null) ? "var(--primary-color)" : undefined,
+              color: (sortKey !== null) ? "var(--color-primary)" : undefined,
             }}
           >
             <SortIcon />
@@ -236,7 +236,7 @@ export default function ChildrenList() {
                 <button
                   onClick={() => handlePendingOrder("asc")}
                   className="tabs secondary"
-                  style={{ flex: 1, justifyContent: "center", color: pendingOrder === "asc" ? "var(--primary-color)" : "inherit" }}
+                  style={{ flex: 1, justifyContent: "center", color: pendingOrder === "asc" ? "var(--color-primary)" : "inherit" }}
                 >
                   <SwapIcon direction="up" />
                   {active && <span style={{ fontSize: "0.8rem" }}>{active.ascLabel}</span>}
@@ -244,7 +244,7 @@ export default function ChildrenList() {
                 <button
                   onClick={() => handlePendingOrder("desc")}
                   className="tabs secondary"
-                  style={{ flex: 1, justifyContent: "center", color: pendingOrder === "desc" ? "var(--primary-color)" : "inherit" }}
+                  style={{ flex: 1, justifyContent: "center", color: pendingOrder === "desc" ? "var(--color-primary)" : "inherit" }}
                 >
                   <SwapIcon direction="down" />
                   {active && <span style={{ fontSize: "0.8rem" }}>{active.descLabel}</span>}

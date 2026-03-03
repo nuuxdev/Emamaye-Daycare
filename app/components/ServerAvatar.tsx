@@ -31,7 +31,7 @@ export const ServerAvatar = ({
                     width: '24px',
                     height: '24px',
                     border: '3px solid #e0e0e0',
-                    borderTop: '3px solid var(--primary-color)',
+                    borderTop: '3px solid var(--color-primary)',
                     borderRadius: '50%',
                     animation: 'spin 1s linear infinite'
                 }}></div>

@@ -101,7 +101,7 @@ export default function DeactivateChildModal({
             <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
                 {step === 1 ? (
                     <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem", textAlign: "center" }}>
-                        <h2 style={{ color: "var(--primary-color)", margin: 0 }}>{t("deactivate.confirmTitle")}</h2>
+                        <h2 style={{ color: "var(--color-primary)", margin: 0 }}>{t("deactivate.confirmTitle")}</h2>
                         <p style={{ opacity: 0.8 }}>
                             {t("deactivate.confirmMessage").replace("{name}", childName)}
                         </p>

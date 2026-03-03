@@ -31,7 +31,7 @@ const HorizontalProgress = ({ progress }: { progress: number }) => {
             <div style={{
                 width: `${progress}%`,
                 height: "100%",
-                backgroundColor: "var(--primary-color)",
+                backgroundColor: "var(--color-primary)",
                 borderRadius: "2px",
                 transition: "width 0.1s linear"
             }} />
@@ -429,7 +429,7 @@ export default function ChildInfo() {
 
                             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.25rem", opacity: 0.7 }}>
                                 {isBirthday ? (
-                                    <span style={{ fontWeight: 600, fontSize: "1.1rem", color: "var(--primary-color)" }}>
+                                    <span style={{ fontWeight: 600, fontSize: "1.1rem", color: "var(--color-primary)" }}>
                                         🎉 {t("childInfo.labels.happyBirthday")} 🎉
                                     </span>
                                 ) : (
@@ -506,8 +506,8 @@ export default function ChildInfo() {
                                 className="secondary"
                                 style={{
                                     width: "100%",
-                                    borderColor: "var(--primary-color)",
-                                    color: "var(--primary-color)",
+                                    borderColor: "var(--color-primary)",
+                                    color: "var(--color-primary)",
                                     opacity: 0.8
                                 }}
                             >

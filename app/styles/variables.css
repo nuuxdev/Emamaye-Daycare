@@ -1,14 +1,25 @@
 @layer variables {
     :root {
+        /* Colors */
+        --color-primary: oklch(0.6817 0.1968 13.3);
+        --color-primary-light: oklch(from var(--color-primary) 0.9 c h);
+        --color-primary-dark: oklch(from var(--color-primary) 0.55 c h);
+        --color-secondary: oklch(from var(--color-primary) l c 279.18);
+        --color-accent: oklch(from var(--color-primary) l c 198.18);
+        --color-warning: oklch(from var(--color-primary) l c 88.18);
+        --background: oklch(from var(--color-secondary) 0.99 0.0543 h);
+        --color-infant: var(--color-warning);
+        --color-toddler: var(--color-secondary);
+        --color-preschooler: var(--color-accent);
         interpolate-size: allow-keywords;
         /* Core Colors - Vibrant & Fluent Inspired */
-        --background: #eef2f6;
+        /* --background: oklch(95.926% 0.00697 248.257); */
         /* Slightly lighter, cooler grey */
         --foreground: #2d3436;
-        --primary-color: #f36;
+        /* --primary-color: #ff3366; */
         /* Vibrant Pink/Red */
-        --primary-hover: #d63031;
-        --secondary-color: #0984e3;
+        /* --primary-hover: #d63031; */
+        --secondary-color: oklch(60.526% 0.17132 250.588);
         /* Vibrant Blue */
         --accent-color: #00cec9;
         --success-color: #00b894;
@@ -40,9 +51,9 @@
         --acrylic-blur: blur(12px);
 
         /* Status Colors */
-        --color-infant: #ff7675;
+        /* --color-infant: #ff7675;
         --color-toddler: #fdcb6e;
-        --color-preschooler: #74b9ff;
+        --color-preschooler: #74b9ff; */
 
         /* Fonts */
         --font-sans: 'Shiromeda', 'Outfit', 'Inter', system-ui, -apple-system, sans-serif;

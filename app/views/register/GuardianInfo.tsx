@@ -149,7 +149,7 @@ export default function GuardianInfo({
     <form className="grid-gap-1 form-container">
       <h2 className="text-center mb-1">{t("registration.steps.guardian")}</h2>
 
-      <div className="neo-box secondary p-1 mb-1 text-center" style={{ fontSize: "0.9rem", color: "var(--primary-color)" }}>
+      <div className="neo-box secondary p-1 mb-1 text-center" style={{ fontSize: "0.9rem", color: "var(--color-primary)" }}>
         <p>{t("registration.guardianCheck.notice")}</p>
       </div>
 
@@ -194,7 +194,7 @@ export default function GuardianInfo({
                   e.preventDefault();
                   handleRegenerateTranslation();
                 }}
-                style={{ cursor: "pointer", color: "var(--primary-color)", height: "1.5rem", width: "1.5rem" }}
+                style={{ cursor: "pointer", color: "var(--color-primary)", height: "1.5rem", width: "1.5rem" }}
                 title="ትርጉም እንደገና ፍጠር"
               >
                 {regenerateIcon()}

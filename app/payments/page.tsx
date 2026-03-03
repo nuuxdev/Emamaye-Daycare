@@ -163,7 +163,7 @@ export default function PaymentsList() {
                                     />
                                     <div>
                                         <h4 style={{ margin: 0 }}>{payment.childName}</h4>
-                                        <p style={{ margin: "0.25rem 0 0 0", fontSize: "0.9rem", fontWeight: 600, color: "var(--primary-color)" }}>
+                                        <p style={{ margin: "0.25rem 0 0 0", fontSize: "0.9rem", fontWeight: 600, color: "var(--color-primary)" }}>
                                             {payment.amount} ብር
                                         </p>
                                     </div>

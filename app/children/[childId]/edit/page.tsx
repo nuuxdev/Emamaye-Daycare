@@ -265,7 +265,7 @@ export default function EditChildPage() {
                                     <div style={{ position: "absolute", right: "0.75rem", top: "50%", transform: "translateY(-50%)", display: "flex", gap: "0.25rem", alignItems: "center" }}>
                                         <div
                                             onMouseDown={(e) => { e.preventDefault(); handleRegenerateChildTranslation(); }}
-                                            style={{ cursor: "pointer", color: "var(--primary-color)", height: "1.5rem", width: "1.5rem" }}
+                                            style={{ cursor: "pointer", color: "var(--color-primary)", height: "1.5rem", width: "1.5rem" }}
                                             title={language === "am" ? "ትርጉም እንደገና ፍጠር" : "Regenerate translation"}
                                         >
                                             {regenerateIcon()}
@@ -393,7 +393,7 @@ export default function EditChildPage() {
                                     <div style={{ position: "absolute", right: "0.75rem", top: "50%", transform: "translateY(-50%)", display: "flex", gap: "0.25rem", alignItems: "center" }}>
                                         <div
                                             onMouseDown={(e) => { e.preventDefault(); handleRegenerateGuardianTranslation(); }}
-                                            style={{ cursor: "pointer", color: "var(--primary-color)", height: "1.5rem", width: "1.5rem" }}
+                                            style={{ cursor: "pointer", color: "var(--color-primary)", height: "1.5rem", width: "1.5rem" }}
                                             title={language === "am" ? "ትርጉም እንደገና ፍጠር" : "Regenerate translation"}
                                         >
                                             {regenerateIcon()}

@@ -64,7 +64,7 @@ export default function KPIStats() {
     const valueStyle = {
         fontSize: "1rem",
         fontWeight: 700,
-        color: "var(--primary-color)",
+        color: "var(--color-primary)",
         minWidth: "1ch",
         textAlign: "center" as const,
     };
@@ -78,7 +78,7 @@ export default function KPIStats() {
         padding: "0 8px",
         fontSize: "0.7rem",
         fontWeight: 700,
-        color: "var(--primary-color)",
+        color: "var(--color-primary)",
         borderRadius: "10px",
         boxShadow: "var(--shadow-light)",
         border: "1px solid rgba(255, 255, 255, 0.5)",
@@ -103,7 +103,7 @@ export default function KPIStats() {
                         <div style={statItemStyle}>
                             <span style={labelStyle}>{item.label}</span>
                             <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                                <div style={{ color: "var(--primary-color)", opacity: 0.8 }}>{item.icon}</div>
+                                <div style={{ color: "var(--color-primary)", opacity: 0.8 }}>{item.icon}</div>
                                 <span style={valueStyle}>{stats ? item.value : "—"}</span>
                             </div>
                         </div>
@@ -173,9 +173,9 @@ export default function KPIStats() {
                             height: "10px",
                             borderRadius: "50%",
                             border: "none",
-                            background: activeTab === i ? "var(--primary-color)" : "rgba(0,0,0,0.1)",
+                            background: activeTab === i ? "var(--color-primary)" : "rgba(0,0,0,0.1)",
                             boxShadow: activeTab === i
-                                ? "0 0 8px var(--primary-color)"
+                                ? "0 0 8px var(--color-primary)"
                                 : "var(--shadow-inset-light), var(--shadow-inset-dark)",
                             cursor: "pointer",
                             transition: "all 0.3s ease",

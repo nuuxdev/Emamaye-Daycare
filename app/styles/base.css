@@ -47,11 +47,11 @@
 
     a {
         text-decoration: none;
-        color: var(--primary-color);
+        color: var(--color-primary);
         transition: color var(--transition-fast);
 
         &:hover {
-            color: var(--primary-hover);
+            color: var(--color-primary-dark);
         }
     }
 
