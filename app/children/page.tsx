@@ -213,7 +213,7 @@ export default function ChildrenList() {
                 className={`tabs secondary ${ageGroupTab}`}
               >
                 {ageGroupTab === "inactive" ? (
-                  <DeactivatedChildIcon />
+                  <div style={{ color: "var(--color-error)" }}><DeactivatedChildIcon /></div>
                 ) : ageGroupTab !== "all children" ? (
                   ageGroupIcons[ageGroupTab]
                 ) : (
@@ -320,7 +320,7 @@ export default function ChildrenList() {
                           borderRadius: "100vw",
                         }}
                       >
-                        {child.isActive ? ageGroupIcons[child.ageGroup as TAgeGroup] : <DeactivatedChildIcon />}
+                        {child.isActive ? ageGroupIcons[child.ageGroup as TAgeGroup] : <div style={{ color: "var(--color-error)" }}><DeactivatedChildIcon /></div>}
                       </span>
                     </Link>
 
@@ -333,7 +333,7 @@ export default function ChildrenList() {
                     >
                       <div>
                         <h4 style={{ fontSize: "inherit", margin: 0, textTransform: "capitalize" }}>{displayName}</h4>
-                        <p>{child.gender === "male" ? t("common.male") : t("common.female")}</p>
+                        <p style={{ color: "var(--foreground-light)" }}>{child.gender === "male" ? t("common.male") : t("common.female")}</p>
                       </div>
                       <div
                         style={{
@@ -356,7 +356,7 @@ export default function ChildrenList() {
                     <Link
                       href={`tel:${child.primaryGuardianPhoneNumber}`}
                       className="glass-pill with-icon"
-                      style={{ color: "var(--success-color)" }}
+                      style={{ color: "var(--color-success)" }}
                     >
                       <CallIcon />
                       {guardianDisplayName?.split(" ")[0]}
@@ -364,7 +364,7 @@ export default function ChildrenList() {
                     <Link
                       href={`/children/${child._id}`}
                       className="glass-pill with-icon"
-                      style={{ color: "var(--info-color)" }}
+                      style={{ color: "var(--color-accent)" }}
                     >
                       <InfoIcon />
                       {t("common.info")}

@@ -46,7 +46,7 @@ export default function PreviewView({
                                 onClick={() => toggleAttendance(child._id)}
                                 className="secondary"
                                 style={{
-                                    backgroundColor: status === "present" ? "var(--success-color)" : "var(--error-color)",
+                                    backgroundColor: status === "present" ? "var(--color-success)" : "var(--error-color)",
                                     color: "white",
                                     textTransform: "capitalize",
                                     minWidth: "5rem",

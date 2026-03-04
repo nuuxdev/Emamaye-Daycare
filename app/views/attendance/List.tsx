@@ -81,7 +81,7 @@ export default function AttendanceList({
                   backgroundColor: isExpired
                     ? "transparent"
                     : status === "present"
-                      ? "var(--success-color)"
+                      ? "var(--color-success)"
                       : "var(--error-color)",
                   color: isExpired ? "var(--foreground)" : "white",
                   textTransform: "capitalize",

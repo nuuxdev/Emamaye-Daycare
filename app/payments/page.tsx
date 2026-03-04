@@ -138,7 +138,7 @@ export default function PaymentsList() {
                         borderRadius: "12px",
                         fontSize: "0.8rem",
                         fontWeight: 700,
-                        background: currentPeriod.day === 15 ? "var(--secondary-color)" : "var(--info-color)",
+                        background: currentPeriod.day === 15 ? "var(--secondary-color)" : "var(--color-accent)",
                         color: "white",
                     }}>
                         {currentPeriod.day === 15 ? t("payments.periods.midMonth") : t("payments.periods.endMonth")}
@@ -181,7 +181,7 @@ export default function PaymentsList() {
                                             display: "flex",
                                             alignItems: "center",
                                             justifyContent: "center",
-                                            color: "var(--success-color)"
+                                            color: "var(--color-success)"
                                         }}
                                     >
                                         <CheckIcon />
@@ -189,7 +189,7 @@ export default function PaymentsList() {
                                 ) : (
                                     <div style={{
                                         padding: "0.5rem 1rem",
-                                        background: "var(--success-color)",
+                                        background: "var(--color-success)",
                                         color: "white",
                                         borderRadius: "20px",
                                         fontSize: "0.8rem",

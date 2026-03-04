@@ -1,59 +1,50 @@
 @layer variables {
     :root {
+        interpolate-size: allow-keywords;
+
         /* Colors */
         --color-primary: oklch(0.6817 0.1968 13.3);
+        /* pink */
         --color-primary-light: oklch(from var(--color-primary) 0.9 c h);
         --color-primary-dark: oklch(from var(--color-primary) 0.55 c h);
         --color-secondary: oklch(from var(--color-primary) l c 279.18);
+        /* violet */
         --color-accent: oklch(from var(--color-primary) l c 198.18);
-        --color-warning: oklch(from var(--color-primary) l c 88.18);
+        /* cyan */
+        --color-warning: oklch(from var(--color-primary) l c 58.18);
+        /* orange */
+        --color-success: oklch(from var(--color-primary) l c 158.18);
+        /* green */
+        --color-error: oklch(from var(--color-primary) l c 26.18);
+        /* red */
         --background: oklch(from var(--color-secondary) 0.99 0.0543 h);
+        --foreground: oklch(from var(--color-primary) 0.3 0.0143 h);
+        --foreground-light: oklch(from var(--foreground) l c h / 0.8);
         --color-infant: var(--color-warning);
         --color-toddler: var(--color-secondary);
         --color-preschooler: var(--color-accent);
-        interpolate-size: allow-keywords;
-        /* Core Colors - Vibrant & Fluent Inspired */
-        /* --background: oklch(95.926% 0.00697 248.257); */
-        /* Slightly lighter, cooler grey */
-        --foreground: #2d3436;
-        /* --primary-color: #ff3366; */
-        /* Vibrant Pink/Red */
-        /* --primary-hover: #d63031; */
-        --secondary-color: oklch(60.526% 0.17132 250.588);
-        /* Vibrant Blue */
-        --accent-color: #00cec9;
-        --success-color: #00b894;
-        --info-color: #00cec9;
-        --warning-color: yellow;
-        --error-color: #d63031;
-        /* Teal */
         --white: #ffffff;
 
         /* Neomorphic Shadows - Softer & Cleaner */
-        --shadow-light: -6px -6px 14px rgba(255, 255, 255, 0.8);
-        --shadow-dark: 6px 6px 10px rgba(163, 177, 198, 0.4);
+        --shadow-light: -6px -6px 14px oklch(from var(--white) l c h / 0.8);
+        --shadow-dark: 6px 6px 10px oklch(from var(--color-secondary) 0.8 0.02 h / 0.4);
         /* Reduced opacity for cleaner look */
-        --shadow-inset-light: inset -4px -4px 8px rgba(255, 255, 255, 0.8);
-        --shadow-inset-dark: inset 4px 4px 8px rgba(163, 177, 198, 0.3);
+        --shadow-inset-light: inset -4px -4px 8px oklch(from var(--white) l c h / 0.8);
+        --shadow-inset-dark: inset 4px 4px 8px oklch(from var(--color-secondary) 0.8 0.02 h / 0.3);
         /* input shadow variable */
-        --input-shadow: 11.2114px -11.2114px 22.4229px rgba(255, 255, 255, 0.85),
-            -3.73714px 7.47429px 11.2114px rgba(0, 0, 0, 0.06),
-            -3.73714px 11.2114px 37.3714px rgba(0, 0, 0, 0.12),
-            inset 9.34286px -9.34286px 22.4229px rgba(255, 255, 255, 0.9),
-            inset -3.73714px 7.47429px 14.9486px rgba(0, 0, 0, 0.06),
-            inset -3.73714px 11.2114px 44.8457px rgba(0, 0, 0, 0.12);
+        --input-shadow: 11.2114px -11.2114px 22.4229px oklch(from var(--white) l c h / 0.85),
+            -3.73714px 7.47429px 11.2114px oklch(from var(--foreground) l c h / 0.06),
+            -3.73714px 11.2114px 37.3714px oklch(from var(--foreground) l c h / 0.12),
+            inset 9.34286px -9.34286px 22.4229px oklch(from var(--white) l c h / 0.9),
+            inset -3.73714px 7.47429px 14.9486px oklch(from var(--foreground) l c h / 0.06),
+            inset -3.73714px 11.2114px 44.8457px oklch(from var(--foreground) l c h / 0.12);
 
         /* Fluent / Glassmorphism */
-        --glass-bg: rgba(255, 255, 255, 0.65);
-        --glass-border: rgba(255, 255, 255, 0.4);
-        --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
-        --glass-shadow-sm: 0 4px 16px 0 rgba(31, 38, 135, 0.1);
+        --glass-bg: oklch(from var(--white) l c h / 0.65);
+        --glass-border: oklch(from var(--white) l c h / 0.4);
+        --glass-shadow: 0 8px 32px 0 oklch(from var(--color-secondary) 0.4 0.1 h / 0.15);
+        --glass-shadow-sm: 0 4px 16px 0 oklch(from var(--color-secondary) 0.4 0.1 h / 0.1);
         --acrylic-blur: blur(12px);
-
-        /* Status Colors */
-        /* --color-infant: #ff7675;
-        --color-toddler: #fdcb6e;
-        --color-preschooler: #74b9ff; */
 
         /* Fonts */
         --font-sans: 'Shiromeda', 'Outfit', 'Inter', system-ui, -apple-system, sans-serif;

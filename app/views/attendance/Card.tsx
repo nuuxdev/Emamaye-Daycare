@@ -154,8 +154,8 @@ export default function AttendanceCard({
           className="secondary"
           style={{
             flex: 1,
-            backgroundColor: currentStatus === "present" ? "var(--success-color)" : "",
-            color: currentStatus === "present" ? "white" : "var(--success-color)",
+            backgroundColor: currentStatus === "present" ? "var(--color-success)" : "",
+            color: currentStatus === "present" ? "white" : "var(--color-success)",
           }}
         >
           Present

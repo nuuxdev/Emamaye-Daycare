@@ -462,7 +462,7 @@ export default function ChildInfo() {
                                     href={`tel:${child.primaryGuardian.phoneNumber}`}
                                     className="glass-pill"
                                     style={{
-                                        color: "var(--success-color)",
+                                        color: "var(--color-success)",
                                         aspectRatio: "1/1",
                                         padding: 0,
                                         width: "3rem",
@@ -475,7 +475,7 @@ export default function ChildInfo() {
                                     href={`sms:${child.primaryGuardian.phoneNumber}`}
                                     className="glass-pill"
                                     style={{
-                                        color: "var(--info-color)",
+                                        color: "var(--color-accent)",
                                         aspectRatio: "1/1",
                                         padding: 0,
                                         width: "3rem",
@@ -527,8 +527,8 @@ export default function ChildInfo() {
                                 className="secondary"
                                 style={{
                                     width: "100%",
-                                    borderColor: "var(--success-color)",
-                                    color: "var(--success-color)",
+                                    borderColor: "var(--color-success)",
+                                    color: "var(--color-success)",
                                     opacity: 0.8
                                 }}
                             >
