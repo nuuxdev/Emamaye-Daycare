@@ -602,7 +602,178 @@
         }
     }
 
+    /* ── Language Switch ── */
+    .lang-switch-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .lang-switch-label {
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        color: oklch(from var(--foreground) l c h / 0.4);
+        transition: color var(--transition-fast);
+        min-width: 2.5rem;
+        text-align: center;
+        user-select: none;
+    }
+
+    .lang-switch-label--active {
+        color: var(--color-primary);
+    }
+
+    .lang-switch-track {
+        /* Reset button defaults */
+        border: none;
+        cursor: pointer;
+
+        /* Layout */
+        position: relative;
+        display: flex;
+        align-items: center;
+        width: 6.5rem;
+        height: 3rem;
+        border-radius: 9999px;
+        padding: 0 0.35rem;
+
+        /* Neomorphic inset styling */
+        background: var(--background);
+        box-shadow: var(--shadow-inset-dark), var(--shadow-inset-light);
+
+        /* Transition */
+        transition: box-shadow var(--transition-fast);
+
+        &:active {
+            box-shadow: var(--shadow-dark), var(--shadow-light);
+        }
+    }
+
+    .lang-switch-flag {
+        font-size: 1.35rem;
+        line-height: 1;
+        flex-shrink: 0;
+        z-index: 1;
+        pointer-events: none;
+        transition: opacity var(--transition-fast), filter var(--transition-fast);
+    }
+
+    .lang-switch-flag--inactive {
+        opacity: 0.25;
+        filter: blur(1.5px) grayscale(0.4);
+    }
+
+    .lang-switch-flag--left {
+        margin-right: auto;
+    }
+
+    .lang-switch-flag--right {
+        margin-left: auto;
+    }
+
+    .lang-switch-thumb {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 2.4rem;
+        height: 2.4rem;
+        border-radius: 9999px;
+
+        /* Raised neomorphic thumb */
+        background: var(--white);
+        box-shadow: var(--shadow-dark), var(--shadow-light);
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        transition: left var(--transition-fast);
+        z-index: 2;
+    }
+
+    .lang-switch-thumb-flag {
+        font-size: 1.15rem;
+        line-height: 1;
+        pointer-events: none;
+        user-select: none;
+    }
+
+    .lang-switch-thumb--left {
+        left: 0.2rem;
+    }
+
+    .lang-switch-thumb--right {
+        left: calc(100% - 2.6rem);
+    }
+
+    /* Compact variant for inline row use */
+    .lang-switch-track--sm {
+        width: 4.5rem;
+        height: 2rem;
+        padding: 0 0.25rem;
+    }
+
+    .lang-switch-thumb--sm {
+        width: 1.55rem;
+        height: 1.55rem;
+    }
+
+    .lang-switch-thumb--sm .lang-switch-thumb-flag {
+        font-size: 0.8rem;
+    }
+
+    .lang-switch-track--sm .lang-switch-thumb--left {
+        left: 0.2rem;
+    }
+
+    .lang-switch-track--sm .lang-switch-thumb--right {
+        left: calc(100% - 1.75rem);
+    }
+
+    .lang-switch-flag--sm {
+        font-size: 0.95rem;
+    }
+
+    /* Settings card layout */
+    .settings-section {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+        width: 100%;
+    }
+
+    .settings-section-title {
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: oklch(from var(--foreground) l c h / 0.45);
+        padding: 0 0.25rem 0.6rem;
+        align-self: flex-start;
+    }
+
+    .settings-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.75rem 0.25rem;
+        gap: 1rem;
+        border-bottom: 1px solid oklch(from var(--foreground) l c h / 0.06);
+
+        &:last-child {
+            border-bottom: none;
+        }
+    }
+
+    .settings-row-label {
+        font-size: 1rem;
+        font-weight: 500;
+        color: var(--foreground);
+    }
+
 }
+
 
 @layer utilities {
     .flex-center {

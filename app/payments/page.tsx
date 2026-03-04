@@ -88,7 +88,7 @@ export default function PaymentsList() {
                 title={t("payments.title")}
                 backHref="/"
                 action={
-                    <Link href="/payments/settings" className="glass-pill">
+                    <Link href="/settings" className="glass-pill">
                         <SettingsIcon />
                     </Link>
                 }
