@@ -76,7 +76,7 @@ export default function SummaryView({
                                         borderRadius: "100vw",
                                         minWidth: "4.5rem",
                                         textAlign: "center",
-                                        backgroundColor: present === total ? "var(--color-success)" : present === 0 ? "var(--error-color)" : "var(--color-accent)",
+                                        backgroundColor: present === total ? "var(--color-success)" : present === 0 ? "var(--color-error)" : "var(--color-accent)",
                                         color: "white",
                                         fontWeight: "600",
                                         display: "inline-block",

@@ -27,7 +27,7 @@ export default function WarningDialog({
                     <button
                         onClick={confirmDateChange}
                         className="secondary"
-                        style={{ flex: 1, color: "var(--error-color)" }}
+                        style={{ flex: 1, color: "var(--color-error)" }}
                     >
                         ቀይር
                     </button>

@@ -143,8 +143,8 @@ export default function AttendanceCard({
           className="secondary"
           style={{
             flex: 1,
-            backgroundColor: currentStatus === "absent" ? "var(--error-color)" : "",
-            color: currentStatus === "absent" ? "white" : "var(--error-color)",
+            backgroundColor: currentStatus === "absent" ? "var(--color-error)" : "",
+            color: currentStatus === "absent" ? "white" : "var(--color-error)",
           }}
         >
           Absent

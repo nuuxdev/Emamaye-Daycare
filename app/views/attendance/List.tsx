@@ -82,7 +82,7 @@ export default function AttendanceList({
                     ? "transparent"
                     : status === "present"
                       ? "var(--color-success)"
-                      : "var(--error-color)",
+                      : "var(--color-error)",
                   color: isExpired ? "var(--foreground)" : "white",
                   textTransform: "capitalize",
                   minWidth: "4.5rem",

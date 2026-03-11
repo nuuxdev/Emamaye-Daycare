@@ -80,7 +80,7 @@ export default function ChildAttendanceGrid({
                     if (isWeekend) {
                         opacity = 0.3;
                     } else if (attendance) {
-                        bgColor = attendance.status === "present" ? "var(--color-success)" : "var(--error-color)";
+                        bgColor = attendance.status === "present" ? "var(--color-success)" : "var(--color-error)";
                         color = "white";
                     } else if (isFuture) {
                         opacity = 0.3;
@@ -118,7 +118,7 @@ export default function ChildAttendanceGrid({
                     <span>Present</span>
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: "0.25rem" }}>
-                    <div style={{ width: "12px", height: "12px", borderRadius: "3px", backgroundColor: "var(--error-color)" }} />
+                    <div style={{ width: "12px", height: "12px", borderRadius: "3px", backgroundColor: "var(--color-error)" }} />
                     <span>Absent</span>
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: "0.25rem" }}>
