@@ -5,7 +5,7 @@ import { InputDate } from "./Calendar";
 import { TAgeGroup } from "@/convex/types/children";
 import Select from "@/components/Select";
 import { calculateAge, getAgeGroup, getPaymentAmount } from "@/utils/calculateAge";
-import { fromEthDateString, todayInGreg } from "@/utils/calendar";
+import { fromEthDateString, todayInEthString, todayInGreg } from "@/utils/calendar";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { translateName } from "@/app/actions";
@@ -204,24 +204,32 @@ export default function ChildInfo({
         </div>
       </fieldset>
 
-      <InputDate value={!!getValues("dateOfBirth") ? fromEthDateString(getValues("dateOfBirth")) : todayInGreg.toString()} register={register} onSelect={(dateInEt) => {
-        const age = calculateAge(
-          dateInEt
-        );
+      <InputDate
+        inputId="dateOfBirth"
+        label={t("childInfo.labels.birthDate")}
+        value={!!getValues("dateOfBirth") ? fromEthDateString(getValues("dateOfBirth")) : todayInGreg.toString()}
+        minDate={todayInGreg.subtract({ years: 5 }).toString()}
+        maxDate={todayInGreg.toString()}
+        register={register}
+        onSelect={(dateInEt) => {
+          const age = calculateAge(
+            dateInEt
+          );
 
-        if (age) {
-          const ageGroup = getAgeGroup(age.ageInYears);
-          setValue("ageGroup", ageGroup);
-          setValue("paymentAmount", getDynamicPaymentAmount(ageGroup));
-        }
-        const dateString = dateInEt.day < 10 ? `0${dateInEt.day}` : dateInEt.day;
-        const monthString = dateInEt.month < 10 ? `0${dateInEt.month}` : dateInEt.month;
-        setValue("dateOfBirth", `${monthString}-${dateString}-${dateInEt.year}`);
-      }} />
+          if (age) {
+            const ageGroup = getAgeGroup(age.ageInYears);
+            setValue("ageGroup", ageGroup);
+            setValue("paymentAmount", getDynamicPaymentAmount(ageGroup));
+          }
+          const dateString = dateInEt.day < 10 ? `0${dateInEt.day}` : dateInEt.day;
+          const monthString = dateInEt.month < 10 ? `0${dateInEt.month}` : dateInEt.month;
+          setValue("dateOfBirth", `${monthString}-${dateString}-${dateInEt.year}`);
+        }}
+      />
 
       <Select
         id="ageGroup"
-        label={t("children.sort.age")}
+        label={t("childInfo.labels.ageGroup")}
         register={register}
         setValue={setValue}
         options={[
@@ -231,7 +239,7 @@ export default function ChildInfo({
         ]}
         defaultValue={defaultValues?.ageGroup}
         value={ageGroup}
-        placeholder={t("settings.selectLanguage")} // Use a better key if I had one for "Select Age Group"
+        placeholder={t("childInfo.labels.ageGroupPlaceholder")}
       />
 
       {/* Watch for changes to update payment amount */}
@@ -241,29 +249,46 @@ export default function ChildInfo({
       </div>
 
 
-      <Select
-        id="paymentSchedule"
-        label={t("payments.label")}
+      <InputDate
+        inputId="startDate"
+        label={t("childInfo.labels.startDate")}
+        value={!!getValues("startDate") ? fromEthDateString(getValues("startDate")) : todayInGreg.toString()}
+        minDate={todayInGreg.toString()}
+        maxDate={todayInGreg.add({ days: 30 }).toString()}
         register={register}
-        setValue={setValue}
-        options={[
-          { value: "month_end", label: t("payments.periods.endMonth") },
-          { value: "month_half", label: t("payments.periods.midMonth") },
-        ]}
-        defaultValue={defaultValues?.paymentSchedule}
-        value={watch("paymentSchedule")}
-        placeholder={language === "am" ? "የክፍያ ጊዜ ይምረጡ" : "Choose payment schedule"}
+        onSelect={(dateInEt) => {
+          const dateString = dateInEt.day < 10 ? `0${dateInEt.day}` : dateInEt.day;
+          const monthString = dateInEt.month < 10 ? `0${dateInEt.month}` : dateInEt.month;
+          setValue("startDate", `${monthString}-${dateString}-${dateInEt.year}`);
+        }}
       />
+      {/* Hidden input to ensure form validation picks up the value */}
+      <input type="hidden" {...register("startDate", { required: true })} value={watch("startDate") || todayInEthString} />
 
       <div className="mb-1">
-        <label htmlFor="paymentAmount" className="mb-1 label-text">{t("kpi.categoryPayments")}</label>
+        <label htmlFor="paymentDate" className="label-text">{t("childInfo.labels.paymentDate")}</label>
+        <div className="relative">
+          <input
+            id="paymentDate"
+            type="number"
+            min={1}
+            max={30}
+            className="neo-input pl-3"
+            {...register("paymentDate", { required: true, valueAsNumber: true, min: 1, max: 30 })}
+            placeholder={t("childInfo.labels.paymentDatePlaceholder")}
+          />
+        </div>
+      </div>
+
+      <div className="mb-1">
+        <label htmlFor="paymentAmount" className="label-text">{t("childInfo.labels.paymentAmount")}</label>
         <div className="relative">
           <input
             id="paymentAmount"
             type="number"
             className="neo-input pl-3"
             {...register("paymentAmount", { required: true, valueAsNumber: true })}
-            placeholder={language === "am" ? "መጠን በብር" : "Amount in ETB"}
+            placeholder=""
             readOnly
           />
           <span className="input-prefix">{language === "am" ? "ብር" : "ETB"}</span>

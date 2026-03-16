@@ -28,12 +28,12 @@ export const months = [
 
 const days = Array.from({ length: 30 }, (_, i) => i + 1);
 
-export const InputDate = ({ register, onSelect, value }: { register: UseFormRegister<TChildInfo>, onSelect: (date: CalendarDate) => void, value: string }) => {
+export const InputDate = ({ register, onSelect, value, minDate, maxDate, label, inputId }: { register: UseFormRegister<any>, onSelect: (date: CalendarDate) => void, value: string, minDate?: string, maxDate?: string, label: string, inputId: string }) => {
   const { t } = useLanguage();
   const dialogRef = useRef<HTMLDialogElement>(null);
 
   return <div className="mb-1">
-    <label htmlFor="dateOfBirth">{t("childInfo.labels.birthDate")}</label>
+    <label htmlFor={inputId}>{label}</label>
     <div className="relative">
       <input
         className="neo-input"
@@ -41,40 +41,40 @@ export const InputDate = ({ register, onSelect, value }: { register: UseFormRegi
         onClick={() => dialogRef.current?.showModal()}
         onBeforeInput={() => dialogRef.current?.showModal()}
         type="text"
-        id="dateOfBirth"
+        id={inputId}
         placeholder={t("childInfo.labels.birthDatePlaceholder")}
-        {...register("dateOfBirth", { required: true })}
+        {...register(inputId, { required: true })}
         readOnly
       />
       <div style={{ position: "absolute", right: "1.5rem", top: "50%", transform: "translateY(-50%)", pointerEvents: "none", opacity: 0.5 }}>
         <CalendarIcon />
       </div>
     </div>
-    <Dialog dialogRef={dialogRef} onSelect={onSelect} value={value} />
+    <Dialog dialogRef={dialogRef} onSelect={onSelect} value={value} minDate={minDate} maxDate={maxDate} />
   </div>
 }
 
-export const SelectDate = ({ onSelect, value }: { onSelect: (date: CalendarDate) => void, value?: string }) => {
+export const SelectDate = ({ onSelect, value, minDate, maxDate }: { onSelect: (date: CalendarDate) => void, value?: string, minDate?: string, maxDate?: string }) => {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const { t } = useLanguage();
   return <>
     <div style={{ cursor: "pointer", height: "1.5rem" }} role="button" onClick={() => dialogRef.current?.showModal()} title={t("childInfo.labels.birthDate")}>
       <CalendarIcon />
     </div>
-    <Dialog dialogRef={dialogRef} onSelect={onSelect} value={value} />
+    <Dialog dialogRef={dialogRef} onSelect={onSelect} value={value} minDate={minDate} maxDate={maxDate} />
   </>
 }
 
 
-const Dialog = ({ dialogRef, onSelect, value }: { dialogRef: React.RefObject<HTMLDialogElement | null>, onSelect: (date: CalendarDate) => void, value?: string }) => {
+const Dialog = ({ dialogRef, onSelect, value, minDate, maxDate }: { dialogRef: React.RefObject<HTMLDialogElement | null>, onSelect: (date: CalendarDate) => void, value?: string, minDate?: string, maxDate?: string }) => {
 
 
   const [currentMonth, setCurrentMonth] = useState<number>();
   const [currentDate, setCurrentDate] = useState<number>();
   const [currentYear, setCurrentYear] = useState<number>();
-  const [daysInMonth, setDaysInMonth] = useState<number>(30);
+  const [daysArray, setDaysArray] = useState<number[]>(days);
   const [monthsArray, setMonthsArray] = useState<string[]>(months);
-  const [yearsArray] = useState<number[]>(years);
+  const [yearsArray, setYearsArray] = useState<number[]>(years);
   const [initialized, setInitialized] = useState(false);
   const monthsRef = useRef<HTMLUListElement>(null);
   const daysRef = useRef<HTMLUListElement>(null);
@@ -82,35 +82,53 @@ const Dialog = ({ dialogRef, onSelect, value }: { dialogRef: React.RefObject<HTM
 
 
   useEffect(() => {
-    if (!initialized) return;
-    if (currentYear === thisYear) {
-      if (monthsArray.length === 13) {
-        const newMonthsArray = months.filter((_, i) => i + 1 <= thisMonth);
-        setMonthsArray(newMonthsArray);
-      }
-      if (currentMonth === thisMonth) {
-        if (daysInMonth !== thisDay) {
-          setDaysInMonth(thisDay);
-        }
-        return;
-      }
-    } else {
-      if (monthsArray.length !== 13) {
-        setMonthsArray(months);
+    // Generate years array once
+    const minEthDate = minDate ? toCalendar(parseDate(minDate), EthiopianCalendar) : null;
+    const maxEthDate = maxDate ? toCalendar(parseDate(maxDate), EthiopianCalendar) : null;
+
+    let computedYears = [...years];
+    if (minEthDate && maxEthDate) {
+      computedYears = Array.from({ length: maxEthDate.year - minEthDate.year + 1 }, (_, i) => maxEthDate.year - i);
+    } else if (minEthDate) {
+      computedYears = Array.from({ length: 5 }, (_, i) => minEthDate.year + 4 - i); // 5 years future
+    } else if (maxEthDate) {
+      computedYears = Array.from({ length: 5 }, (_, i) => maxEthDate.year - i); // 5 years past from max
+    }
+    setYearsArray(computedYears);
+  }, [minDate, maxDate]);
+
+  useEffect(() => {
+    if (!initialized || !currentMonth || !currentYear) return;
+
+    const minEthDate = minDate ? toCalendar(parseDate(minDate), EthiopianCalendar) : null;
+    const maxEthDate = maxDate ? toCalendar(parseDate(maxDate), EthiopianCalendar) : null;
+
+    const selectedDate = new CalendarDate(EthiopianCalendar, currentYear, currentMonth, 1);
+    const maxDays = EthiopianCalendar.getDaysInMonth(selectedDate);
+
+    let computedMonths = [...months];
+    let computedDays = Array.from({ length: maxDays }, (_, i) => i + 1);
+
+    if (maxEthDate && currentYear === maxEthDate.year) {
+      computedMonths = computedMonths.filter((_, i) => i + 1 <= maxEthDate.month);
+      if (currentMonth === maxEthDate.month) {
+        computedDays = computedDays.filter(d => d <= maxEthDate.day);
       }
     }
-    if (!currentMonth || !currentYear) {
-      return;
+
+    if (minEthDate && currentYear === minEthDate.year) {
+      computedMonths = computedMonths.filter((name) => {
+        const index = months.indexOf(name) + 1;
+        return index >= minEthDate.month;
+      });
+      if (currentMonth === minEthDate.month) {
+        computedDays = computedDays.filter(d => d >= minEthDate.day);
+      }
     }
-    const selectedDate = new CalendarDate(
-      EthiopianCalendar,
-      currentYear,
-      currentMonth,
-      1, //the current date doesn't matter to get the number of days in the month
-    );
-    const daysInCurrentMonth = EthiopianCalendar.getDaysInMonth(selectedDate);
-    setDaysInMonth(daysInCurrentMonth);
-  }, [currentMonth, currentYear, initialized]);
+
+    setMonthsArray(computedMonths);
+    setDaysArray(computedDays);
+  }, [currentMonth, currentYear, initialized, minDate, maxDate]);
 
   useEffect(() => {
     const scrollers = document.querySelectorAll(".scroller");
@@ -131,14 +149,12 @@ const Dialog = ({ dialogRef, onSelect, value }: { dialogRef: React.RefObject<HTM
             if (navigator.vibrate) {
               navigator.vibrate(1);
             }
-            const index = Array.from(
-              entry.target.parentElement!.children,
-            ).indexOf(entry.target);
-            if (entry.target.className.includes("months")) {
-              setCurrentMonth(index + 1);
-            } else if (entry.target.className.includes("dates")) {
-              setCurrentDate(days[index]);
-            } else if (entry.target.className.includes("years")) {
+            const index = Array.from(entry.target.parentElement!.children).indexOf(entry.target);
+            if (entry.target.className.includes("months") && monthsArray[index]) {
+              setCurrentMonth(months.indexOf(monthsArray[index]) + 1);
+            } else if (entry.target.className.includes("dates") && daysArray[index]) {
+              setCurrentDate(daysArray[index]);
+            } else if (entry.target.className.includes("years") && yearsArray[index]) {
               setCurrentYear(yearsArray[index]);
             }
           }
@@ -151,7 +167,7 @@ const Dialog = ({ dialogRef, onSelect, value }: { dialogRef: React.RefObject<HTM
       observers.push(observer);
     });
     return () => observers.forEach((observer) => observer.disconnect());
-  }, [daysInMonth, monthsArray]);
+  }, [daysArray, monthsArray, yearsArray]);
 
   useEffect(() => {
     if (!dialogRef.current?.open) return;
@@ -163,9 +179,11 @@ const Dialog = ({ dialogRef, onSelect, value }: { dialogRef: React.RefObject<HTM
     setCurrentMonth(selectedDate.month);
     setCurrentYear(selectedDate.year);
 
-    daysRef.current?.children[selectedDate.day - 1]?.scrollIntoView({ behavior: "smooth", block: "center" });
-    monthsRef.current?.children[selectedDate.month - 1]?.scrollIntoView({ behavior: "smooth", block: "center" });
-    yearsRef.current?.children[yearsArray.indexOf(selectedDate.year)]?.scrollIntoView({ behavior: "smooth", block: "center" });
+    setTimeout(() => {
+      daysRef.current?.children[daysArray.indexOf(selectedDate.day)]?.scrollIntoView({ behavior: "smooth", block: "center" });
+      monthsRef.current?.children[monthsArray.indexOf(months[selectedDate.month - 1])]?.scrollIntoView({ behavior: "smooth", block: "center" });
+      yearsRef.current?.children[yearsArray.indexOf(selectedDate.year)]?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 100);
 
     setInitialized(true);
   }, [value, dialogRef.current?.open]);
@@ -209,7 +227,7 @@ const Dialog = ({ dialogRef, onSelect, value }: { dialogRef: React.RefObject<HTM
       </div>
       <div className="scroller">
         <ul ref={daysRef} style={{ listStyle: "none" }}>
-          {Array.from({ length: daysInMonth }, (_, i) => i + 1).map(
+          {daysArray.map(
             (day) => {
               if (day < 10) {
                 return (

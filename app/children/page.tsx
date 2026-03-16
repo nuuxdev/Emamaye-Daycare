@@ -213,7 +213,7 @@ export default function ChildrenList() {
                 className={`tabs secondary ${ageGroupTab}`}
               >
                 {ageGroupTab === "inactive" ? (
-                  <div style={{ color: "var(--color-error)" }}><DeactivatedChildIcon /></div>
+                  <div style={{ color: "var(--error-color)" }}><DeactivatedChildIcon /></div>
                 ) : ageGroupTab !== "all children" ? (
                   ageGroupIcons[ageGroupTab]
                 ) : (
@@ -320,7 +320,7 @@ export default function ChildrenList() {
                           borderRadius: "100vw",
                         }}
                       >
-                        {child.isActive ? ageGroupIcons[child.ageGroup as TAgeGroup] : <div style={{ color: "var(--color-error)" }}><DeactivatedChildIcon /></div>}
+                        {child.isActive ? ageGroupIcons[child.ageGroup as TAgeGroup] : <div style={{ color: "var(--error-color)" }}><DeactivatedChildIcon /></div>}
                       </span>
                     </Link>
 

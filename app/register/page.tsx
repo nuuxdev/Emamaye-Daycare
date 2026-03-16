@@ -23,7 +23,8 @@ export type TChildInfo = {
   dateOfBirth: string;
   ageGroup: TAgeGroup;
   paymentAmount: number | null;
-  paymentSchedule: "month_end" | "month_half";
+  paymentDate: number | null;
+  startDate: string;
 };
 
 export type TGuardianInfo = {
@@ -57,7 +58,8 @@ export default function Register() {
       dateOfBirth: "",
       ageGroup: "" as TAgeGroup,
       paymentAmount: null,
-      paymentSchedule: "month_end",
+      paymentDate: null,
+      startDate: "",
     },
     {
       fullName: "",
@@ -108,7 +110,8 @@ export default function Register() {
         dateOfBirth: "",
         ageGroup: "" as TAgeGroup,
         paymentAmount: null,
-        paymentSchedule: "month_end",
+        paymentDate: null,
+        startDate: "",
       },
       {
         fullName: "",
@@ -145,6 +148,7 @@ export default function Register() {
       const childData = {
         ...savedSteps[0],
         paymentAmount: savedSteps[0].paymentAmount!,
+        paymentDate: savedSteps[0].paymentDate!,
         avatar: childStorageId,
         dateOfBirth: dateOfBirthString,
       };

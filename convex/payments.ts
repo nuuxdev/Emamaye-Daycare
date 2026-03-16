@@ -98,7 +98,7 @@ export const getPayments = query({
                     ...payment,
                     childName: child?.fullName || "Unknown",
                     childAvatar: child?.avatar,
-                    paymentSchedule: child?.paymentSchedule,
+                    paymentDate: child?.paymentDate,
                 };
             })
         );
@@ -110,21 +110,67 @@ export const getPayments = query({
 export const markAsPaid = mutation({
     args: {
         paymentId: v.id("payments"),
+        paidAmount: v.optional(v.number()),
+        paidDate: v.optional(v.string()),
     },
     handler: async (ctx, args) => {
         const userId = await getAuthUserId(ctx);
         if (!userId) throw new Error("Unauthorized");
 
+        const payment = await ctx.db.get(args.paymentId);
+        if (!payment) throw new Error("Payment not found");
+
+        const paidAmount = args.paidAmount ?? payment.amount;
+        const paidDate = args.paidDate ?? new Date().toISOString();
+
         await ctx.db.patch(args.paymentId, {
             status: "paid",
             paidAt: new Date().toISOString(),
+            paidAmount,
+            paidDate,
         });
+
+        const shortfall = payment.amount - paidAmount;
+        if (shortfall !== 0) {
+            const child = await ctx.db.get(payment.childId);
+            if (child) {
+                const newCreditBalance = (child.creditBalance || 0) + shortfall;
+                await ctx.db.patch(child._id, { creditBalance: newCreditBalance });
+            }
+        }
+    },
+});
+
+export const payCreditBalance = mutation({
+    args: {
+        childId: v.id("children"),
+        amount: v.optional(v.number()),
+    },
+    handler: async (ctx, args) => {
+        const userId = await getAuthUserId(ctx);
+        if (!userId) throw new Error("Unauthorized");
+
+        const child = await ctx.db.get(args.childId);
+        if (!child) throw new Error("Child not found");
+
+        const creditBalance = child.creditBalance || 0;
+        if (creditBalance <= 0) throw new Error("No credit balance to pay");
+
+        const payAmount = args.amount ?? creditBalance;
+        if (payAmount <= 0 || payAmount > creditBalance) {
+            throw new Error("Invalid payment amount");
+        }
+
+        const newBalance = creditBalance - payAmount;
+        await ctx.db.patch(args.childId, { creditBalance: newBalance });
+
+        return { paidAmount: payAmount, remainingBalance: newBalance };
     },
 });
 
 // This mutation checks all children and creates payments if they are due.
-// Logic: Children pay on either month-end (30th) or month-half (15th) based on their paymentSchedule.
-async function performPaymentGeneration(ctx: any, dueDate: string) {
+// Logic: Children pay on their specific paymentDate (1-30).
+async function performPaymentGeneration(ctx: any, dueDate: string, dayEth: number) {
     const children = await ctx.db.query("children").collect();
     const paymentSettings = await ctx.db.query("paymentSettings").collect();
     const settingsMap = new Map(paymentSettings.map((s: any) => [s.ageGroup, s.amount]));
@@ -132,6 +178,8 @@ async function performPaymentGeneration(ctx: any, dueDate: string) {
     let createdCount = 0;
 
     for (const child of children) {
+        if (child.paymentDate !== dayEth) continue;
+
         // Check if payment already exists for this child and due date
         const existingPayments = await ctx.db
             .query("payments")
@@ -141,15 +189,21 @@ async function performPaymentGeneration(ctx: any, dueDate: string) {
         const alreadyExists = existingPayments.some((p: any) => p.dueDate === dueDate);
 
         if (!alreadyExists) {
-            const amount = settingsMap.get(child.ageGroup) || child.paymentAmount || 0;
+            const baseAmount = settingsMap.get(child.ageGroup) || child.paymentAmount || 0;
+            const creditBalance = child.creditBalance || 0;
+            const totalAmount = baseAmount + creditBalance;
 
             await ctx.db.insert("payments", {
                 childId: child._id,
-                amount,
+                amount: totalAmount,
                 dueDate: dueDate,
                 status: "pending",
             });
             createdCount++;
+
+            if (creditBalance !== 0) {
+                await ctx.db.patch(child._id, { creditBalance: 0 });
+            }
         }
     }
 
@@ -158,10 +212,18 @@ async function performPaymentGeneration(ctx: any, dueDate: string) {
 
 export const generateMonthlyPaymentsInternal = internalMutation({
     args: {
-        dueDate: v.string(),
+        dueDate: v.string(), // YYYY-MM-DD
     },
     handler: async (ctx, { dueDate }) => {
-        return await performPaymentGeneration(ctx, dueDate);
+        const [year, month, day] = dueDate.split("-").map(Number);
+        const ethCalendar = new EthiopicCalendar();
+        // Since we don't have parseDate readily available here without importing it
+        // We will just assume the dayEth is the eth day of today, but dueDate could be arbitrary.
+        // If dueDate represents the Ethiopian date already? No, it's YYYY-MM-DD of Gregorian usually.
+        // Actually, let's just use the current day for dayEth if they use internalMutation
+        const todayGreg = today(getLocalTimeZone());
+        const todayEth = toCalendar(todayGreg, ethCalendar);
+        return await performPaymentGeneration(ctx, dueDate, todayEth.day);
     }
 });
 
@@ -173,7 +235,9 @@ export const generateMonthlyPayments = mutation({
         const userId = await getAuthUserId(ctx);
         if (!userId) throw new Error("Unauthorized");
 
-        return await performPaymentGeneration(ctx, dueDate);
+        const todayGreg = today(getLocalTimeZone());
+        const todayEth = toCalendar(todayGreg, new EthiopicCalendar());
+        return await performPaymentGeneration(ctx, dueDate, todayEth.day);
     }
 });
 
@@ -185,45 +249,7 @@ export const autoGeneratePayments = internalMutation({
         const todayEth = toCalendar(todayGreg, new EthiopicCalendar());
         const dayEth = todayEth.day;
 
-        // Only run on Ethiopian 15th or 30th
-        if (dayEth !== 15 && dayEth !== 30) return { skipped: true, dayEth };
-
-        const children = await ctx.db.query("children").collect();
-        const paymentSettings = await ctx.db.query("paymentSettings").collect();
-        const settingsMap = new Map(paymentSettings.map(s => [s.ageGroup, s.amount]));
-
-        let createdCount = 0;
-
-        for (const child of children) {
-            // Only process children whose schedule matches today's Ethiopian date
-            const shouldProcess =
-                (dayEth === 15 && child.paymentSchedule === "month_half") ||
-                (dayEth === 30 && child.paymentSchedule === "month_end");
-
-            if (!shouldProcess) continue;
-
-            const dueDateStr = todayGreg.toString(); // YYYY-MM-DD
-
-            const existingPayments = await ctx.db
-                .query("payments")
-                .withIndex("by_child", (q) => q.eq("childId", child._id))
-                .collect();
-
-            const alreadyExists = existingPayments.some(p => p.dueDate === dueDateStr);
-
-            if (!alreadyExists) {
-                const amount = settingsMap.get(child.ageGroup) || child.paymentAmount || 0;
-
-                await ctx.db.insert("payments", {
-                    childId: child._id,
-                    amount,
-                    dueDate: dueDateStr,
-                    status: "pending",
-                });
-                createdCount++;
-            }
-        }
-
-        return { createdCount, dayEth };
+        const dueDateStr = todayGreg.toString(); // YYYY-MM-DD
+        return await performPaymentGeneration(ctx, dueDateStr, dayEth);
     }
 });

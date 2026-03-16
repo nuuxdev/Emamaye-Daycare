@@ -19,7 +19,10 @@ export default defineSchema({
     dateOfBirth: v.string(),
     ageGroup: VAgeGroup,
     paymentAmount: v.number(),
-    paymentSchedule: v.optional(v.union(v.literal("month_end"), v.literal("month_half"))), // 30th or 15th
+    paymentDate: v.optional(v.number()), // 1-30
+    startDate: v.optional(v.string()), // Ethiopian date string "MM-DD-YYYY"
+    creditBalance: v.optional(v.number()), // To store prorated differences and carried-over amounts
+    paymentSchedule: v.optional(v.union(v.literal("month_end"), v.literal("month_half"))), // Legacy field, kept for backwards compatibility
     avatar: v.optional(v.string()),
     primaryGuardian: v.id("guardians"),
     isActive: v.boolean(),
@@ -50,5 +53,7 @@ export default defineSchema({
     dueDate: v.string(), // ISO date string
     status: v.string(), // "pending", "paid"
     paidAt: v.optional(v.string()),
+    paidAmount: v.optional(v.number()),
+    paidDate: v.optional(v.string()),
   }).index("by_child", ["childId"]).index("by_status", ["status"]).index("by_due_date", ["dueDate"]),
 });

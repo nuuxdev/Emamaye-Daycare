@@ -7,8 +7,8 @@ import { Id } from "@/convex/_generated/dataModel";
 import GlassHeader from "@/components/GlassHeader";
 import { JSX, useEffect, useState, useRef } from "react";
 import { ArrowRight, CallIcon, CameraIcon, CloseIcon, DeactivatedChildIcon, EditIcon, InfantIcon, MessageIcon, PlusIcon, PreschoolerIcon, RecycleIcon, ToddlerIcon, UploadIcon, SettingsIcon } from "@/components/Icons";
-import { formatEthiopianDate, todayInEth } from "@/utils/calendar";
-import { parseDate } from "@internationalized/date";
+import { formatEthiopianDate, todayInEth, todayInGreg, ethMonthNames, EthiopianCalendar } from "@/utils/calendar";
+import { parseDate, toCalendar } from "@internationalized/date";
 import { toast } from "sonner";
 import ChildAttendanceGrid from "@/app/views/attendance/ChildAttendanceGrid";
 import DeactivateChildModal from "@/app/components/DeactivateChildModal";
@@ -281,7 +281,7 @@ const AvatarUploader = ({
     );
 };
 
-type TTab = "details" | "guardian" | "attendance";
+type TTab = "details" | "guardian" | "attendance" | "payments";
 
 export default function ChildInfo() {
     const { childId } = useParams();
@@ -293,6 +293,8 @@ export default function ChildInfo() {
     const [activeTab, setActiveTab] = useState<TTab>(initialTab);
     const [showConfetti, setShowConfetti] = useState(false);
     const [isDeactivateModalOpen, setIsDeactivateModalOpen] = useState(false);
+    const payCreditDialogRef = useRef<HTMLDialogElement>(null);
+    const [creditPayAmount, setCreditPayAmount] = useState<number>(0);
 
     const { t, language } = useLanguage();
     const { formatAge } = useAge();
@@ -304,6 +306,10 @@ export default function ChildInfo() {
     const updateChildAvatar = useMutation(api.children.updateChildAvatar);
     const updateGuardianAvatar = useMutation(api.guardians.updateGuardianAvatar);
     const reactivateChild = useMutation(api.children.reactivateChild);
+    const payCreditBalance = useMutation(api.payments.payCreditBalance);
+    const childPayments = useQuery(api.payments.getPayments, {
+        childId: childId as Id<"children">,
+    });
 
     const isBirthday = child ? calculateAge(parseDate(child.dateOfBirth))?.isBirthday : false;
 
@@ -342,6 +348,7 @@ export default function ChildInfo() {
         { id: "details", label: t("childInfo.tabs.details") },
         { id: "guardian", label: t("childInfo.tabs.guardian") },
         { id: "attendance", label: t("childInfo.tabs.attendance") },
+        { id: "payments", label: language === "am" ? "ክፍያ" : "Payments" },
     ];
 
     const displayName = (language === "am" && child.fullNameAmh) ? child.fullNameAmh : child.fullName;
@@ -367,17 +374,86 @@ export default function ChildInfo() {
                 onClose={() => setIsDeactivateModalOpen(false)}
                 onDeactivated={() => router.push("/children")}
             />
+
+            {/* Pay Credit Dialog */}
+            <dialog ref={payCreditDialogRef} style={{ borderRadius: "1rem", padding: "1.5rem", maxWidth: "400px", width: "100%" }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
+                        <h3 style={{ margin: 0 }}>{language === "am" ? "ክሬዲት ይክፈሉ" : "Pay Credit"}</h3>
+                        <button
+                            type="button"
+                            onClick={() => payCreditDialogRef.current?.close()}
+                            className="secondary"
+                            style={{
+                                cursor: "pointer",
+                                width: "2rem",
+                                height: "2rem",
+                                borderRadius: "50%",
+                                padding: 0,
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                background: "transparent",
+                                border: "none",
+                                boxShadow: "none"
+                            }}
+                        >
+                            <CloseIcon />
+                        </button>
+                    </div>
+
+                    <p style={{ margin: 0, fontSize: "0.9rem", opacity: 0.8 }}>
+                        {language === "am" ? `ጠቅላላ ክሬዲት: ${child.creditBalance?.toLocaleString()} ETB` : `Total Credit: ${child.creditBalance?.toLocaleString()} ETB`}
+                    </p>
+
+                    <form
+                        onSubmit={async (e) => {
+                            e.preventDefault();
+                            if (creditPayAmount <= 0 || creditPayAmount > (child.creditBalance || 0)) {
+                                toast.error(language === "am" ? "ትክክለኛ ያልሆነ መጠን" : "Invalid amount");
+                                return;
+                            }
+
+                            payCreditDialogRef.current?.close();
+                            const promise = payCreditBalance({ childId: child._id, amount: creditPayAmount });
+                            toast.promise(promise, {
+                                loading: language === "am" ? "እየከፈለ..." : "Processing...",
+                                success: language === "am" ? "ክሬዲት ተከፍሏል!" : "Credit paid!",
+                                error: language === "am" ? "ስህተት ተፈጥሯል" : "Failed to pay credit",
+                            });
+                        }}
+                        style={{ display: "flex", flexDirection: "column", gap: "1rem", width: "100%" }}
+                    >
+                        <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                            <label className="label-text">{language === "am" ? "የሚከፈለው መጠን (ETB)" : "Amount to Pay (ETB)"}</label>
+                            <input
+                                type="number"
+                                required
+                                min="1"
+                                max={child.creditBalance || 0}
+                                value={creditPayAmount || ""}
+                                onChange={(e) => setCreditPayAmount(Number(e.target.value))}
+                                className="input-field"
+                            />
+                        </div>
+                        <button type="submit" className="primary" style={{ width: "100%" }}>
+                            {language === "am" ? "ይክፈሉ" : "Pay"}
+                        </button>
+                    </form>
+                </div>
+            </dialog>
+
             <main style={{ width: "100%", maxWidth: "600px", marginInline: "auto" }}>
                 <div style={{ display: "flex", flexDirection: "column", gap: "1rem", width: "100%" }}>
                     {/* Tabs */}
-                    <div style={{ display: "flex", width: "100%", gap: "0" }}>
+                    <div style={{ display: "flex", width: "100%", overflowX: "auto" }}>
                         {tabs.map((tab) => (
                             <button
                                 key={tab.id}
                                 disabled={activeTab === tab.id}
                                 onClick={() => setActiveTab(tab.id)}
                                 className="tabs secondary"
-                                style={{ flex: 1 }}
+                                style={{ flex: 1, whiteSpace: "nowrap" }}
                             >
                                 {tab.label}
                             </button>
@@ -434,6 +510,46 @@ export default function ChildInfo() {
                                     </span>
                                 ) : (
                                     ageFormatted && <span style={{ fontWeight: 500 }} dangerouslySetInnerHTML={{ __html: ageFormatted }} />
+                                )}
+                            </div>
+
+                            {/* Status Card - Only in details tab */}
+                            <div style={{ display: "flex", flexDirection: "column", alignItems: "start", gap: "1.5rem", width: "100%", marginTop: "1rem" }}>
+                                <h3 className="text-primary" style={{ margin: 0, fontSize: "1.1rem" }}>{t("childInfo.status")}</h3>
+                                {child.isActive ? (
+                                    <button
+                                        onClick={() => setIsDeactivateModalOpen(true)}
+                                        className="secondary"
+                                        style={{
+                                            width: "100%",
+                                            borderColor: "var(--color-primary)",
+                                            color: "var(--color-primary)",
+                                            opacity: 0.8
+                                        }}
+                                    >
+                                        {t("childInfo.deactivateChild")}
+                                    </button>
+                                ) : (
+                                    <button
+                                        onClick={async () => {
+                                            const promise = reactivateChild({ childId: child._id });
+                                            toast.promise(promise, {
+                                                loading: t("childInfo.messages.reactivating"),
+                                                success: t("childInfo.messages.reactivateSuccess"),
+                                                error: t("childInfo.messages.reactivateError"),
+                                            });
+                                            await promise;
+                                        }}
+                                        className="secondary"
+                                        style={{
+                                            width: "100%",
+                                            borderColor: "var(--color-success)",
+                                            color: "var(--color-success)",
+                                            opacity: 0.8
+                                        }}
+                                    >
+                                        {t("childInfo.reactivateChild")}
+                                    </button>
                                 )}
                             </div>
                         </div>
@@ -497,45 +613,107 @@ export default function ChildInfo() {
                         </div>
                     )}
 
-                    {/* Status Card - Always visible below the main info */}
-                    <div className="neo-box" style={{ alignItems: "start", gap: "1.5rem" }}>
-                        <h3 className="text-primary" style={{ margin: 0, fontSize: "1.1rem" }}>{t("childInfo.status")}</h3>
-                        {child.isActive ? (
-                            <button
-                                onClick={() => setIsDeactivateModalOpen(true)}
-                                className="secondary"
-                                style={{
-                                    width: "100%",
-                                    borderColor: "var(--color-primary)",
-                                    color: "var(--color-primary)",
-                                    opacity: 0.8
-                                }}
-                            >
-                                {t("childInfo.deactivateChild")}
-                            </button>
-                        ) : (
-                            <button
-                                onClick={async () => {
-                                    const promise = reactivateChild({ childId: child._id });
-                                    toast.promise(promise, {
-                                        loading: t("childInfo.messages.reactivating"),
-                                        success: t("childInfo.messages.reactivateSuccess"),
-                                        error: t("childInfo.messages.reactivateError"),
-                                    });
-                                    await promise;
-                                }}
-                                className="secondary"
-                                style={{
-                                    width: "100%",
-                                    borderColor: "var(--color-success)",
-                                    color: "var(--color-success)",
-                                    opacity: 0.8
-                                }}
-                            >
-                                {t("childInfo.reactivateChild")}
-                            </button>
-                        )}
-                    </div>
+                    {activeTab === "payments" && (
+                        <div className="animate-fade-in" style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+                            {/* Credit Balance Card */}
+                            <div className="neo-box" style={{ alignItems: "center", gap: "0.5rem" }}>
+                                <span className="label-text" style={{ fontSize: "0.85rem" }}>
+                                    {language === "am" ? "ክሬዲት" : "Credit"}
+                                </span>
+                                <h2 style={{ margin: 0, color: (child.creditBalance ?? 0) > 0 ? "var(--color-error)" : "var(--color-success)" }}>
+                                    {(child.creditBalance ?? 0).toLocaleString()} <span style={{ fontSize: "0.9rem", fontWeight: "normal" }}>ETB</span>
+                                </h2>
+                                {(child.creditBalance ?? 0) > 0 && (
+                                    <>
+                                        <p style={{ margin: 0, opacity: 0.7, fontSize: "0.8rem", textAlign: "center" }}>
+                                            {language === "am" ? "ይህ ክሬዲት በቀጣይ ክፍያ ላይ ይጨመራል" : "This credit will be added to the next payment"}
+                                        </p>
+                                        <button
+                                            className="primary"
+                                            style={{ marginTop: "0.5rem", width: "100%" }}
+                                            onClick={() => {
+                                                setCreditPayAmount(child.creditBalance || 0);
+                                                payCreditDialogRef.current?.showModal();
+                                            }}
+                                        >
+                                            {language === "am" ? "ክሬዲት ይክፈሉ" : "Pay Credit"}
+                                        </button>
+                                    </>
+                                )}
+                            </div>
+
+                            {/* Payment Info */}
+                            <div className="neo-box" style={{ alignItems: "start", gap: "0.75rem" }}>
+                                <h4 style={{ margin: 0 }}>{language === "am" ? "የክፍያ መረጃ" : "Payment Info"}</h4>
+                                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", width: "100%" }}>
+                                    <div>
+                                        <span className="label-text" style={{ fontSize: "0.8rem" }}>{language === "am" ? "ወርሃዊ ክፍያ" : "Monthly Fee"}</span>
+                                        <p style={{ margin: "0.25rem 0 0", fontWeight: 600 }}>{child.paymentAmount?.toLocaleString()} ETB</p>
+                                    </div>
+                                    <div>
+                                        <span className="label-text" style={{ fontSize: "0.8rem" }}>{language === "am" ? "የክፍያ ቀን" : "Payment Day"}</span>
+                                        <p style={{ margin: "0.25rem 0 0", fontWeight: 600 }}>{child.paymentDate ?? "--"}</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Payment History */}
+                            <h4 style={{ margin: "0.5rem 0 0" }}>{language === "am" ? "የክፍያ ታሪክ" : "Payment History"}</h4>
+                            {childPayments === undefined ? (
+                                <p style={{ textAlign: "center", opacity: 0.6 }}>{t("common.loading")}</p>
+                            ) : childPayments.length === 0 ? (
+                                <div className="neo-box" style={{ textAlign: "center", padding: "2rem 1rem", opacity: 0.6 }}>
+                                    <p>{language === "am" ? "ምንም ክፍያ የለም" : "No payments found"}</p>
+                                </div>
+                            ) : (
+                                childPayments.map((payment) => {
+                                    const jsDue = new Date(payment.dueDate);
+                                    const jsToday = new Date(todayInGreg.toString());
+                                    const diffDays = Math.ceil((jsDue.getTime() - jsToday.getTime()) / (1000 * 60 * 60 * 24));
+
+                                    let statusLabel: string;
+                                    let statusColor: string;
+                                    if (payment.status === "paid") {
+                                        statusLabel = language === "am" ? "የተከፈለ" : "Paid";
+                                        statusColor = "var(--color-success)";
+                                    } else if (diffDays < 0) {
+                                        statusLabel = language === "am" ? "ያልተከፈለ" : "Unpaid";
+                                        statusColor = "var(--color-error)";
+                                    } else if (diffDays <= 5) {
+                                        statusLabel = language === "am" ? "ወርሃዊ" : "Due";
+                                        statusColor = "var(--color-accent)";
+                                    } else {
+                                        statusLabel = language === "am" ? "በቅርቡ" : "Upcoming";
+                                        statusColor = "var(--color-primary)";
+                                    }
+
+                                    const pEthDate = toCalendar(parseDate(payment.dueDate), EthiopianCalendar);
+                                    const ethDateStr = `${ethMonthNames[pEthDate.month - 1]} ${pEthDate.day}, ${pEthDate.year}`;
+
+                                    return (
+                                        <div key={payment._id} className="neo-box" style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", padding: "1rem" }}>
+                                            <div>
+                                                <p style={{ margin: 0, fontWeight: 600, fontSize: "1rem" }}>{payment.amount.toLocaleString()} ETB</p>
+                                                <p style={{ margin: "0.25rem 0 0", fontSize: "0.85rem", opacity: 0.7 }}>{ethDateStr}</p>
+                                            </div>
+                                            <span style={{
+                                                padding: "0.25rem 0.75rem",
+                                                borderRadius: "100vw",
+                                                fontSize: "0.75rem",
+                                                fontWeight: 700,
+                                                background: statusColor,
+                                                color: "white",
+                                            }}>
+                                                {statusLabel}
+                                            </span>
+                                        </div>
+                                    );
+                                })
+                            )}
+                        </div>
+                    )}
+
+
                 </div>
             </main >
         </>

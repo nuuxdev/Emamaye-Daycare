@@ -25,7 +25,8 @@ type TChildForm = {
     dateOfBirth: string;
     ageGroup: TAgeGroup;
     paymentAmount: number | null;
-    paymentSchedule: "month_end" | "month_half";
+    paymentDate: number | null;
+    startDate: string;
 };
 
 type TGuardianForm = {
@@ -84,7 +85,8 @@ export default function EditChildPage() {
             dateOfBirth: gregorianToEthDateString(child.dateOfBirth),
             ageGroup: child.ageGroup as TAgeGroup,
             paymentAmount: child.paymentAmount,
-            paymentSchedule: child.paymentSchedule as "month_end" | "month_half",
+            paymentDate: child.paymentDate ?? null,
+            startDate: child.startDate || gregorianToEthDateString(child.dateOfBirth),
         });
         if (child.primaryGuardian) {
             gReset({
@@ -189,7 +191,8 @@ export default function EditChildPage() {
                     dateOfBirth: fromEthDateString(cData.dateOfBirth),
                     ageGroup: cData.ageGroup,
                     paymentAmount: cData.paymentAmount ?? 0,
-                    paymentSchedule: cData.paymentSchedule,
+                    paymentDate: cData.paymentDate ?? 1,
+                    startDate: cData.startDate,
                 }),
                 child?.primaryGuardian &&
                 updateGuardian({
@@ -306,7 +309,11 @@ export default function EditChildPage() {
 
                         {/* Date of Birth */}
                         <InputDate
+                            label={t("childInfo.labels.birthDate")}
                             value={!!cGetValues("dateOfBirth") ? fromEthDateString(cGetValues("dateOfBirth")) : todayInGreg.toString()}
+                            minDate={todayInGreg.subtract({ years: 5 }).toString()}
+                            maxDate={todayInGreg.toString()}
+                            inputId="dateOfBirth"
                             register={cReg}
                             onSelect={(dateInEt) => {
                                 const age = calculateAge(dateInEt);
@@ -337,19 +344,37 @@ export default function EditChildPage() {
                         />
                         <div className="hidden"><input type="hidden" {...cReg("ageGroup")} /></div>
 
-                        {/* Payment Schedule */}
-                        <Select
-                            id="paymentSchedule"
-                            label={t("payments.label")}
+                        {/* Starting Date */}
+                        <InputDate
+                            inputId="startDate"
+                            label={t("childInfo.labels.startDate")}
+                            value={!!cGetValues("startDate") ? fromEthDateString(cGetValues("startDate")) : todayInGreg.toString()}
+                            minDate={todayInGreg.toString()}
+                            maxDate={todayInGreg.add({ days: 30 }).toString()}
                             register={cReg}
-                            setValue={cSetValue}
-                            options={[
-                                { value: "month_end", label: t("payments.periods.endMonth") },
-                                { value: "month_half", label: t("payments.periods.midMonth") },
-                            ]}
-                            value={cWatch("paymentSchedule")}
-                            placeholder={language === "am" ? "የክፍያ ጊዜ ይምረጡ" : "Choose payment schedule"}
+                            onSelect={(dateInEt) => {
+                                const dateString = dateInEt.day < 10 ? `0${dateInEt.day}` : dateInEt.day;
+                                const monthString = dateInEt.month < 10 ? `0${dateInEt.month}` : dateInEt.month;
+                                cSetValue("startDate", `${monthString}-${dateString}-${dateInEt.year}`);
+                            }}
                         />
+                        <input type="hidden" {...cReg("startDate", { required: true })} />
+
+                        {/* Payment Date */}
+                        <div className="mb-1">
+                            <label htmlFor="editPaymentDate" className="label-text">{t("childInfo.labels.paymentDate")}</label>
+                            <div className="relative">
+                                <input
+                                    id="editPaymentDate"
+                                    type="number"
+                                    min={1}
+                                    max={30}
+                                    className="neo-input pl-3"
+                                    {...cReg("paymentDate", { required: true, valueAsNumber: true, min: 1, max: 30 })}
+                                    placeholder={language === "am" ? "ቀን ያስገቡ" : "Enter day of the month"}
+                                />
+                            </div>
+                        </div>
 
                         {/* Payment Amount */}
                         <div className="mb-1">

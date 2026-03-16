@@ -13,7 +13,8 @@ export const addChild = mutation({
       dateOfBirth: v.string(),
       ageGroup: VAgeGroup,
       paymentAmount: v.number(),
-      paymentSchedule: v.union(v.literal("month_end"), v.literal("month_half")),
+      paymentDate: v.number(),
+      startDate: v.string(),
       avatar: v.optional(v.id("_storage")),
     }),
     guardianData: v.object({
@@ -47,6 +48,26 @@ export const addChild = mutation({
       avatar: await getGuadianAvatarUrl(),
     });
 
+    const startDay = parseInt(args.childData.startDate.split("-")[1], 10);
+    const paymentDay = args.childData.paymentDate;
+    const monthlyAmount = args.childData.paymentAmount;
+    const dailyRate = monthlyAmount / 30;
+
+    // Calculate the prorated amount for the first payment
+    // This is a prepayment system: payment is due immediately at registration
+    let daysToCharge: number;
+    if (paymentDay >= startDay) {
+      // Payment date is after or on start date (same period)
+      // e.g., startDay=7, paymentDay=18 → charge for 11 days (7th to 18th)
+      daysToCharge = paymentDay - startDay;
+    } else {
+      // Payment date already passed relative to start date
+      // e.g., startDay=9, paymentDay=7 → charge for 28 days (full month minus 2 days gap)
+      daysToCharge = 30 - (startDay - paymentDay);
+    }
+
+    const initialPaymentAmount = Math.round(daysToCharge * dailyRate);
+
     const getChildAvatarUrl = async () => {
       if (args.childData.avatar) {
         return await ctx.storage.getUrl(args.childData.avatar) || undefined
@@ -59,13 +80,30 @@ export const addChild = mutation({
       gender: args.childData.gender,
       dateOfBirth: args.childData.dateOfBirth,
       ageGroup: args.childData.ageGroup,
-      paymentAmount: args.childData.paymentAmount,
-      paymentSchedule: args.childData.paymentSchedule,
+      paymentAmount: monthlyAmount,
+      paymentDate: paymentDay,
+      startDate: args.childData.startDate,
+      creditBalance: 0,
       avatar: await getChildAvatarUrl(),
       primaryGuardian: guardianId,
       isActive: true,
     });
     if (!childId) throw new Error("Child not added");
+
+    // Generate the initial payment immediately (prepayment system)
+    // dueDate is today's Gregorian date
+    const { today, getLocalTimeZone } = await import("@internationalized/date");
+    const todayGreg = today(getLocalTimeZone());
+    const dueDateStr = todayGreg.toString(); // YYYY-MM-DD
+
+    if (initialPaymentAmount > 0) {
+      await ctx.db.insert("payments", {
+        childId,
+        amount: initialPaymentAmount,
+        dueDate: dueDateStr,
+        status: "pending",
+      });
+    }
 
     return "Child and Guardian added successfully";
   },
@@ -193,7 +231,8 @@ export const updateChild = mutation({
     dateOfBirth: v.string(),
     ageGroup: VAgeGroup,
     paymentAmount: v.number(),
-    paymentSchedule: v.union(v.literal("month_end"), v.literal("month_half")),
+    paymentDate: v.number(),
+    startDate: v.string(),
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
