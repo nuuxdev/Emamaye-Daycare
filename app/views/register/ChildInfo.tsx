@@ -36,6 +36,7 @@ export default function ChildInfo({
   const fullNameAmh = watch("fullNameAmh");
   const fullName = watch("fullName");
   const [isTranslating, setIsTranslating] = useState(false);
+  const [hasAttemptedTranslation, setHasAttemptedTranslation] = useState(false);
 
 
   const paymentSettings = useQuery(api.payments.getPaymentSettings);
@@ -93,30 +94,36 @@ export default function ChildInfo({
         }
       } catch (error) {
         console.error("Translation failed", error);
-        // Optionally show a toast here, but silence might be better for UX on minor failures
+        toast.error(language === "am" ? "የስም ትርጉም አልተሳካም። እባክዎ በቀጥታ ያስገቡ።" : "Translation failed. Please enter manually.");
+        setValue("fullNameAmh", "");
       } finally {
         setIsTranslating(false);
+        setHasAttemptedTranslation(true);
       }
     }
   };
 
   const handleClearInput = () => {
     setValue("fullName", "");
-    setValue("fullNameAmh", undefined);
+    setValue("fullNameAmh", "");
+    setHasAttemptedTranslation(false);
   };
 
   const handleRegenerateTranslation = async () => {
     const name = getValues("fullName");
     if (!name) return;
-    setValue("fullNameAmh", undefined);
+    setValue("fullNameAmh", "");
     setIsTranslating(true);
     try {
       const translated = await translateName(name);
       if (translated) setValue("fullNameAmh", translated);
     } catch (error) {
       console.error("Translation failed", error);
+      toast.error(language === "am" ? "የስም ትርጉም አልተሳካም። እባክዎ በቀጥታ ያስገቡ።" : "Translation failed. Please enter manually.");
+      setValue("fullNameAmh", "");
     } finally {
       setIsTranslating(false);
+      setHasAttemptedTranslation(true);
     }
   };
 
@@ -167,7 +174,7 @@ export default function ChildInfo({
         </div>
       </div>
 
-      {fullNameAmh && (
+      {hasAttemptedTranslation && (
         <div className="mb-1 animate-fade-in">
           <label htmlFor="fullNameAmh" className="label-text">{language === "am" ? "ሙሉ ስም (አማርኛ)" : "Full Name (Amharic)"}</label>
           <input

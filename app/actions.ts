@@ -4,7 +4,7 @@ async function callHasab(name: string): Promise<string> {
     const apiKey = process.env.HASAB_API_KEY;
     if (!apiKey) throw new Error("HASAB_API_KEY is not set");
 
-    const response = await fetch("https://hasab.co/api/v1/chat", {
+    const response = await fetch("https://api.hasab.ai/v1/chat", {
         method: "POST",
         headers: {
             "Authorization": `Bearer ${apiKey}`,
@@ -42,6 +42,6 @@ export async function translateName(name: string): Promise<string> {
         return extractAmharic(raw);
     } catch (error) {
         console.error("Failed to translate name:", error);
-        return "";
+        throw error;
     }
 }

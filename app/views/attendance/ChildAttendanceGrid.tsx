@@ -5,6 +5,7 @@ import { useState } from "react";
 import { parseDate, EthiopicCalendar, GregorianCalendar, toCalendar } from "@internationalized/date";
 import MonthNavigator from "./MonthNavigator";
 import { todayInEth } from "@/utils/calendar";
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function ChildAttendanceGrid({
     childId,
@@ -13,6 +14,7 @@ export default function ChildAttendanceGrid({
     childId: Id<"children">;
     initialDate: string;
 }) {
+    const { language } = useLanguage();
     const [selectedDate, setSelectedDate] = useState(initialDate);
     const current = parseDate(selectedDate);
     const ethDate = toCalendar(current, new EthiopicCalendar());
@@ -22,12 +24,56 @@ export default function ChildAttendanceGrid({
     const daysInMonth = ethDate.calendar.getDaysInMonth(ethDate);
     const endOfMonthEth = ethDate.set({ day: daysInMonth });
 
-    const attendances = useQuery(api.attendance.getAttendanceByDateRange, {
+    const monthAttendances = useQuery(api.attendance.getAttendanceByDateRange, {
         startDate: toCalendar(startOfMonthEth, new GregorianCalendar()).toString(),
         endDate: toCalendar(endOfMonthEth, new GregorianCalendar()).toString(),
     });
 
-    const childAttendances = attendances?.filter(att => att.childId === childId) || [];
+    const childAttendances = monthAttendances?.filter(att => att.childId === childId) || [];
+
+    // Weekly and Monthly Fixed Summaries (Always based on today)
+    const currentTodayEth = todayInEth;
+
+    // Fixed Monthly
+    const startOfCurrentMonthEth = currentTodayEth.set({ day: 1 });
+    const currentDaysInMonth = currentTodayEth.calendar.getDaysInMonth(currentTodayEth);
+    const endOfCurrentMonthEth = currentTodayEth.set({ day: currentDaysInMonth });
+
+    const currentMonthAttendancesQuery = useQuery(api.attendance.getAttendanceByDateRange, {
+        startDate: toCalendar(startOfCurrentMonthEth, new GregorianCalendar()).toString(),
+        endDate: toCalendar(endOfCurrentMonthEth, new GregorianCalendar()).toString(),
+    });
+    const childCurrentMonthAttendances = currentMonthAttendancesQuery?.filter(att => att.childId === childId) || [];
+
+    // Fixed Weekly
+    const dayOfWeekCurrentToday = currentTodayEth.toDate("UTC").getDay();
+    const daysToMondayToday = dayOfWeekCurrentToday === 0 ? 6 : dayOfWeekCurrentToday - 1;
+    const mondayEthToday = currentTodayEth.subtract({ days: daysToMondayToday });
+    const fridayEthToday = mondayEthToday.add({ days: 4 });
+
+    const currentWeeklyAttendancesQuery = useQuery(api.attendance.getAttendanceByDateRange, {
+        startDate: toCalendar(mondayEthToday, new GregorianCalendar()).toString(),
+        endDate: toCalendar(fridayEthToday, new GregorianCalendar()).toString(),
+    });
+    const childCurrentWeeklyAttendances = currentWeeklyAttendancesQuery?.filter(att => att.childId === childId) || [];
+
+    // Calculate fractions
+    const calculateFraction = (start: any, end: any, attendances: any[]) => {
+        const present = attendances.filter((a: any) => a.status === "present").length;
+        let total = 0;
+        let cur = start;
+        const effectiveEnd = end.compare(todayInEth) > 0 ? todayInEth : end;
+
+        while (cur.compare(effectiveEnd) <= 0) {
+            const day = cur.toDate("UTC").getDay();
+            if (day !== 0 && day !== 6) total++;
+            cur = cur.add({ days: 1 });
+        }
+        return { present, total };
+    };
+
+    const monthlySummary = calculateFraction(startOfCurrentMonthEth, endOfCurrentMonthEth, childCurrentMonthAttendances);
+    const weeklySummary = calculateFraction(mondayEthToday, fridayEthToday, childCurrentWeeklyAttendances);
 
     const dayOfWeek = startOfMonthEth.toDate("UTC").getDay();
     // Adjust to make Monday (1) the first day (index 0)
@@ -39,10 +85,27 @@ export default function ChildAttendanceGrid({
 
     return (
         <div className="neo-box" style={{ gap: "1.5rem" }}>
-            <MonthNavigator
-                attendanceDate={selectedDate}
-                handleDateChange={setSelectedDate}
-            />
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", width: "100%" }}>
+                <div className="neo-box" style={{ padding: "0.75rem", alignItems: "center", gap: "0.25rem", background: "var(--glass-bg)" }}>
+                    <span className="label-text" style={{ fontSize: "0.75rem" }}>{language === "am" ? "ይህ ሳምንት" : "This Week"}</span>
+                    <span style={{ fontSize: "1.2rem", fontWeight: 700, color: weeklySummary.present === weeklySummary.total && weeklySummary.total > 0 ? "var(--color-success)" : weeklySummary.present === 0 && weeklySummary.total > 0 ? "var(--color-error)" : "var(--color-accent)" }}>
+                        {weeklySummary.present}/{weeklySummary.total}
+                    </span>
+                </div>
+                <div className="neo-box" style={{ padding: "0.75rem", alignItems: "center", gap: "0.25rem", background: "var(--glass-bg)" }}>
+                    <span className="label-text" style={{ fontSize: "0.75rem" }}>{language === "am" ? "ይህ ወር" : "This Month"}</span>
+                    <span style={{ fontSize: "1.2rem", fontWeight: 700, color: monthlySummary.present === monthlySummary.total && monthlySummary.total > 0 ? "var(--color-success)" : monthlySummary.present === 0 && monthlySummary.total > 0 ? "var(--color-error)" : "var(--color-accent)" }}>
+                        {monthlySummary.present}/{monthlySummary.total}
+                    </span>
+                </div>
+            </div>
+
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%" }}>
+                <MonthNavigator
+                    attendanceDate={selectedDate}
+                    handleDateChange={setSelectedDate}
+                />
+            </div>
 
             <div style={{
                 display: "grid",

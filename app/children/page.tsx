@@ -86,8 +86,8 @@ function sortChildren(
 export default function ChildrenList() {
   const { t, language } = useLanguage();
   const [tab, setTab] = useState<TAgeGroup | "all children" | "inactive">("all children");
-  const [sortKey, setSortKey] = useState<SortKey | null>(null);
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc" | null>(null);
+  const [sortKey, setSortKey] = useState<SortKey | null>("reg");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc" | null>("desc");
   const [pendingKey, setPendingKey] = useState<SortKey | null>(null);
   const [pendingOrder, setPendingOrder] = useState<"asc" | "desc" | null>(null);
   const sortDialogRef = useRef<HTMLDialogElement>(null);

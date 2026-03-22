@@ -3,7 +3,7 @@ import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import GlassHeader from "@/components/GlassHeader";
 import Link from "next/link";
-import { useState, useRef } from "react";
+import { useState, useRef, Fragment } from "react";
 import { toast } from "sonner";
 import { todayInEth, EthiopianCalendar, todayInGreg, ethMonthNames, fromEthDateString, gregorianToEthDateString } from "@/utils/calendar";
 import { CheckIcon, ChevronLeft, ChevronRight, SettingsIcon, CloseIcon } from "@/components/Icons";
@@ -184,42 +184,36 @@ export default function PaymentsList() {
                             const isPaidColor = filter === "paid";
 
                             return (
-                                <div key={payment._id} className="neo-box transition-all" style={{ padding: "1rem", display: "flex", flexDirection: "column", gap: isExpanded ? "1rem" : "0", cursor: "pointer" }}
-                                    onClick={() => setExpandedId(isExpanded ? null : payment._id)}
-                                >
-                                    {/* Summarized View */}
-                                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                                        <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+                                <Fragment key={payment._id}>
+                                    <details style={{ width: "100%", cursor: "pointer" }} name="payments-list-item">
+                                        <summary style={{ display: "flex", gap: "1rem", alignItems: "start", padding: "0.5rem 0" }}>
                                             <div style={{
+                                                width: "4rem",
+                                                aspectRatio: "1/1",
                                                 position: "relative",
-                                                borderRadius: "50%",
-                                                border: isUnpaidColor ? "3px solid var(--color-error)" : (isPaidColor ? "3px solid var(--color-success)" : "3px solid transparent")
                                             }}>
-                                                <ServerAvatar src={payment.childAvatar} alt="Child" style={{ width: "3.5rem", height: "3.5rem", borderRadius: "50%" }} />
+                                                <ServerAvatar
+                                                    src={payment.childAvatar}
+                                                    alt="child avatar"
+                                                    style={{
+                                                        borderRadius: "50%",
+                                                        border: isUnpaidColor ? "3px solid var(--color-error)" : (isPaidColor ? "3px solid var(--color-success)" : "3px solid transparent")
+                                                    }}
+                                                />
                                             </div>
-                                            <div>
-                                                <h4 style={{ margin: 0, fontSize: "1.1rem" }}>{payment.childName}</h4>
-                                                <p style={{ margin: "0.25rem 0 0 0", fontSize: "0.9rem", color: "var(--foreground)", opacity: 0.8 }}>
-                                                    {payment.ethDateStr}
-                                                </p>
+                                            <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
+                                                <div>
+                                                    <h4 style={{ fontSize: "inherit", margin: 0, textTransform: "capitalize" }}>{payment.childName}</h4>
+                                                    <p style={{ margin: "0.25rem 0 0 0", color: "var(--foreground-light)", fontSize: "0.9rem" }}>{payment.ethDateStr}</p>
+                                                </div>
+                                                <div style={{ display: "flex", flexDirection: "column", alignItems: "end" }}>
+                                                    <p style={{ margin: "0", fontSize: "1.1rem", fontWeight: 700, color: "var(--color-primary)" }}>
+                                                        {payment.amount.toLocaleString()} <span style={{ fontSize: "0.8rem", fontWeight: "normal" }}>ETB</span>
+                                                    </p>
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div style={{ textAlign: "right" }}>
-                                            <p style={{ margin: "0", fontSize: "1.1rem", fontWeight: 700, color: "var(--color-primary)" }}>
-                                                {payment.amount} <span style={{ fontSize: "0.8rem", fontWeight: "normal" }}>ETB</span>
-                                            </p>
-                                        </div>
-                                    </div>
-
-                                    {/* Expanded Details */}
-                                    {isExpanded && (
-                                        <div className="animate-fade-in" style={{
-                                            borderTop: "1px solid rgba(0,0,0,0.05)",
-                                            paddingTop: "1rem",
-                                            display: "flex",
-                                            flexDirection: "column",
-                                            gap: "1rem"
-                                        }}>
+                                        </summary>
+                                        <div style={{ display: "flex", flexDirection: "column", gap: "1rem", padding: "1.25rem 0 2rem 0" }}>
                                             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
                                                 <div className="neo-box" style={{ padding: "0.75rem", borderRadius: "12px", background: "var(--background)" }}>
                                                     <p className="label-text" style={{ margin: "0 0 0.25rem 0", fontSize: "0.8rem" }}>{language === "am" ? "የልጅ ስም" : "Child Name"}</p>
@@ -227,7 +221,7 @@ export default function PaymentsList() {
                                                 </div>
                                                 <div className="neo-box" style={{ padding: "0.75rem", borderRadius: "12px", background: "var(--background)" }}>
                                                     <p className="label-text" style={{ margin: "0 0 0.25rem 0", fontSize: "0.8rem" }}>{language === "am" ? "ያለው ዕዳ ማካካሻ" : "Credit Applied"}</p>
-                                                    <p style={{ margin: 0, fontWeight: 600 }}>{/* Logic for credit could be displayed here if stored in payment history, but currently it's just baked into 'amount'. So we'll skip displaying for now */} --</p>
+                                                    <p style={{ margin: 0, fontWeight: 600 }}>--</p>
                                                 </div>
                                             </div>
                                             {payment.status !== "paid" && (
@@ -239,8 +233,9 @@ export default function PaymentsList() {
                                                 </button>
                                             )}
                                         </div>
-                                    )}
-                                </div>
+                                    </details>
+                                    <hr />
+                                </Fragment>
                             );
                         })
                     )}

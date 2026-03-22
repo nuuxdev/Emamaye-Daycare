@@ -7,7 +7,7 @@ import { Id } from "@/convex/_generated/dataModel";
 import GlassHeader from "@/components/GlassHeader";
 import { JSX, useEffect, useState, useRef } from "react";
 import { ArrowRight, CallIcon, CameraIcon, CloseIcon, DeactivatedChildIcon, EditIcon, InfantIcon, MessageIcon, PlusIcon, PreschoolerIcon, RecycleIcon, ToddlerIcon, UploadIcon, SettingsIcon } from "@/components/Icons";
-import { formatEthiopianDate, todayInEth, todayInGreg, ethMonthNames, EthiopianCalendar } from "@/utils/calendar";
+import { formatEthiopianDate, todayInEth, todayInGreg, ethMonthNames, EthiopianCalendar, gregorianToEthDateString } from "@/utils/calendar";
 import { parseDate, toCalendar } from "@internationalized/date";
 import { toast } from "sonner";
 import ChildAttendanceGrid from "@/app/views/attendance/ChildAttendanceGrid";
@@ -462,59 +462,78 @@ export default function ChildInfo() {
 
                     {/* Tab Content */}
                     {activeTab === "details" && (
-                        <div className="neo-box animate-fade-in">
-                            <div style={{ position: "relative", display: "inline-block" }}>
-                                <AvatarUploader
-                                    currentAvatarUrl={child.avatar}
-                                    onUploadComplete={handleChildAvatarUpload}
-                                    size="10rem"
-                                    ageGroup={child.isActive ? child.ageGroup : "deactivated"}
-                                />
-                                {isBirthday && (
-                                    <span style={{
-                                        position: "absolute",
-                                        top: "-10px",
-                                        left: "-5px",
-                                        fontSize: "2.5rem",
-                                        transform: "rotate(-20deg)",
-                                        filter: "drop-shadow(2px 2px 2px rgba(0,0,0,0.3))"
-                                    }}>
-                                        🥳
-                                    </span>
-                                )}
-                            </div>
-                            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.5rem" }}>
-                                <h3 style={{ margin: 0 }}>{displayName}</h3>
-                                <div
-                                    className={`tabs secondary ${child.isActive ? child.ageGroup : "deactivated"}`}
-                                    style={{
-                                        display: "flex",
-                                        alignItems: "center",
-                                        gap: "0.5rem",
-                                        borderRadius: "16px",
-                                        padding: "0.5rem 1rem",
-                                        width: "fit-content"
-                                    }}
-                                >
-                                    {child.isActive ? ageGroupIcons[child.ageGroup] : <DeactivatedChildIcon />}
-                                    <span style={{ textTransform: "capitalize" }}>
-                                        {child.isActive ? child.ageGroup : t("childInfo.labels.inactive")}
-                                    </span>
+                        <div className="animate-fade-in" style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+                            {/* Profile Card */}
+                            <div className="neo-box">
+                                <div style={{ position: "relative", display: "inline-block" }}>
+                                    <AvatarUploader
+                                        currentAvatarUrl={child.avatar}
+                                        onUploadComplete={handleChildAvatarUpload}
+                                        size="10rem"
+                                        ageGroup={child.isActive ? child.ageGroup : "deactivated"}
+                                    />
+                                    {isBirthday && (
+                                        <span style={{
+                                            position: "absolute",
+                                            top: "-10px",
+                                            left: "-5px",
+                                            fontSize: "2.5rem",
+                                            transform: "rotate(-20deg)",
+                                            filter: "drop-shadow(2px 2px 2px rgba(0,0,0,0.3))"
+                                        }}>
+                                            🥳
+                                        </span>
+                                    )}
+                                </div>
+                                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.5rem" }}>
+                                    <h3 style={{ margin: 0 }}>{displayName}</h3>
+                                    <div
+                                        className={`tabs secondary ${child.isActive ? child.ageGroup : "deactivated"}`}
+                                        style={{
+                                            display: "flex",
+                                            alignItems: "center",
+                                            gap: "0.5rem",
+                                            borderRadius: "16px",
+                                            padding: "0.5rem 1rem",
+                                            width: "fit-content"
+                                        }}
+                                    >
+                                        {child.isActive ? ageGroupIcons[child.ageGroup] : <DeactivatedChildIcon />}
+                                        <span style={{ textTransform: "capitalize" }}>
+                                            {child.isActive ? child.ageGroup : t("childInfo.labels.inactive")}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.25rem", opacity: 0.7 }}>
+                                    {isBirthday ? (
+                                        <span style={{ fontWeight: 600, fontSize: "1.1rem", color: "var(--color-primary)" }}>
+                                            🎉 {t("childInfo.labels.happyBirthday")} 🎉
+                                        </span>
+                                    ) : (
+                                        ageFormatted && <span style={{ fontWeight: 500 }} dangerouslySetInnerHTML={{ __html: ageFormatted }} />
+                                    )}
                                 </div>
                             </div>
 
-                            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.25rem", opacity: 0.7 }}>
-                                {isBirthday ? (
-                                    <span style={{ fontWeight: 600, fontSize: "1.1rem", color: "var(--color-primary)" }}>
-                                        🎉 {t("childInfo.labels.happyBirthday")} 🎉
-                                    </span>
-                                ) : (
-                                    ageFormatted && <span style={{ fontWeight: 500 }} dangerouslySetInnerHTML={{ __html: ageFormatted }} />
-                                )}
+                            {/* Info Card */}
+                            <div className="neo-box" style={{ alignItems: "start", gap: "0.75rem" }}>
+                                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", width: "100%" }}>
+                                    <div>
+                                        <span className="label-text" style={{ fontSize: "0.80rem" }}>{language === "am" ? "የተመዘገበበት ቀን" : "Registration Date"}</span>
+                                        <p style={{ margin: "0.25rem 0 0", fontWeight: 500 }}>
+                                            {child.startDate || gregorianToEthDateString(new Date(child._creationTime).toISOString().split("T")[0])}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <span className="label-text" style={{ fontSize: "0.80rem" }}>{language === "am" ? "የልደት ቀን" : "Birthdate"}</span>
+                                        <p style={{ margin: "0.25rem 0 0", fontWeight: 500 }}>{gregorianToEthDateString(child.dateOfBirth)}</p>
+                                    </div>
+                                </div>
                             </div>
 
-                            {/* Status Card - Only in details tab */}
-                            <div style={{ display: "flex", flexDirection: "column", alignItems: "start", gap: "1.5rem", width: "100%", marginTop: "1rem" }}>
+                            {/* Status Card */}
+                            <div className="neo-box" style={{ alignItems: "start", gap: "1rem" }}>
                                 <h3 className="text-primary" style={{ margin: 0, fontSize: "1.1rem" }}>{t("childInfo.status")}</h3>
                                 {child.isActive ? (
                                     <button
