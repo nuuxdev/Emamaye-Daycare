@@ -1,10 +1,9 @@
 "use client";
 import Link from "next/link";
-import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { TAgeGroup } from "@/convex/types/children";
-import { Fragment, JSX, useCallback, useEffect, useRef, useState } from "react";
+import { Fragment, JSX, useEffect, useRef, useState } from "react";
 import GlassHeader from "@/components/GlassHeader";
 import SearchPill from "@/components/SearchPill";
 import { parseDate } from "@internationalized/date";
@@ -86,28 +85,9 @@ function sortChildren(
 
 export default function ChildrenList() {
   const { t, language } = useLanguage();
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const pathname = usePathname();
-
-  const updateQueryParams = useCallback((updates: Record<string, string | null>) => {
-    const newParams = new URLSearchParams(searchParams.toString());
-    Object.entries(updates).forEach(([key, value]) => {
-      if (value === null) newParams.delete(key);
-      else newParams.set(key, value);
-    });
-    router.replace(`${pathname}?${newParams.toString()}`, { scroll: false });
-  }, [searchParams, pathname, router]);
-
-  const tab = (searchParams.get("tab") as TAgeGroup | "all children" | "inactive") || "all children";
-  const sortKey = (searchParams.get("sortKey") as SortKey | null) || "reg";
-  const sortOrder = (searchParams.get("sortOrder") as "asc" | "desc" | null) || "desc";
-  const searchQuery = searchParams.get("searchQuery") || "";
-
-  const setTab = useCallback((newTab: string) => updateQueryParams({ tab: newTab }), [updateQueryParams]);
-  const setSortKey = useCallback((newKey: string | null) => updateQueryParams({ sortKey: newKey }), [updateQueryParams]);
-  const setSortOrder = useCallback((newOrder: string | null) => updateQueryParams({ sortOrder: newOrder }), [updateQueryParams]);
-  const setSearchQuery = useCallback((newQuery: string) => updateQueryParams({ searchQuery: newQuery || null }), [updateQueryParams]);
+  const [tab, setTab] = useState<TAgeGroup | "all children" | "inactive">("all children");
+  const [sortKey, setSortKey] = useState<SortKey | null>("reg");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc" | null>("desc");
   const [pendingKey, setPendingKey] = useState<SortKey | null>(null);
   const [pendingOrder, setPendingOrder] = useState<"asc" | "desc" | null>(null);
   const sortDialogRef = useRef<HTMLDialogElement>(null);
@@ -117,6 +97,7 @@ export default function ChildrenList() {
   const children = tab === "inactive" ? inactiveChildren : activeChildren;
 
   const [filteredChildren, setFilteredChildren] = useState(children);
+  const [searchQuery, setSearchQuery] = useState("");
   const [searchExpanded, setSearchExpanded] = useState(false);
   const [counts, setCounts] = useState<{ [key in TAgeGroup | "all children" | "inactive"]: number }>({
     "all children": 0,
@@ -206,7 +187,7 @@ export default function ChildrenList() {
         title={t("children.title")}
         backHref="/"
         isCompact={searchExpanded}
-        action={<SearchPill initialValue={searchQuery} onSearch={setSearchQuery} onExpandChange={setSearchExpanded} placeholder={t("children.searchPlaceholder")} />}
+        action={<SearchPill onSearch={setSearchQuery} onExpandChange={setSearchExpanded} placeholder={t("children.searchPlaceholder")} />}
       />
       <main style={{ justifyContent: "start", maxWidth: "610px", marginInline: "auto" }}>
         <div style={{ marginInline: "auto", display: "flex", width: "100%", alignItems: "center" }}>
