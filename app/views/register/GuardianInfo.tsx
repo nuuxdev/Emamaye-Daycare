@@ -11,6 +11,7 @@ import { api } from "@/convex/_generated/api";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import { Doc, Id } from "@/convex/_generated/dataModel";
 import { useLanguage } from "@/context/LanguageContext";
+import { toast } from "sonner";
 
 export default function GuardianInfo({
   saveSteps,
@@ -35,6 +36,7 @@ export default function GuardianInfo({
   const fullName = watch("fullName");
   const phoneNumber = watch("phoneNumber");
   const [isTranslating, setIsTranslating] = useState(false);
+  const [hasAttemptedTranslation, setHasAttemptedTranslation] = useState(false);
   const [isCheckingPhone, setIsCheckingPhone] = useState(false);
   const [existingGuardian, setExistingGuardian] = useState<Doc<"guardians"> | null>(null);
   const [existingChildren, setExistingChildren] = useState<string[]>([]);
@@ -77,8 +79,11 @@ export default function GuardianInfo({
         }
       } catch (error) {
         console.error("Translation failed", error);
+        toast.error(language === "am" ? "የስም ትርጉም አልተሳካም። እባክዎ በቀጥታ ያስገቡ።" : "Translation failed. Please enter manually.");
+        setValue("fullNameAmh", undefined);
       } finally {
         setIsTranslating(false);
+        setHasAttemptedTranslation(true);
       }
     }
   };
@@ -126,6 +131,7 @@ export default function GuardianInfo({
     if (isReadOnly) return;
     setValue("fullName", "");
     setValue("fullNameAmh", undefined);
+    setHasAttemptedTranslation(false);
   };
 
   const handleRegenerateTranslation = async () => {
@@ -139,8 +145,11 @@ export default function GuardianInfo({
       if (translated) setValue("fullNameAmh", translated);
     } catch (error) {
       console.error("Translation failed", error);
+      toast.error(language === "am" ? "የስም ትርጉም አልተሳካም። እባክዎ በቀጥታ ያስገቡ።" : "Translation failed. Please enter manually.");
+      setValue("fullNameAmh", undefined);
     } finally {
       setIsTranslating(false);
+      setHasAttemptedTranslation(true);
     }
   };
 
@@ -214,7 +223,7 @@ export default function GuardianInfo({
         </div>
       </div>
 
-      {(fullNameAmh || isReadOnly) && (
+      {(fullNameAmh || hasAttemptedTranslation || isReadOnly) && (
         <div className="mb-1 animate-fade-in">
           <label htmlFor="fullNameAmh" className="label-text">{language === "am" ? "ሙሉ ስም (አማርኛ)" : "Full Name (Amharic)"}</label>
           <input
