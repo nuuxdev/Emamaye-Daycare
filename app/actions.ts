@@ -4,7 +4,7 @@ async function callHasab(name: string): Promise<string> {
     const apiKey = process.env.HASAB_API_KEY;
     if (!apiKey) throw new Error("HASAB_API_KEY is not set");
 
-    const response = await fetch("https://api.hasab.ai/v1/chat", {
+    const response = await fetch("https://api.hasab.ai/api/v1/chat", {
         method: "POST",
         headers: {
             "Authorization": `Bearer ${apiKey}`,
