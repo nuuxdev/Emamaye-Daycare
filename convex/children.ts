@@ -92,9 +92,8 @@ export const addChild = mutation({
 
     // Generate the initial payment immediately (prepayment system)
     // dueDate is today's Gregorian date
-    const { today, getLocalTimeZone } = await import("@internationalized/date");
-    const todayGreg = today(getLocalTimeZone());
-    const dueDateStr = todayGreg.toString(); // YYYY-MM-DD
+    const todayDate = new Date();
+    const dueDateStr = todayDate.toISOString().split("T")[0]; // YYYY-MM-DD
 
     if (initialPaymentAmount > 0) {
       await ctx.db.insert("payments", {
