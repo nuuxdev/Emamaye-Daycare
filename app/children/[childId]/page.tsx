@@ -359,7 +359,7 @@ export default function ChildInfo() {
             {showConfetti && <Confetti />}
             <GlassHeader
                 title={t("childInfo.title")}
-                backHref="/children"
+                onBack={() => router.back()}
                 action={
                     <Link href={`/children/${child._id}/edit`} className="glass-pill">
                         <EditIcon />
