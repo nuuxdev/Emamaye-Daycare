@@ -325,7 +325,7 @@ export default function ChildInfo() {
 
     const birthDate = parseDate(child.dateOfBirth);
     const ageResult = calculateAge(birthDate);
-    const ageFormatted = formatAge(ageResult);
+    const ageFormatted = formatAge(ageResult, true);
 
     const ageGroupIcons: Record<string, JSX.Element> = {
         infant: <InfantIcon />,
