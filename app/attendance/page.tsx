@@ -9,7 +9,7 @@ import { TStatus } from "@/convex/types/attendance";
 import GlassHeader from "@/components/GlassHeader";
 import { SelectDate } from "../views/register/Calendar";
 import { GregorianCalendar, toCalendar, parseDate, EthiopicCalendar } from "@internationalized/date";
-import { todayInEth } from "@/utils/calendar";
+import { todayInEth, todayInGreg } from "@/utils/calendar";
 import AttendanceTabs from "../views/attendance/AttendanceTabs";
 import DateNavigator from "../views/attendance/DateNavigator";
 import PreviewView from "../views/attendance/PreviewView";
@@ -228,7 +228,12 @@ export default function Attendance() {
         backHref="/"
         action={
           <div className="glass-pill">
-            <SelectDate value={attendanceDate} onSelect={(dateInEt) => handleDateChange(toCalendar(dateInEt, new GregorianCalendar()).toString())} />
+            <SelectDate
+              value={attendanceDate}
+              minDate={todayInGreg.subtract({ months: 6 }).toString()}
+              maxDate={todayInGreg.toString()}
+              onSelect={(dateInEt) => handleDateChange(toCalendar(dateInEt, new GregorianCalendar()).toString())}
+            />
           </div>
         }
       />
