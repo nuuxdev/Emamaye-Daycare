@@ -1,5 +1,5 @@
 import { CalendarDate, toCalendar } from "@internationalized/date";
-import { EthiopianCalendar, todayInEth, todayInGreg } from "./calendar";
+import { EthiopianCalendar, todayInEth } from "./calendar";
 import { toast } from "sonner";
 import { TAgeGroup } from "@/convex/types/children";
 import { useLanguage } from "@/context/LanguageContext";
@@ -10,11 +10,9 @@ import { translations } from "@/lib/translations";
  * Handles the 13th month (Pagume) correctly, which is 5 or 6 days depending on leap year.
  */
 function getDaysInPreviousMonth(date: CalendarDate): number {
-  // Get the previous month's date to determine its days
   const prevMonth = date.month === 1 ? 13 : date.month - 1;
   const prevYear = date.month === 1 ? date.year - 1 : date.year;
 
-  // Create a date in the previous month to get its day count
   const prevMonthDate = new CalendarDate(EthiopianCalendar, prevYear, prevMonth, 1);
   return EthiopianCalendar.getDaysInMonth(prevMonthDate);
 }
@@ -28,10 +26,21 @@ export type TAgeResult = {
   ageInYears: number;
 };
 
-export function calculateAge(dateOfBirth: CalendarDate): TAgeResult | undefined {
+/**
+ * Calculates the age from a date of birth using the Ethiopian calendar.
+ *
+ * Ethiopian calendar has 12 months of 30 days each, plus a 13th month (Pagume)
+ * of 5 days (6 in a leap year). Age is expressed conventionally as years (0+),
+ * months (0-11), and days (0-29).
+ *
+ * @param dateOfBirth - The birth date (Ethiopian or Gregorian CalendarDate)
+ * @param today - Optional override for "today" (for testing). Defaults to todayInEth.
+ */
+export function calculateAge(dateOfBirth: CalendarDate, today?: CalendarDate): TAgeResult | undefined {
   const isEthiopic = dateOfBirth.calendar.identifier === "ethiopic";
   const bdInEth = isEthiopic ? dateOfBirth : toCalendar(dateOfBirth, EthiopianCalendar);
-  const { year: thisYear, month: thisMonth, day: thisDay } = todayInEth;
+  const currentDate = today ?? todayInEth;
+  const { year: thisYear, month: thisMonth, day: thisDay } = currentDate;
   const { year: bdYear, month: bdMonth, day: bdDay } = bdInEth;
 
   let ageInYears = thisYear - bdYear;
@@ -39,7 +48,7 @@ export function calculateAge(dateOfBirth: CalendarDate): TAgeResult | undefined 
   let ageInDays = thisDay - bdDay;
 
   // Get the number of days in the previous month (relative to today) for borrowing
-  const daysInPrevMonth = getDaysInPreviousMonth(todayInEth);
+  const daysInPrevMonth = getDaysInPreviousMonth(currentDate);
 
   if (ageInYears < 0) {
     toast.error("Invalid year");
@@ -53,35 +62,20 @@ export function calculateAge(dateOfBirth: CalendarDate): TAgeResult | undefined 
         toast.error("Invalid day");
         return;
       }
-    }
-    else {
+    } else {
       if (ageInDays < 0) {
         ageInMonths--;
         ageInDays += daysInPrevMonth;
       }
     }
-  }
-  else {
+  } else {
+    if (ageInDays < 0) {
+      ageInMonths--;
+      ageInDays += daysInPrevMonth;
+    }
     if (ageInMonths < 0) {
       ageInYears--;
-      ageInMonths += 13;
-      if (ageInDays < 0) {
-        ageInMonths--;
-        ageInDays += daysInPrevMonth;
-      }
-    }
-    else if (ageInMonths === 0) {
-      if (ageInDays < 0) {
-        ageInYears--;
-        ageInMonths = 12; // In Ethiopian 13 months, month indices are 1-13
-        ageInDays += daysInPrevMonth;
-      }
-    }
-    else {
-      if (ageInDays < 0) {
-        ageInMonths--;
-        ageInDays += daysInPrevMonth;
-      }
+      ageInMonths += 12;
     }
   }
 
@@ -102,7 +96,12 @@ export function useAge() {
   const { language } = useLanguage();
   const t = translations[language].childInfo.labels;
 
-  const formatAge = (age: TAgeResult | undefined) => {
+  /**
+   * Formats an age result as a human-readable string.
+   * @param age - The age result from calculateAge
+   * @param long - If true, always include days (e.g. "2 years, 8 months, 12 days" / "2y 8m 12d")
+   */
+  const formatAge = (age: TAgeResult | undefined, long?: boolean) => {
     if (!age) return "";
     if (age.isJustBorn) return t.justBorn;
 
@@ -113,8 +112,10 @@ export function useAge() {
     if (age.months > 0) {
       parts.push(`${age.months} ${age.months === 1 ? t.month : t.months}`);
     }
-    if (age.years === 0 && age.months === 0 && age.days > 0) {
-      parts.push(`${age.days} ${age.days === 1 ? t.day : t.days}`);
+    if (long || (age.years === 0 && age.months === 0 && age.days > 0)) {
+      if (age.days > 0) {
+        parts.push(`${age.days} ${age.days === 1 ? t.day : t.days}`);
+      }
     }
 
     if (language === "am") {
@@ -123,7 +124,12 @@ export function useAge() {
     return parts.join(", ");
   };
 
-  const formatAgeShort = (age: TAgeResult | undefined) => {
+  /**
+   * Formats an age result as a short HTML string.
+   * @param age - The age result from calculateAge
+   * @param long - If true, always include days (e.g. "2y 8m 12d")
+   */
+  const formatAgeShort = (age: TAgeResult | undefined, long?: boolean) => {
     if (!age) return "";
     if (age.isJustBorn) return t.justBorn;
 
@@ -134,8 +140,10 @@ export function useAge() {
     if (age.months > 0) {
       parts.push(`<span>${age.months}</span>${language === 'am' ? t.month : 'm'}`);
     }
-    if (age.years === 0 && age.months === 0 && age.days > 0) {
-      parts.push(`<span>${age.days}</span>${language === 'am' ? t.day : 'd'}`);
+    if (long || (age.years === 0 && age.months === 0 && age.days > 0)) {
+      if (age.days > 0) {
+        parts.push(`<span>${age.days}</span>${language === 'am' ? t.day : 'd'}`);
+      }
     }
 
     return parts.join(" ");
