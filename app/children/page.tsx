@@ -186,6 +186,8 @@ export default function ChildrenList() {
       <GlassHeader
         title={t("children.title")}
         backHref="/"
+        transitionName="page-children"
+        icon={<PreschoolerIcon />}
         isCompact={searchExpanded}
         action={<SearchPill onSearch={setSearchQuery} onExpandChange={setSearchExpanded} placeholder={t("children.searchPlaceholder")} />}
       />

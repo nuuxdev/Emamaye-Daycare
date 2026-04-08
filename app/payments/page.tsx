@@ -12,6 +12,7 @@ import { ServerAvatar } from "@/app/components/ServerAvatar";
 import { useLanguage } from "@/context/LanguageContext";
 import { InputDate } from "@/app/views/register/Calendar";
 import { useForm } from "react-hook-form";
+import { MoneyIcon } from "@/components/Icons";
 
 type PaymentCategory = "due_date" | "upcoming" | "unpaid" | "paid";
 
@@ -124,6 +125,8 @@ export default function PaymentsList() {
             <GlassHeader
                 title={t("payments.title")}
                 backHref="/"
+                transitionName="page-payments"
+                icon={<MoneyIcon />}
                 action={
                     <Link href="/settings" className="glass-pill">
                         <SettingsIcon />

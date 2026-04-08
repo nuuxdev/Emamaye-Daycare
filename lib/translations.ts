@@ -26,7 +26,7 @@ export const translations = {
             unpaid: "Unpaid",
         },
         children: {
-            title: "Children List",
+            title: "My Children",
             searchPlaceholder: "Search children...",
             noChildren: "No children found.",
             filters: {
@@ -206,7 +206,7 @@ export const translations = {
             unpaid: "ያልተከፈለ",
         },
         children: {
-            title: "የልጆች ዝርዝር",
+            title: "ልጆቼ",
             searchPlaceholder: "ልጆችን ይፈልጉ...",
             noChildren: "ምንም ልጅ አልተገኘም።",
             filters: {
@@ -294,7 +294,7 @@ export const translations = {
             }
         },
         payments: {
-            title: "ክፍያዎች",
+            title: "ክፍያ",
             tabs: {
                 all: "ሁሉም",
                 pending: "ያልተከፈለ",

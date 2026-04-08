@@ -15,6 +15,7 @@ import { TAgeGroup, TGender } from "@/convex/types/children";
 import { TRelationToChild } from "@/convex/types/guardians";
 import { fromEthDateString } from "@/utils/calendar";
 import { useLanguage } from "@/context/LanguageContext";
+import { ClipboardIcon } from "@/components/Icons";
 
 export type TChildInfo = {
   fullName: string;
@@ -204,7 +205,12 @@ export default function Register() {
 
   return (
     <>
-      <GlassHeader title={t("registration.title")} backHref="/" />
+      <GlassHeader
+        title={t("registration.title")}
+        backHref="/"
+        transitionName="page-register"
+        icon={<ClipboardIcon />}
+      />
       <main className="animate-fade-in" style={{ justifyContent: 'start' }}>
         <div className="neo-box centered-container" style={{ maxWidth: '600px' }}>
 

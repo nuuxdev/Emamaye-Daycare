@@ -15,10 +15,14 @@ import DateNavigator from "../views/attendance/DateNavigator";
 import PreviewView from "../views/attendance/PreviewView";
 import SummaryView from "../views/attendance/SummaryView";
 import WarningDialog from "../views/attendance/WarningDialog";
+import { useLanguage } from "@/context/LanguageContext";
+import { AttendanceIcon } from "@/components/Icons";
 
 import { TViewTab } from "./types";
 
 export default function Attendance() {
+  const { t } = useLanguage();
+
   const getInitialDate = () => {
     let date = todayInEth;
     // 0 = Sunday, 6 = Saturday
@@ -224,8 +228,10 @@ export default function Attendance() {
   return (
     <>
       <GlassHeader
-        title="አቴንዳንስ"
+        title={t("home.attendance")}
         backHref="/"
+        transitionName="page-attendance"
+        icon={<AttendanceIcon />}
         action={
           <div className="glass-pill">
             <SelectDate

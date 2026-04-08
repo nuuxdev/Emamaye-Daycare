@@ -4,6 +4,8 @@ import GlassHeader from "@/components/GlassHeader";
 import { ClipboardIcon, MoneyIcon, AttendanceIcon, PreschoolerIcon, SettingsIcon } from "@/components/Icons";
 import KPIStats from "@/app/components/KPIStats";
 import { useLanguage } from "@/context/LanguageContext";
+// @ts-ignore
+import { ViewTransition } from "react";
 
 export default function Home() {
   const { t } = useLanguage();
@@ -39,22 +41,30 @@ export default function Home() {
             aspectRatio: "1/1",
           }}
         >
-          <Link href="/children" style={cardStyle} className="neo-box">
-            <PreschoolerIcon />
-            <span>{t("home.myChildren")}</span>
-          </Link>
-          <Link href="/attendance" style={cardStyle} className="neo-box">
-            <AttendanceIcon />
-            <span>{t("home.attendance")}</span>
-          </Link>
-          <Link href="/register" style={cardStyle} className="neo-box">
-            <ClipboardIcon />
-            <span>{t("home.registration")}</span>
-          </Link>
-          <Link href="/payments" style={cardStyle} className="neo-box">
-            <MoneyIcon />
-            <span>{t("home.payments")}</span>
-          </Link>
+          <ViewTransition name="page-children">
+            <Link href="/children" style={cardStyle} className="neo-box">
+              <PreschoolerIcon />
+              <span>{t("home.myChildren")}</span>
+            </Link>
+          </ViewTransition>
+          <ViewTransition name="page-attendance">
+            <Link href="/attendance" style={cardStyle} className="neo-box">
+              <AttendanceIcon />
+              <span>{t("home.attendance")}</span>
+            </Link>
+          </ViewTransition>
+          <ViewTransition name="page-register">
+            <Link href="/register" style={cardStyle} className="neo-box">
+              <ClipboardIcon />
+              <span>{t("home.registration")}</span>
+            </Link>
+          </ViewTransition>
+          <ViewTransition name="page-payments">
+            <Link href="/payments" style={cardStyle} className="neo-box">
+              <MoneyIcon />
+              <span>{t("home.payments")}</span>
+            </Link>
+          </ViewTransition>
         </div>
       </main>
     </>
