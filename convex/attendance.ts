@@ -74,12 +74,27 @@ export const checkAndSendReminders = internalMutation({
       .withIndex("by_key", (q) => q.eq("key", "notificationTime"))
       .first();
 
-    const targetHour = setting?.value?.hour ?? 19;
+    const targetHour = setting?.value?.hour ?? 20;
+    const targetMinute = setting?.value?.minute ?? 30; // Default to 8:30
 
-    const currentUTC = new Date().getUTCHours();
+    const now = new Date();
+    const currentUTC = now.getUTCHours();
     const currentEAT = (currentUTC + 3) % 24;
+    const currentMinute = now.getUTCMinutes();
 
-    if (currentEAT !== targetHour) {
+    // Prevent execution if it's not the right hour yet OR if we are in the hour but haven't reached the minute.
+    if (currentEAT !== targetHour || currentMinute < targetMinute) {
+      return;
+    }
+
+    const twelveHoursAgo = Date.now() - 12 * 60 * 60 * 1000;
+    const recentNotif = await ctx.db
+      .query("notifications")
+      .withIndex("by_timestamp", (q) => q.gte("timestamp", twelveHoursAgo))
+      .filter((q) => q.eq(q.field("title"), "Attendance Reminder!"))
+      .first();
+
+    if (recentNotif) {
       return;
     }
 

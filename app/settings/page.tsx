@@ -26,12 +26,12 @@ export default function SettingsPage() {
     // Notification settings
     const notificationSetting = useQuery(api.settings.getSetting, { key: "notificationTime" });
     const setSetting = useMutation(api.settings.setSetting);
-    const [notifTime, setNotifTime] = useState("19:00");
+    const [notifTime, setNotifTime] = useState("20:30");
 
     useEffect(() => {
         if (notificationSetting?.value) {
-            const h = notificationSetting.value.hour ?? 19;
-            const m = notificationSetting.value.minute ?? 0;
+            const h = notificationSetting.value.hour ?? 20;
+            const m = notificationSetting.value.minute ?? 30;
             setNotifTime(`${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`);
         }
     }, [notificationSetting]);
