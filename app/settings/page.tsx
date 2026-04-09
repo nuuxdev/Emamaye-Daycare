@@ -23,6 +23,28 @@ export default function SettingsPage() {
     const [amounts, setAmounts] = useState<Record<string, number>>({});
     const [editingId, setEditingId] = useState<string | null>(null);
 
+    // Notification settings
+    const notificationSetting = useQuery(api.settings.getSetting, { key: "notificationTime" });
+    const setSetting = useMutation(api.settings.setSetting);
+    const [notifTime, setNotifTime] = useState("19:00");
+
+    useEffect(() => {
+        if (notificationSetting?.value) {
+            const h = notificationSetting.value.hour ?? 19;
+            const m = notificationSetting.value.minute ?? 0;
+            setNotifTime(`${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`);
+        }
+    }, [notificationSetting]);
+
+    const handleSaveNotifTime = async (val: string) => {
+        setNotifTime(val);
+        const [h, m] = val.split(":");
+        if (h !== undefined) {
+            await setSetting({ key: "notificationTime", value: { hour: parseInt(h, 10), minute: parseInt(m || "0", 10) } });
+            toast.success("Reminder schedule updated successfully");
+        }
+    };
+
     useEffect(() => {
         if (settings) {
             const newAmounts: Record<string, number> = {};
@@ -62,6 +84,27 @@ export default function SettingsPage() {
                                 onToggle={() => setLanguage(language === "en" ? "am" : "en")}
                                 compact
                             />
+                        </div>
+                    </div>
+                </div>
+
+                {/* ── Card 1.5: Notifications ── */}
+                <div className="neo-box" style={{ alignItems: "stretch", marginTop: "1rem" }}>
+                    <div className="settings-section">
+                        <span className="settings-section-title">{t("settings.notifications.title")}</span>
+                        <div className="settings-row">
+                            <div style={{ display: "flex", flexDirection: "column" }}>
+                                <span className="settings-row-label">{t("settings.notifications.dailyReminder")}</span>
+                                <span style={{ fontSize: "0.75rem", opacity: 0.6 }}>{t("settings.notifications.dailyReminderDesc")}</span>
+                            </div>
+                            <div style={{ display: "flex", alignItems: "center" }}>
+                                <input
+                                    type="time"
+                                    className="neo-input pl-3"
+                                    value={notifTime}
+                                    onChange={(e) => handleSaveNotifTime(e.target.value)}
+                                />
+                            </div>
                         </div>
                     </div>
                 </div>

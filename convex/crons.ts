@@ -11,4 +11,11 @@ crons.daily(
     internal.payments.autoGeneratePayments
 );
 
+// Hourly check to dispatch push notifications reliably based on configurable timestamps.
+crons.interval(
+    "attendance-reminder-checks",
+    { hours: 1 },
+    internal.attendance.checkAndSendReminders
+);
+
 export default crons;

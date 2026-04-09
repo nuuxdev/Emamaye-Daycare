@@ -8,16 +8,19 @@ type GlassHeaderProps = {
     title: string;
     backHref?: string;
     onBack?: () => void;
+    leftAction?: ReactNode;
     action?: ReactNode;
     isCompact?: boolean;
     icon?: ReactNode;
     transitionName?: string;
 };
 
-export default function GlassHeader({ title, backHref, action, isCompact, onBack, icon, transitionName }: GlassHeaderProps) {
+export default function GlassHeader({ title, backHref, action, isCompact, onBack, leftAction, icon, transitionName }: GlassHeaderProps) {
     return (
         <header className="glass-header-wrapper">
-            {onBack ? (
+            {leftAction ? (
+                leftAction
+            ) : onBack ? (
                 <div onClick={onBack} className="glass-pill" style={{ cursor: "pointer" }}>
                     <ArrowLeft />
                 </div>

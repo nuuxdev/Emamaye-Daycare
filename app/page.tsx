@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import GlassHeader from "@/components/GlassHeader";
-import { ClipboardIcon, MoneyIcon, AttendanceIcon, PreschoolerIcon, SettingsIcon } from "@/components/Icons";
+import { ClipboardIcon, MoneyIcon, AttendanceIcon, PreschoolerIcon, SettingsIcon, bellIcon as BellIcon } from "@/components/Icons";
 import KPIStats from "@/app/components/KPIStats";
 import { useLanguage } from "@/context/LanguageContext";
 // @ts-ignore
@@ -23,17 +23,21 @@ export default function Home() {
     <>
       <GlassHeader
         title={t("home.title")}
-        action={
+        leftAction={
           <Link href="/settings" className="glass-pill">
             <SettingsIcon />
           </Link>
         }
+        action={
+          <Link href="/notifications" className="glass-pill">
+            <BellIcon />
+          </Link>
+        }
       />
-      <main>
+      <main className="animate-fade-in" style={{ paddingInline: '1rem', paddingBottom: '7rem', gap: '2rem' }}>
         <KPIStats />
 
         <div
-
           style={{
             display: "grid",
             gridTemplateColumns: "repeat(2, 1fr)",

@@ -56,4 +56,21 @@ export default defineSchema({
     paidAmount: v.optional(v.number()),
     paidDate: v.optional(v.string()),
   }).index("by_child", ["childId"]).index("by_status", ["status"]).index("by_due_date", ["dueDate"]),
+  pushSubscriptions: defineTable({
+    userId: v.id("users"),
+    endpoint: v.string(),
+    p256dh: v.string(),
+    auth: v.string(),
+  }).index("by_user", ["userId"]).index("by_endpoint", ["endpoint"]),
+  notifications: defineTable({
+    title: v.string(),
+    body: v.string(),
+    isRead: v.boolean(),
+    link: v.optional(v.string()),
+    timestamp: v.number(),
+  }).index("by_timestamp", ["timestamp"]),
+  appSettings: defineTable({
+    key: v.string(), // e.g. "notificationTime"
+    value: v.any(),
+  }).index("by_key", ["key"]),
 });

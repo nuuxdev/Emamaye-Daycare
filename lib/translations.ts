@@ -157,6 +157,11 @@ export const translations = {
             english: "English",
             amharic: "Amharic",
             selectLanguage: "Select Language",
+            notifications: {
+                title: "Notifications",
+                dailyReminder: "Daily Attendance Reminder",
+                dailyReminderDesc: "Time to check and trigger push alerts",
+            }
         },
         common: {
             back: "Back",
@@ -337,6 +342,11 @@ export const translations = {
             english: "እንግሊዝኛ",
             amharic: "አማርኛ",
             selectLanguage: "ቋንቋ ይምረጡ",
+            notifications: {
+                title: "ማሳወቂያዎች",
+                dailyReminder: "የዕለታዊ አቴንዳንስ ማሳሰቢያ",
+                dailyReminderDesc: "የማሳወቂያ መልእክት የሚላክበት ሰዓት",
+            }
         },
         common: {
             back: "ተመለስ",
