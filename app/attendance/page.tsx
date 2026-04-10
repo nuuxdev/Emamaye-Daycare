@@ -35,6 +35,7 @@ export default function Attendance() {
   const [attendanceDate, setAttendanceDate] = useState(getInitialDate());
   const [currentChildIndex, setCurrentChildIndex] = useState(0);
   const [view, setView] = useState<"card" | "list" | "preview">("card");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [viewTab, setViewTab] = useState<TViewTab>("daily");
   const [pendingDate, setPendingDate] = useState<string | null>(null);
   const warningDialogRef = useRef<HTMLDialogElement>(null);
@@ -210,6 +211,7 @@ export default function Attendance() {
             startDate={startDate}
             endDate={endDate}
             attendanceDate={attendanceDate}
+            sortOrder={sortOrder}
           />
         );
       case "preview":
@@ -245,7 +247,12 @@ export default function Attendance() {
       />
       <main>
         <div style={{ display: "grid", gap: "1rem", width: "100%", maxWidth: "600px", paddingInline: "0.5rem", boxSizing: "border-box" }}>
-          <AttendanceTabs viewTab={viewTab} setViewTab={setViewTab} view={view} />
+          <AttendanceTabs
+            viewTab={viewTab}
+            setViewTab={setViewTab}
+            sortOrder={sortOrder}
+            onToggleSort={() => setSortOrder(prev => prev === "desc" ? "asc" : "desc")}
+          />
           <DateNavigator
             attendanceDate={attendanceDate}
             viewTab={viewTab}

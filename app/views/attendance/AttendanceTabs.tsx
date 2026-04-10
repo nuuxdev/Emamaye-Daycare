@@ -1,29 +1,47 @@
 import { TViewTab } from "@/app/attendance/types";
 
+import { SwapIcon } from "@/components/Icons";
+
 export default function AttendanceTabs({
     viewTab,
     setViewTab,
-    view,
+    sortOrder,
+    onToggleSort,
 }: {
     viewTab: TViewTab;
     setViewTab: (tab: TViewTab) => void;
-    view: "card" | "list" | "preview";
+    sortOrder?: "asc" | "desc";
+    onToggleSort?: () => void;
 }) {
-    if (view === "card") return null;
-
     return (
-        <div style={{ display: "flex", width: "100%", overflowX: "auto" }}>
-            {(["daily", "weekly", "monthly"] as TViewTab[]).map((tab) => (
+        <div style={{ marginInline: "auto", display: "flex", width: "100%", alignItems: "center" }}>
+            {viewTab !== "daily" && onToggleSort && (
                 <button
-                    key={tab}
-                    disabled={viewTab === tab}
-                    onClick={() => setViewTab(tab)}
-                    className="tabs secondary"
-                    style={{ textTransform: "capitalize", flexGrow: 1 }}
+                    onClick={onToggleSort}
+                    className="glass-pill"
+                    title="Toggle Sort"
+                    style={{
+                        flexShrink: 0,
+                        marginInline: "0.5rem",
+                    }}
                 >
-                    {tab}
+                    <SwapIcon direction={sortOrder === "asc" ? "up" : "down"} />
                 </button>
-            ))}
+            )}
+
+            <div style={{ marginInline: "auto", display: "flex", overflowX: "auto", paddingBlock: "1rem", width: "100%", maskImage: "linear-gradient(to right, black 85%, transparent 100%)", WebkitMaskImage: "linear-gradient(to right, black 85%, transparent 100%)" }}>
+                {(["daily", "weekly", "monthly"] as TViewTab[]).map((tab) => (
+                    <button
+                        key={tab}
+                        disabled={viewTab === tab}
+                        onClick={() => setViewTab(tab)}
+                        className="tabs secondary"
+                        style={{ textTransform: "capitalize", flexShrink: 0 }}
+                    >
+                        {tab}
+                    </button>
+                ))}
+            </div>
         </div>
     );
 }

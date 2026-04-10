@@ -13,6 +13,7 @@ export default function SummaryView({
     startDate,
     endDate,
     attendanceDate,
+    sortOrder,
 }: {
     childrenData: Doc<"children">[];
     attendancesByRange: Doc<"attendance">[] | undefined;
@@ -20,6 +21,7 @@ export default function SummaryView({
     startDate: string;
     endDate: string;
     attendanceDate: string;
+    sortOrder?: "asc" | "desc";
 }) {
     const getAttendanceCount = (childId: Id<"children">) => {
         if (!attendancesByRange) return { present: 0, total: 0 };
@@ -29,31 +31,31 @@ export default function SummaryView({
         );
         const presentCount = uniquePresentDates.size;
 
-        const start = parseDate(startDate);
-        const end = parseDate(endDate);
-        const today = todayInEth;
+        const uniqueTotalDates = new Set(
+            childAttendance.map((att) => att.date)
+        );
+        const total = uniqueTotalDates.size;
 
-        let weekdays = 0;
-        let current = start;
-
-        // Cap the end date at today if we are in the current month/week
-        const effectiveEnd = end.compare(today) > 0 ? today : end;
-
-        while (current.compare(effectiveEnd) <= 0) {
-            const day = current.toDate("UTC").getDay();
-            if (day !== 0 && day !== 6) weekdays++;
-            current = current.add({ days: 1 });
-        }
-
-        return { present: presentCount, total: weekdays };
+        return { present: presentCount, total };
     };
 
     if (!attendancesByRange) return <div>Loading Summary...</div>;
 
+    let childrenWithStats = childrenData?.map((child) => {
+        const stats = getAttendanceCount(child._id);
+        return { child, ...stats };
+    }) || [];
+
+    if (sortOrder) {
+        childrenWithStats.sort((a, b) => {
+            if (sortOrder === "asc") return a.present - b.present;
+            return b.present - a.present;
+        });
+    }
+
     return (
         <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", width: "100%" }}>
-            {childrenData?.map((child, index) => {
-                const { present, total } = getAttendanceCount(child._id);
+            {childrenWithStats.map(({ child, present, total }, index) => {
                 return (
                     <Fragment key={child._id}>
                         <div style={{ display: "flex", gap: "1rem", alignItems: "center", justifyContent: "space-between", padding: "0.5rem 0" }}>
@@ -90,7 +92,7 @@ export default function SummaryView({
                                 </span>
                             </Link>
                         </div>
-                        {index < (childrenData?.length ?? 0) - 1 && <hr />}
+                        {index < childrenWithStats.length - 1 && <hr />}
                     </Fragment>
                 );
             })}

@@ -58,27 +58,22 @@ export default function ChildAttendanceGrid({
     const childCurrentWeeklyAttendances = currentWeeklyAttendancesQuery?.filter(att => att.childId === childId) || [];
 
     // Calculate fractions
-    const calculateFraction = (start: any, end: any, attendances: any[]) => {
+    const calculateFraction = (attendances: any[]) => {
         const uniquePresentDates = new Set(
             attendances
                 .filter((a: any) => a.status === "present")
                 .map((a: any) => a.date)
         );
         const present = uniquePresentDates.size;
-        let total = 0;
-        let cur = start;
-        const effectiveEnd = end.compare(todayInEth) > 0 ? todayInEth : end;
-
-        while (cur.compare(effectiveEnd) <= 0) {
-            const day = cur.toDate("UTC").getDay();
-            if (day !== 0 && day !== 6) total++;
-            cur = cur.add({ days: 1 });
-        }
+        const uniqueTotalDates = new Set(
+            attendances.map((a: any) => a.date)
+        );
+        const total = uniqueTotalDates.size;
         return { present, total };
     };
 
-    const monthlySummary = calculateFraction(startOfCurrentMonthEth, endOfCurrentMonthEth, childCurrentMonthAttendances);
-    const weeklySummary = calculateFraction(mondayEthToday, fridayEthToday, childCurrentWeeklyAttendances);
+    const monthlySummary = calculateFraction(childCurrentMonthAttendances);
+    const weeklySummary = calculateFraction(childCurrentWeeklyAttendances);
 
     const dayOfWeek = startOfMonthEth.toDate("UTC").getDay();
     // Adjust to make Monday (1) the first day (index 0)
