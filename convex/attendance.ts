@@ -15,12 +15,33 @@ export const recordAttendance = mutation({
     date: v.string(),
   },
   handler: async (ctx, args) => {
+    // 1. Fetch all existing records for the given date
+    const existingRecords = await ctx.db
+      .query("attendance")
+      .withIndex("by_date", (q) => q.eq("date", args.date))
+      .collect();
+
+    // 2. Map existing records by childId for fast lookup
+    const existingByChild = new Map();
+    for (const record of existingRecords) {
+      existingByChild.set(record.childId, record);
+    }
+
+    // 3. Upsert attendees safely
     for (const childAttendance of args.attendanceData) {
-      const id = await ctx.db.insert("attendance", {
-        childId: childAttendance.childId,
-        status: childAttendance.status,
-        date: args.date,
-      });
+      const existing = existingByChild.get(childAttendance.childId);
+      if (existing) {
+        // Prevent strictly duplicating by patching only if state drifted
+        if (existing.status !== childAttendance.status) {
+          await ctx.db.patch(existing._id, { status: childAttendance.status });
+        }
+      } else {
+        await ctx.db.insert("attendance", {
+          childId: childAttendance.childId,
+          status: childAttendance.status,
+          date: args.date,
+        });
+      }
     }
   },
 });

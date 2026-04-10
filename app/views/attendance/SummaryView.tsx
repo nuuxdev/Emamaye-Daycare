@@ -24,7 +24,10 @@ export default function SummaryView({
     const getAttendanceCount = (childId: Id<"children">) => {
         if (!attendancesByRange) return { present: 0, total: 0 };
         const childAttendance = attendancesByRange.filter((att) => att.childId === childId);
-        const presentCount = childAttendance.filter((att) => att.status === "present").length;
+        const uniquePresentDates = new Set(
+            childAttendance.filter((att) => att.status === "present").map((att) => att.date)
+        );
+        const presentCount = uniquePresentDates.size;
 
         const start = parseDate(startDate);
         const end = parseDate(endDate);

@@ -59,7 +59,12 @@ export default function ChildAttendanceGrid({
 
     // Calculate fractions
     const calculateFraction = (start: any, end: any, attendances: any[]) => {
-        const present = attendances.filter((a: any) => a.status === "present").length;
+        const uniquePresentDates = new Set(
+            attendances
+                .filter((a: any) => a.status === "present")
+                .map((a: any) => a.date)
+        );
+        const present = uniquePresentDates.size;
         let total = 0;
         let cur = start;
         const effectiveEnd = end.compare(todayInEth) > 0 ? todayInEth : end;

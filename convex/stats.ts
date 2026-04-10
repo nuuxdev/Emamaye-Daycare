@@ -20,8 +20,12 @@ export const getSummary = query({
             .withIndex("by_date", (q) => q.eq("date", todayStr))
             .collect();
 
-        const presentToday = attendanceToday.filter((a) => a.status === "present").length;
-        const absentToday = attendanceToday.filter((a) => a.status === "absent").length;
+        const presentToday = new Set(
+            attendanceToday.filter((a) => a.status === "present").map(a => a.childId)
+        ).size;
+        const absentToday = new Set(
+            attendanceToday.filter((a) => a.status === "absent").map(a => a.childId)
+        ).size;
         const isFilled = attendanceToday.length > 0;
 
         // --- Payment Stats (Current Month) ---
