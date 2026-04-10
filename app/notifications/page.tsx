@@ -8,6 +8,27 @@ import { useLanguage } from "@/context/LanguageContext";
 import { useState, useEffect } from "react";
 import { bellIcon as BellIcon, bellOffIcon as BellOffIcon } from "@/components/Icons";
 
+function urlBase64ToUint8Array(base64String: string) {
+    const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
+    const base64 = (base64String + padding).replace(/\-/g, "+").replace(/_/g, "/");
+    const rawData = window.atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+    for (let i = 0; i < rawData.length; ++i) {
+        outputArray[i] = rawData.charCodeAt(i);
+    }
+    return outputArray;
+}
+
+function arrayBufferToBase64(buffer: ArrayBuffer | null) {
+    if (!buffer) return "";
+    const bytes = new Uint8Array(buffer);
+    let binary = "";
+    for (let i = 0; i < bytes.byteLength; i++) {
+        binary += String.fromCharCode(bytes[i]);
+    }
+    return window.btoa(binary);
+}
+
 export default function NotificationsPage() {
     const { t } = useLanguage();
     const [permission, setPermission] = useState<NotificationPermission | "default">("default");
@@ -21,9 +42,8 @@ export default function NotificationsPage() {
             navigator.serviceWorker.ready.then((registration) => {
                 registration.pushManager.getSubscription().then((sub) => {
                     if (sub) {
-                        // Already subscribed, save it to sync
-                        const p256dh = sub.getKey ? btoa(String.fromCharCode.apply(null, new Uint8Array(sub.getKey("p256dh")!) as any)) : "";
-                        const auth = sub.getKey ? btoa(String.fromCharCode.apply(null, new Uint8Array(sub.getKey("auth")!) as any)) : "";
+                        const p256dh = arrayBufferToBase64(sub.getKey("p256dh"));
+                        const auth = arrayBufferToBase64(sub.getKey("auth"));
                         saveSubscription({ endpoint: sub.endpoint, p256dh, auth });
                     }
                 });
@@ -45,11 +65,11 @@ export default function NotificationsPage() {
 
             const sub = await registration.pushManager.subscribe({
                 userVisibleOnly: true,
-                applicationServerKey: _publicVapidKey,
+                applicationServerKey: urlBase64ToUint8Array(_publicVapidKey),
             });
 
-            const p256dh = sub.getKey ? btoa(String.fromCharCode.apply(null, new Uint8Array(sub.getKey("p256dh")!) as any)) : "";
-            const auth = sub.getKey ? btoa(String.fromCharCode.apply(null, new Uint8Array(sub.getKey("auth")!) as any)) : "";
+            const p256dh = arrayBufferToBase64(sub.getKey("p256dh"));
+            const auth = arrayBufferToBase64(sub.getKey("auth"));
 
             await saveSubscription({ endpoint: sub.endpoint, p256dh, auth });
         }
