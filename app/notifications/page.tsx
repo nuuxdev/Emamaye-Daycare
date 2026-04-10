@@ -6,7 +6,8 @@ import { Id } from "@/convex/_generated/dataModel";
 import GlassHeader from "@/components/GlassHeader";
 import { useLanguage } from "@/context/LanguageContext";
 import { useState, useEffect } from "react";
-import { bellIcon as BellIcon, bellOffIcon as BellOffIcon } from "@/components/Icons";
+import { useRouter } from "next/navigation";
+import { bellOffIcon as BellOffIcon, markAllAsReadIcon as MarkAllAsReadIcon, AllReadIcon } from "@/components/Icons";
 
 function urlBase64ToUint8Array(base64String: string) {
     const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
@@ -31,6 +32,7 @@ function arrayBufferToBase64(buffer: ArrayBuffer | null) {
 
 export default function NotificationsPage() {
     const { t } = useLanguage();
+    const router = useRouter();
     const [permission, setPermission] = useState<NotificationPermission | "default">("default");
     const notifications = useQuery(api.notifications.getNotifications);
     const markAsRead = useMutation(api.notifications.markAsRead);
@@ -107,24 +109,20 @@ export default function NotificationsPage() {
                             <button
                                 onClick={requestPushPermission}
                                 className="glass-pill"
-                                style={{ cursor: "pointer", border: "none", background: "none" }}
+                                style={{ cursor: "pointer" }}
                                 title="Enable Push Notifications"
                             >
                                 <BellOffIcon />
                             </button>
                         )}
                         {"Notification" in window && permission === "granted" && (
-                            <div className="glass-pill" title="Push Notifications Enabled">
-                                <BellIcon />
-                            </div>
-                        )}
-                        {unreadCount > 0 && (
                             <button
                                 onClick={() => markAllAsRead()}
                                 className="glass-pill"
-                                style={{ fontSize: "0.8rem", cursor: "pointer", border: "none", background: "none" }}
+                                style={{ cursor: "pointer" }}
+                                title="Mark all as read"
                             >
-                                Mark all read
+                                {unreadCount > 0 ? <MarkAllAsReadIcon /> : <AllReadIcon />}
                             </button>
                         )}
                     </div>
@@ -149,7 +147,7 @@ export default function NotificationsPage() {
                                 }}
                                 onClick={() => {
                                     if (!notif.isRead) markAsRead({ notificationId: notif._id });
-                                    if (notif.link) window.location.href = notif.link;
+                                    if (notif.link) router.push(notif.link);
                                 }}
                             >
                                 <div style={{ display: "flex", justifyContent: "space-between" }}>

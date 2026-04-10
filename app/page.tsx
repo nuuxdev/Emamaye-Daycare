@@ -3,12 +3,16 @@ import Link from "next/link";
 import GlassHeader from "@/components/GlassHeader";
 import { ClipboardIcon, MoneyIcon, AttendanceIcon, PreschoolerIcon, SettingsIcon, bellIcon as BellIcon } from "@/components/Icons";
 import KPIStats from "@/app/components/KPIStats";
+import { useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
 import { useLanguage } from "@/context/LanguageContext";
 // @ts-ignore
 import { ViewTransition } from "react";
 
 export default function Home() {
   const { t } = useLanguage();
+  const notifications = useQuery(api.notifications.getNotifications);
+  const hasUnread = notifications?.some(n => !n.isRead) ?? false;
 
   const cardStyle = {
     aspectRatio: "1/1",
@@ -29,8 +33,19 @@ export default function Home() {
           </Link>
         }
         action={
-          <Link href="/notifications" className="glass-pill">
+          <Link href="/notifications" className="glass-pill" style={{ position: "relative" }}>
             <BellIcon />
+            {hasUnread && (
+              <span style={{
+                position: "absolute",
+                top: "8px",
+                right: "8px",
+                width: "8px",
+                height: "8px",
+                backgroundColor: "var(--accent-color, #eb5757)",
+                borderRadius: "50%",
+              }} />
+            )}
           </Link>
         }
       />

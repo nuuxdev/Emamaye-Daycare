@@ -14,15 +14,8 @@ crons.daily(
 // Frequent check to dispatch push notifications reliably based on configurable timestamps.
 crons.interval(
     "attendance-reminder-checks",
-    { minutes: 15 },
+    { hours: 1 },
     internal.attendance.checkAndSendReminders
-);
-
-// TEMPORARY: 5-minute tester to strictly debug native device OS push interceptions.
-crons.interval(
-    "test-push-notification",
-    { minutes: 5 },
-    internal.notifications.sendTestPush
 );
 
 export default crons;

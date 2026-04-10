@@ -82,20 +82,4 @@ export const markAllAsRead = mutation({
     },
 });
 
-export const sendTestPush = internalMutation({
-    handler: async (ctx) => {
-        await ctx.db.insert("notifications", {
-            title: "የአቴንዳንስ ማሳሰቢያ (ሙከራ)",
-            body: "የዛሬውን የልጆች አቴንዳንስ ሞልተዋል? አሁን ይሙሉ!",
-            link: "/attendance",
-            isRead: false,
-            timestamp: Date.now(),
-        });
 
-        await ctx.scheduler.runAfter(0, internal.push.sendNotification, {
-            title: "የአቴንዳንስ ማሳሰቢያ (ሙከራ)",
-            body: "የዛሬውን የልጆች አቴንዳንስ ሞልተዋል? አሁን ይሙሉ!",
-            link: "/attendance",
-        });
-    }
-});

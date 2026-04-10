@@ -82,8 +82,11 @@ export const checkAndSendReminders = internalMutation({
     const currentEAT = (currentUTC + 3) % 24;
     const currentMinute = now.getUTCMinutes();
 
-    // Prevent execution if it's not the right hour yet OR if we are in the hour but haven't reached the minute.
-    if (currentEAT !== targetHour || currentMinute < targetMinute) {
+    const currentTotalMinutes = currentEAT * 60 + currentMinute;
+    const targetTotalMinutes = targetHour * 60 + targetMinute;
+
+    // Prevent execution if we haven't reached the target time of the day yet.
+    if (currentTotalMinutes < targetTotalMinutes) {
       return;
     }
 
