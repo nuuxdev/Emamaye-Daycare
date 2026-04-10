@@ -9,6 +9,7 @@
     "dev:backend": "convex dev",
     "predev": "convex dev --until-success && convex dev --once --run-sh \"node setup.mjs --once\" && convex dashboard",
     "build": "next build --turbopack",
+    "postbuild": "node -e \"const fs=require('fs'); fs.appendFileSync('public/sw.js', '\\n' + fs.readFileSync('public/push-worker.js'));\"",
     "start": "next start",
     "lint": "next lint",
     "test": "vitest run"
