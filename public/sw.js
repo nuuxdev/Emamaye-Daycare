@@ -1,15 +1,12 @@
 // Emamaye Daycare - Service Worker
 // Handles push notifications and caching
 
-// Cache name versioning
-const CACHE_NAME = 'emamaye-v1';
-
-// Install event - cache essential assets
+// Install event
 self.addEventListener('install', (event) => {
     self.skipWaiting();
 });
 
-// Activate event - clean up old caches
+// Activate event
 self.addEventListener('activate', (event) => {
     event.waitUntil(clients.claim());
 });
@@ -26,7 +23,8 @@ self.addEventListener('push', (event) => {
             data: {
                 dateOfArrival: Date.now(),
                 link: data.link || '/'
-            }
+            },
+            actions: data.actions || []
         };
         event.waitUntil(
             self.registration.showNotification(data.title || 'Emamaye Daycare', options)
@@ -34,15 +32,26 @@ self.addEventListener('push', (event) => {
     }
 });
 
-// Notification click handler
+// Notification click handler (body click or action button click)
 self.addEventListener('notificationclick', (event) => {
     event.notification.close();
+
+    // Determine target URL from action or from notification data
+    let targetUrl = event.notification.data.link || '/';
+    if (event.action) {
+        targetUrl = event.action; // action value is the URL
+    }
+
     event.waitUntil(
-        clients.matchAll({ type: 'window' }).then((clientList) => {
+        clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+            // Try to navigate an existing window
             for (const client of clientList) {
-                if (client.url === '/' && 'focus' in client) return client.focus();
+                if ('navigate' in client) {
+                    return client.navigate(targetUrl).then(() => client.focus());
+                }
             }
-            if (clients.openWindow) return clients.openWindow(event.notification.data.link || '/');
+            // Otherwise open a new window
+            return clients.openWindow(targetUrl);
         })
     );
 });

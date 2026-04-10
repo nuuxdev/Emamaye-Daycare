@@ -91,7 +91,7 @@ export const checkAndSendReminders = internalMutation({
     const recentNotif = await ctx.db
       .query("notifications")
       .withIndex("by_timestamp", (q) => q.gte("timestamp", twelveHoursAgo))
-      .filter((q) => q.eq(q.field("title"), "Attendance Reminder!"))
+      .filter((q) => q.eq(q.field("title"), "የአቴንዳንስ ማሳሰቢያ!"))
       .first();
 
     if (recentNotif) {
@@ -99,16 +99,16 @@ export const checkAndSendReminders = internalMutation({
     }
 
     await ctx.db.insert("notifications", {
-      title: "Attendance Reminder!",
-      body: "Did you completely track all children's attendance today?",
+      title: "የአቴንዳንስ ማሳሰቢያ!",
+      body: "የዛሬውን የልጆች አቴንዳንስ ሞልተዋል? አሁን ይሙሉ!",
       link: "/attendance",
       isRead: false,
       timestamp: Date.now(),
     });
 
     await ctx.scheduler.runAfter(0, internal.push.sendNotification, {
-      title: "Attendance Reminder!",
-      body: "Did you completely track all children's attendance today?",
+      title: "የአቴንዳንስ ማሳሰቢያ!",
+      body: "የዛሬውን የልጆች አቴንዳንስ ሞልተዋል? አሁን ይሙሉ!",
       link: "/attendance",
     });
   },

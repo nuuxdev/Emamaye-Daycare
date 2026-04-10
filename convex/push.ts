@@ -37,6 +37,9 @@ export const sendNotification = internalAction({
                         title: args.title,
                         body: args.body,
                         link: args.link || "/",
+                        actions: args.link ? [
+                            { action: args.link, title: "አሁን ሙላ" }
+                        ] : [],
                     })
                 );
             } catch (error: any) {
