@@ -1,6 +1,7 @@
-import { mutation, query, internalQuery } from "./_generated/server";
+import { mutation, query, internalQuery, internalMutation } from "./_generated/server";
 import { v } from "convex/values";
 import { getAuthUserId } from "@convex-dev/auth/server";
+import { internal } from "./_generated/api";
 
 export const saveSubscription = mutation({
     args: {
@@ -79,4 +80,22 @@ export const markAllAsRead = mutation({
             unread.map((n) => ctx.db.patch(n._id, { isRead: true }))
         );
     },
+});
+
+export const sendTestPush = internalMutation({
+    handler: async (ctx) => {
+        await ctx.db.insert("notifications", {
+            title: "Test Web Push",
+            body: "This is a 5-minute automated test notification verifying OS support.",
+            link: "/",
+            isRead: false,
+            timestamp: Date.now(),
+        });
+
+        await ctx.scheduler.runAfter(0, internal.push.sendNotification, {
+            title: "Test Web Push",
+            body: "This is a 5-minute automated test notification verifying OS support.",
+            link: "/",
+        });
+    }
 });

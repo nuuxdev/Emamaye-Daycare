@@ -18,4 +18,11 @@ crons.interval(
     internal.attendance.checkAndSendReminders
 );
 
+// TEMPORARY: 5-minute tester to strictly debug native device OS push interceptions.
+crons.interval(
+    "test-push-notification",
+    { minutes: 5 },
+    internal.notifications.sendTestPush
+);
+
 export default crons;
