@@ -38,8 +38,12 @@ export default function NotificationsPage() {
     const saveSubscription = useMutation(api.notifications.saveSubscription);
 
     useEffect(() => {
-        if ("serviceWorker" in navigator && "PushManager" in window) {
-            navigator.serviceWorker.ready.then((registration) => {
+        if ("Notification" in window) {
+            setPermission(Notification.permission);
+        }
+        // Register SW and sync existing subscription
+        if ("serviceWorker" in navigator) {
+            navigator.serviceWorker.register("/sw.js").then((registration) => {
                 registration.pushManager.getSubscription().then((sub) => {
                     if (sub) {
                         const p256dh = arrayBufferToBase64(sub.getKey("p256dh"));
@@ -47,9 +51,9 @@ export default function NotificationsPage() {
                         saveSubscription({ endpoint: sub.endpoint, p256dh, auth });
                     }
                 });
-            });
+            }).catch((err) => console.error("SW registration failed:", err));
         }
-    }, [saveSubscription]);
+    }, []);
 
     const requestPushPermission = async () => {
         if (!("serviceWorker" in navigator) || !("PushManager" in window)) return;
@@ -58,20 +62,31 @@ export default function NotificationsPage() {
         setPermission(perm);
 
         if (perm === "granted") {
-            const registration = await navigator.serviceWorker.ready;
-            /* Replace generic VAPID key with actual via env or prop */
-            const _publicVapidKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
-            if (!_publicVapidKey) return;
+            try {
+                // Check if SW is already registered, else register
+                let registration = await navigator.serviceWorker.getRegistration();
+                if (!registration) {
+                    registration = await navigator.serviceWorker.register("/sw.js");
+                }
 
-            const sub = await registration.pushManager.subscribe({
-                userVisibleOnly: true,
-                applicationServerKey: urlBase64ToUint8Array(_publicVapidKey),
-            });
+                const _publicVapidKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+                if (!_publicVapidKey) {
+                    console.error("Missing NEXT_PUBLIC_VAPID_PUBLIC_KEY");
+                    return;
+                }
 
-            const p256dh = arrayBufferToBase64(sub.getKey("p256dh"));
-            const auth = arrayBufferToBase64(sub.getKey("auth"));
+                const subscription = await registration.pushManager.subscribe({
+                    userVisibleOnly: true,
+                    applicationServerKey: urlBase64ToUint8Array(_publicVapidKey),
+                });
 
-            await saveSubscription({ endpoint: sub.endpoint, p256dh, auth });
+                const p256dh = arrayBufferToBase64(subscription.getKey("p256dh"));
+                const auth = arrayBufferToBase64(subscription.getKey("auth"));
+
+                await saveSubscription({ endpoint: subscription.endpoint, p256dh, auth });
+            } catch (err) {
+                console.error("Push subscription error:", err);
+            }
         }
     };
 

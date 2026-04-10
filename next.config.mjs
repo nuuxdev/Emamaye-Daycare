@@ -1,14 +1,7 @@
-import pwa from "next-pwa";
-
-const withPWA = pwa({
-  dest: "public",
-  register: true,
-  skipWaiting: true,
-  customWorkerDir: "worker",
-});
-
+/** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  turbopack: {},
 };
 
-export default withPWA(nextConfig);
+export default nextConfig;
