@@ -2,6 +2,7 @@
 
 import { ConvexAuthNextjsProvider } from "@convex-dev/auth/nextjs";
 import { ConvexReactClient } from "convex/react";
+import { ConvexQueryCacheProvider } from "convex-helpers/react/cache";
 import { ReactNode } from "react";
 
 const convex = new ConvexReactClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
@@ -13,7 +14,9 @@ export default function ConvexClientProvider({
 }) {
   return (
     <ConvexAuthNextjsProvider client={convex}>
-      {children}
+      <ConvexQueryCacheProvider>
+        {children}
+      </ConvexQueryCacheProvider>
     </ConvexAuthNextjsProvider>
   );
 }

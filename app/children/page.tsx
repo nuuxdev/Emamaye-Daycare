@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useQuery } from "convex/react";
+import { useQuery } from "convex-helpers/react/cache";
 import { api } from "@/convex/_generated/api";
 import { TAgeGroup } from "@/convex/types/children";
 import { Fragment, JSX, useEffect, useRef, useState } from "react";

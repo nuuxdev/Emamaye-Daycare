@@ -18,6 +18,7 @@
     "@convex-dev/auth": "^0.0.90",
     "@internationalized/date": "^3.10.0",
     "convex": "^1.27.0",
+    "convex-helpers": "^0.1.114",
     "next": "16.0.7",
     "next-pwa": "^5.6.0",
     "react": "^19.0.1",

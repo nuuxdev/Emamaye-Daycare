@@ -1,7 +1,8 @@
 "use client";
 import { useParams, useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { useQuery, useAction, useMutation } from "convex/react";
+import { useAction, useMutation } from "convex/react";
+import { useQuery } from "convex-helpers/react/cache";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import GlassHeader from "@/components/GlassHeader";
