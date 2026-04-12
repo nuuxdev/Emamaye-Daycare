@@ -1,5 +1,7 @@
 import { v } from "convex/values";
-import { mutation, query } from "./_generated/server";
+import { mutation, query, internalMutation } from "./_generated/server";
+import { internal } from "./_generated/api";
+import { parseDate, toCalendar, EthiopicCalendar } from "@internationalized/date";
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { VAgeGroup, VGender } from "./types/children";
 import { VRelationToChild } from "./types/guardians";
@@ -254,4 +256,68 @@ export const getChildrenNamesByGuardian = query({
       .collect();
     return children.map((c) => c.fullName);
   },
+});
+
+export const checkAndSendBirthdayReminders = internalMutation({
+  handler: async (ctx) => {
+    // 1. Get tomorrow's date in EAT (+3)
+    const now = new Date();
+    // Add 3 hours (EAT) + 24 hours (Tomorrow) = +27 hours
+    const tomorrowEAT = new Date(now.getTime() + 27 * 60 * 60 * 1000);
+    const tomorrowStr = tomorrowEAT.toISOString().split("T")[0]; // YYYY-MM-DD
+
+    // 2. Map to robust Ethiopian Calendar bounds
+    const tomorrowGreg = parseDate(tomorrowStr);
+    const tomorrowEth = toCalendar(tomorrowGreg, new EthiopicCalendar());
+
+    // 3. Fetch all active children
+    const children = await ctx.db
+      .query("children")
+      .filter(q => q.eq(q.field("isActive"), true))
+      .collect();
+
+    for (const child of children) {
+      if (!child.dateOfBirth) continue;
+
+      const bdGreg = parseDate(child.dateOfBirth);
+      const bdEth = toCalendar(bdGreg, new EthiopicCalendar());
+
+      // Is tomorrow their birthday in the Ethiopian calendar?
+      // (Months and days must match exactly!)
+      if (bdEth.month === tomorrowEth.month && bdEth.day === tomorrowEth.day) {
+        const childName = child.fullNameAmh || child.fullName;
+        const notifTitle = "የልደት ማሳሰቢያ!";
+        const notifBody = `ነገ የ ${childName} ልደት ነው! መልካም ምኞትዎን ይግለጹ።`;
+        const link = `/children/${child._id}`;
+
+        // Prevent duplicate sending for the same child
+        const twentyFourHoursAgo = Date.now() - 24 * 60 * 60 * 1000;
+        const existingNotif = await ctx.db
+          .query("notifications")
+          .withIndex("by_timestamp", q => q.gte("timestamp", twentyFourHoursAgo))
+          .filter(q => q.and(
+            q.eq(q.field("title"), notifTitle),
+            q.eq(q.field("link"), link)
+          ))
+          .first();
+
+        if (existingNotif) continue;
+
+        // Insert persistent DB notification and securely fire Push API action!
+        await ctx.db.insert("notifications", {
+          title: notifTitle,
+          body: notifBody,
+          link: link,
+          isRead: false,
+          timestamp: Date.now(),
+        });
+
+        await ctx.scheduler.runAfter(0, internal.push.sendNotification, {
+          title: notifTitle,
+          body: notifBody,
+          link: link,
+        });
+      }
+    }
+  }
 });

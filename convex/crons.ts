@@ -18,4 +18,11 @@ crons.interval(
     internal.attendance.checkAndSendReminders
 );
 
+// Daily check for upcoming birthdays
+crons.daily(
+    "birthday-reminder-checks",
+    { hourUTC: 6, minuteUTC: 0 },
+    internal.children.checkAndSendBirthdayReminders
+);
+
 export default crons;
