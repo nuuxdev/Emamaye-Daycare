@@ -111,6 +111,25 @@ export const checkAndSendReminders = internalMutation({
       return;
     }
 
+    // Convert UTC to EAT (+3) securely for Date string parsing and Weekend detection
+    const eatDate = new Date(now.getTime() + 3 * 60 * 60 * 1000);
+    const dayOfWeek = eatDate.getUTCDay();
+    // 0 = Sunday, 6 = Saturday
+    if (dayOfWeek === 0 || dayOfWeek === 6) {
+      return;
+    }
+
+    const todayStr = eatDate.toISOString().split("T")[0];
+    const todaysAttendance = await ctx.db
+      .query("attendance")
+      .withIndex("by_date", (q) => q.eq("date", todayStr))
+      .first();
+
+    // If attendance is already filled for today, suppress the reminder
+    if (todaysAttendance) {
+      return;
+    }
+
     const twelveHoursAgo = Date.now() - 12 * 60 * 60 * 1000;
     const recentNotif = await ctx.db
       .query("notifications")
