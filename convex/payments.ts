@@ -97,6 +97,7 @@ export const getPayments = query({
                 return {
                     ...payment,
                     childName: child?.fullName || "Unknown",
+                    childNameAmh: child?.fullNameAmh,
                     childAvatar: child?.avatar,
                     paymentDate: child?.paymentDate,
                     childDiscount: child?.discount,

@@ -173,7 +173,7 @@ export default function PaymentsList() {
                     </div>
                 </div>
 
-                <div style={{ display: "flex", flexDirection: "column", gap: "1rem", paddingInline: "1rem" }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: "1rem", paddingInline: "1rem", width: "100%" }}>
                     {payments === undefined ? (
                         <p className="text-center mt-2">{t("common.loading")}</p>
                     ) : filteredPayments.length === 0 ? (
@@ -206,7 +206,7 @@ export default function PaymentsList() {
                                             </div>
                                             <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
                                                 <div>
-                                                    <h4 style={{ fontSize: "inherit", margin: 0, textTransform: "capitalize" }}>{payment.childName}</h4>
+                                                    <h4 style={{ fontSize: "inherit", margin: 0, textTransform: "capitalize" }}>{language === "am" && payment.childNameAmh ? payment.childNameAmh : payment.childName}</h4>
                                                     <p style={{ margin: "0.25rem 0 0 0", color: "var(--foreground-light)", fontSize: "0.9rem" }}>{payment.ethDateStr}</p>
                                                 </div>
                                                 <div style={{ display: "flex", flexDirection: "column", alignItems: "end" }}>
@@ -252,7 +252,7 @@ export default function PaymentsList() {
                 {selectedPayment && (
                     <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                            <h2 style={{ margin: 0, fontSize: "1.3rem" }}>{language === "am" ? "ክፍያ" : "Payment"} - {selectedPayment.childName}</h2>
+                            <h2 style={{ margin: 0, fontSize: "1.3rem" }}>{language === "am" ? "ክፍያ" : "Payment"} - {language === "am" && selectedPayment.childNameAmh ? selectedPayment.childNameAmh : selectedPayment.childName}</h2>
                             <div style={{ cursor: "pointer", opacity: 0.5 }} onClick={closePayDialog}>
                                 <CloseIcon />
                             </div>
