@@ -15,6 +15,7 @@ export const addChild = mutation({
       dateOfBirth: v.string(),
       ageGroup: VAgeGroup,
       paymentAmount: v.number(),
+      discount: v.optional(v.number()),
       paymentDate: v.number(),
       startDate: v.string(),
       avatar: v.optional(v.id("_storage")),
@@ -53,7 +54,8 @@ export const addChild = mutation({
     const startDay = parseInt(args.childData.startDate.split("-")[1], 10);
     const paymentDay = args.childData.paymentDate;
     const monthlyAmount = args.childData.paymentAmount;
-    const dailyRate = monthlyAmount / 30;
+    const discount = args.childData.discount || 0;
+    const dailyRate = Math.max(0, monthlyAmount - discount) / 30;
 
     // Calculate the prorated amount for the first payment
     // This is a prepayment system: payment is due immediately at registration
@@ -83,6 +85,7 @@ export const addChild = mutation({
       dateOfBirth: args.childData.dateOfBirth,
       ageGroup: args.childData.ageGroup,
       paymentAmount: monthlyAmount,
+      discount: args.childData.discount,
       paymentDate: paymentDay,
       startDate: args.childData.startDate,
       creditBalance: 0,
@@ -232,6 +235,7 @@ export const updateChild = mutation({
     dateOfBirth: v.string(),
     ageGroup: VAgeGroup,
     paymentAmount: v.number(),
+    discount: v.optional(v.number()),
     paymentDate: v.number(),
     startDate: v.string(),
   },

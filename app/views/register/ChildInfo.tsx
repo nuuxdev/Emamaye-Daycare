@@ -10,7 +10,7 @@ import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { translateName } from "@/app/actions";
 import { toast } from "sonner";
-import { SpinnerIcon, CloseIcon } from "@/components/Icons";
+import { SpinnerIcon, CloseIcon, MoneyIcon } from "@/components/Icons";
 import { regenerateIcon } from "@/components/Icons";
 import { useLanguage } from "@/context/LanguageContext";
 
@@ -37,6 +37,7 @@ export default function ChildInfo({
   const fullName = watch("fullName");
   const [isTranslating, setIsTranslating] = useState(false);
   const [hasAttemptedTranslation, setHasAttemptedTranslation] = useState(false);
+  const [showDiscount, setShowDiscount] = useState(!!getValues("discount"));
 
 
   const paymentSettings = useQuery(api.payments.getPaymentSettings);
@@ -299,8 +300,41 @@ export default function ChildInfo({
             readOnly
           />
           <span className="input-prefix">{language === "am" ? "ብር" : "ETB"}</span>
+          <div style={{ position: "absolute", right: "0.75rem", top: "50%", transform: "translateY(-50%)", display: "flex", gap: "0.25rem", alignItems: "center" }}>
+            <div
+              onMouseDown={(e) => {
+                e.preventDefault();
+                setShowDiscount(prev => {
+                  if (prev) {
+                    setValue("discount", null as any);
+                  }
+                  return !prev;
+                });
+              }}
+              style={{ cursor: "pointer", color: "var(--color-primary)", height: "1.5rem", width: "1.5rem" }}
+              title={language === "am" ? "ቅናሽ" : "Discount"}
+            >
+              {showDiscount ? <CloseIcon /> : <MoneyIcon />}
+            </div>
+          </div>
         </div>
       </div>
+
+      {showDiscount && (
+        <div className="mb-1 animate-fade-in">
+          <label htmlFor="discount" className="label-text">{language === "am" ? "ቅናሽ" : "Discount"}</label>
+          <div className="relative">
+            <input
+              className="neo-input pl-3"
+              id="discount"
+              type="number"
+              {...register("discount", { valueAsNumber: true })}
+              placeholder={language === "am" ? "የቅናሽ መጠን (አማራጭ)" : "Discount amount (Optional)"}
+            />
+            <span className="input-prefix">{language === "am" ? "ብር" : "ETB"}</span>
+          </div>
+        </div>
+      )}
 
       <div className="flex-gap-1 mt-2">
         <button

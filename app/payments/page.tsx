@@ -211,7 +211,8 @@ export default function PaymentsList() {
                                                 </div>
                                                 <div style={{ display: "flex", flexDirection: "column", alignItems: "end" }}>
                                                     <p style={{ margin: "0", fontSize: "1.1rem", fontWeight: 700, color: "var(--color-primary)" }}>
-                                                        {payment.amount.toLocaleString()} <span style={{ fontSize: "0.8rem", fontWeight: "normal" }}>ETB</span>
+                                                        {(payment.amount + (payment.childDiscount || 0)).toLocaleString()} <span style={{ fontSize: "0.8rem", fontWeight: "normal" }}>ETB</span>
+                                                        {payment.childDiscount ? <small style={{ color: "var(--color-danger)", marginLeft: "4px", fontSize: "0.8rem" }}>-{payment.childDiscount.toLocaleString()}</small> : null}
                                                     </p>
                                                 </div>
                                             </div>

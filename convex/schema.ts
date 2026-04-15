@@ -19,6 +19,7 @@ export default defineSchema({
     dateOfBirth: v.string(),
     ageGroup: VAgeGroup,
     paymentAmount: v.number(),
+    discount: v.optional(v.number()),
     paymentDate: v.optional(v.number()), // 1-30
     startDate: v.optional(v.string()), // Ethiopian date string "MM-DD-YYYY"
     creditBalance: v.optional(v.number()), // To store prorated differences and carried-over amounts

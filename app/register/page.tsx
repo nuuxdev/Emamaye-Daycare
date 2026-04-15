@@ -24,6 +24,7 @@ export type TChildInfo = {
   dateOfBirth: string;
   ageGroup: TAgeGroup;
   paymentAmount: number | null;
+  discount: number | null;
   paymentDate: number | null;
   startDate: string;
 };
@@ -61,6 +62,7 @@ export default function Register() {
       paymentAmount: null,
       paymentDate: null,
       startDate: "",
+      discount: null,
     },
     {
       fullName: "",
@@ -113,6 +115,7 @@ export default function Register() {
         paymentAmount: null,
         paymentDate: null,
         startDate: "",
+        discount: null,
       },
       {
         fullName: "",
@@ -149,6 +152,7 @@ export default function Register() {
       const childData = {
         ...savedSteps[0],
         paymentAmount: savedSteps[0].paymentAmount!,
+        discount: savedSteps[0].discount || undefined,
         paymentDate: savedSteps[0].paymentDate!,
         avatar: childStorageId,
         dateOfBirth: dateOfBirthString,

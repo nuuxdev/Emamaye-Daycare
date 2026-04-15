@@ -78,6 +78,7 @@ export const translations = {
                 paymentDate: "Payment Date",
                 paymentDatePlaceholder: "1-30",
                 paymentAmount: "Payment Amount",
+                discount: "Discount",
                 ageGroup: "Age Group",
                 ageGroupPlaceholder: "Select Age Group",
             },

@@ -668,7 +668,10 @@ export default function ChildInfo() {
                                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", width: "100%" }}>
                                     <div>
                                         <span className="label-text" style={{ fontSize: "0.8rem" }}>{language === "am" ? "ወርሃዊ ክፍያ" : "Monthly Fee"}</span>
-                                        <p style={{ margin: "0.25rem 0 0", fontWeight: 600 }}>{child.paymentAmount?.toLocaleString()} ETB</p>
+                                        <p style={{ margin: "0.25rem 0 0", fontWeight: 600 }}>
+                                            {child.paymentAmount?.toLocaleString()} ETB
+                                            {child.discount ? <small style={{ color: "var(--color-danger)", marginLeft: "4px" }}>-{child.discount.toLocaleString()}</small> : null}
+                                        </p>
                                     </div>
                                     <div>
                                         <span className="label-text" style={{ fontSize: "0.8rem" }}>{language === "am" ? "የክፍያ ቀን" : "Payment Day"}</span>
@@ -713,7 +716,10 @@ export default function ChildInfo() {
                                     return (
                                         <div key={payment._id} className="neo-box" style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", padding: "1rem" }}>
                                             <div>
-                                                <p style={{ margin: 0, fontWeight: 600, fontSize: "1rem" }}>{payment.amount.toLocaleString()} ETB</p>
+                                                <p style={{ margin: 0, fontWeight: 600, fontSize: "1rem" }}>
+                                                    {(payment.amount + (payment.childDiscount || 0)).toLocaleString()} ETB
+                                                    {payment.childDiscount ? <small style={{ color: "var(--color-danger)", marginLeft: "4px", fontSize: "0.8rem" }}>-{payment.childDiscount.toLocaleString()}</small> : null}
+                                                </p>
                                                 <p style={{ margin: "0.25rem 0 0", fontSize: "0.85rem", opacity: 0.7 }}>{ethDateStr}</p>
                                             </div>
                                             <span style={{

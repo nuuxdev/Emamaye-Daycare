@@ -99,6 +99,7 @@ export const getPayments = query({
                     childName: child?.fullName || "Unknown",
                     childAvatar: child?.avatar,
                     paymentDate: child?.paymentDate,
+                    childDiscount: child?.discount,
                 };
             })
         );
@@ -190,8 +191,10 @@ async function performPaymentGeneration(ctx: any, dueDate: string, dayEth: numbe
 
         if (!alreadyExists) {
             const baseAmount = settingsMap.get(child.ageGroup) || child.paymentAmount || 0;
+            const discount = child.discount || 0;
+            const adjustedBaseAmount = Math.max(0, baseAmount - discount);
             const creditBalance = child.creditBalance || 0;
-            const totalAmount = baseAmount + creditBalance;
+            const totalAmount = adjustedBaseAmount + creditBalance;
 
             await ctx.db.insert("payments", {
                 childId: child._id,
