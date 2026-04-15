@@ -50,7 +50,7 @@ export default function PaymentsList() {
     };
 
     const filterLabels: Record<PaymentCategory, string> = {
-        due_date: language === "am" ? "ወርሃዊ" : "Due Date",
+        due_date: language === "am" ? "ዛሬ" : "Today",
         upcoming: language === "am" ? "በቅርቡ" : "Upcoming",
         unpaid: language === "am" ? "ያልተከፈለ" : "Unpaid",
         paid: language === "am" ? "የተከፈለ" : "Paid"
@@ -200,7 +200,7 @@ export default function PaymentsList() {
                                                     alt="child avatar"
                                                     style={{
                                                         borderRadius: "50%",
-                                                        border: isUnpaidColor ? "3px solid var(--color-error)" : (isPaidColor ? "3px solid var(--color-success)" : "3px solid transparent")
+                                                        border: isUnpaidColor ? "2px solid var(--color-error)" : (isPaidColor ? "2px solid var(--color-success)" : "2px solid transparent")
                                                     }}
                                                 />
                                             </div>
@@ -211,21 +211,22 @@ export default function PaymentsList() {
                                                 </div>
                                                 <div style={{ display: "flex", flexDirection: "column", alignItems: "end" }}>
                                                     <p style={{ margin: "0", fontSize: "1.1rem", fontWeight: 700, color: "var(--color-primary)" }}>
-                                                        {(payment.amount + (payment.childDiscount || 0)).toLocaleString()} <span style={{ fontSize: "0.8rem", fontWeight: "normal" }}>ETB</span>
-                                                        {payment.childDiscount ? <small style={{ color: "var(--color-danger)", marginLeft: "4px", fontSize: "0.8rem" }}>-{payment.childDiscount.toLocaleString()}</small> : null}
+                                                        {payment.amount.toLocaleString()} <span style={{ fontSize: "0.8rem", fontWeight: "normal" }}>ETB</span>
                                                     </p>
                                                 </div>
                                             </div>
                                         </summary>
                                         <div style={{ display: "flex", flexDirection: "column", gap: "1rem", padding: "1.25rem 0 2rem 0" }}>
-                                            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
-                                                <div className="neo-box" style={{ padding: "0.75rem", borderRadius: "12px", background: "var(--background)" }}>
-                                                    <p className="label-text" style={{ margin: "0 0 0.25rem 0", fontSize: "0.8rem" }}>{language === "am" ? "የልጅ ስም" : "Child Name"}</p>
-                                                    <p style={{ margin: 0, fontWeight: 600 }}>{payment.childName}</p>
-                                                </div>
-                                                <div className="neo-box" style={{ padding: "0.75rem", borderRadius: "12px", background: "var(--background)" }}>
-                                                    <p className="label-text" style={{ margin: "0 0 0.25rem 0", fontSize: "0.8rem" }}>{language === "am" ? "ያለው ዕዳ ማካካሻ" : "Credit Applied"}</p>
-                                                    <p style={{ margin: 0, fontWeight: 600 }}>--</p>
+                                            <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                                                {payment.childDiscount ? (
+                                                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0 0.5rem" }}>
+                                                        <span className="label-text" style={{ fontSize: "0.9rem" }}>{language === "am" ? "ቅናሽ" : "Discount"}</span>
+                                                        <span style={{ fontWeight: 600, color: "var(--color-danger)" }}>-{payment.childDiscount.toLocaleString()} ETB</span>
+                                                    </div>
+                                                ) : null}
+                                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0 0.5rem" }}>
+                                                    <span className="label-text" style={{ fontSize: "0.9rem" }}>{language === "am" ? "ያለው ዕዳ ማካካሻ" : "Credit Applied"}</span>
+                                                    <span style={{ fontWeight: 600, opacity: 0.5 }}>--</span>
                                                 </div>
                                             </div>
                                             {payment.status !== "paid" && (
@@ -247,14 +248,14 @@ export default function PaymentsList() {
             </main>
 
             {/* Payment Modal */}
-            <dialog ref={payDialogRef} className="neo-box">
+            <dialog ref={payDialogRef} style={{ borderRadius: "1rem", padding: "1.5rem", maxWidth: "400px", width: "100%", border: "none" }}>
                 {selectedPayment && (
                     <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                             <h2 style={{ margin: 0, fontSize: "1.3rem" }}>{language === "am" ? "ክፍያ" : "Payment"} - {selectedPayment.childName}</h2>
-                            <button className="icon-btn" onClick={closePayDialog}>
+                            <div style={{ cursor: "pointer", opacity: 0.5 }} onClick={closePayDialog}>
                                 <CloseIcon />
-                            </button>
+                            </div>
                         </div>
 
                         <p style={{ opacity: 0.8, fontSize: "0.9rem", margin: 0 }}>
