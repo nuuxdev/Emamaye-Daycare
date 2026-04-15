@@ -362,8 +362,8 @@
         gap: 1rem;
         position: relative;
         height: 220px;
-        mask-image: linear-gradient(to bottom, transparent, black 20%, black 80%, transparent);
-        -webkit-mask-image: linear-gradient(to bottom, transparent, black 20%, black 80%, transparent);
+        mask-image: linear-gradient(to bottom, transparent, black 15%, black 85%, transparent);
+        -webkit-mask-image: linear-gradient(to bottom, transparent, black 15%, black 85%, transparent);
 
         /* Highlight bar */
         &::before {
@@ -376,9 +376,8 @@
             transform: translateY(-50%);
             background: rgba(255, 51, 102, 0.08);
             border-block: 1px solid rgba(255, 51, 102, 0.2);
-            /* border-radius: 8px; */
             pointer-events: none;
-            z-index: 0;
+            z-index: 10;
         }
 
         .scroller {
@@ -386,11 +385,16 @@
             overflow-y: auto;
             scroll-snap-type: y mandatory;
             scrollbar-width: none;
-            padding-block: 88px;
-            /* Half height - half item height */
+            perspective: 300px;
 
             &::-webkit-scrollbar {
                 display: none;
+            }
+
+            ul {
+                transform-style: preserve-3d;
+                position: relative;
+                padding-block: 88px;
             }
         }
     }
@@ -404,12 +408,13 @@
         font-size: 1.1rem;
         font-weight: 500;
         color: var(--foreground);
-        opacity: 0.4;
-        transition: all 0.3s ease;
+        /* opacity & transform are driven by JS wheel physics */
+        transform-origin: center center;
+        backface-visibility: hidden;
+        will-change: transform, opacity;
         cursor: pointer;
 
         &.selected {
-            opacity: 0.8;
             color: var(--color-primary);
         }
     }

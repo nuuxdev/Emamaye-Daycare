@@ -1,10 +1,83 @@
 import { TChildInfo } from "@/app/register/page";
 import { CalendarDate, parseDate, toCalendar } from "@internationalized/date";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { UseFormRegister } from "react-hook-form";
 import { EthiopianCalendar, todayInEth } from "@/utils/calendar";
 import { CalendarIcon } from "@/components/Icons";
 import { useLanguage } from "@/context/LanguageContext";
+
+// ── Wheel Physics Constants ──
+const ITEM_HEIGHT = 44;       // matches CSS li height
+const RADIUS = 75;            // virtual cylinder radius (controls curve tightness)
+const MAX_ANGLE = 65;         // max rotation degrees
+
+// Scale range: center = max, edges = min
+const SCALE_CENTER = 1.08;
+const SCALE_EDGE = 0.8;
+
+/**
+ * Applies 3D cylindrical drum transforms to scroller items.
+ * Center item is scaled up and front-facing; items above/below
+ * progressively shrink, fade, and rotate away on the X-axis.
+ */
+function applyWheelTransforms(scroller: HTMLElement) {
+  const ul = scroller.children[0] as HTMLElement;
+  if (!ul) return;
+  const items = ul.children;
+  const scrollCenter = scroller.scrollTop + scroller.clientHeight / 2;
+  const ulOffset = ul.offsetTop; // accounts for scroller padding-top
+
+  for (let i = 0; i < items.length; i++) {
+    const item = items[i] as HTMLElement;
+    const itemCenter = ulOffset + item.offsetTop + ITEM_HEIGHT / 2;
+    const offset = itemCenter - scrollCenter;
+
+    // Convert pixel offset to angle on the cylinder
+    const angle = (offset / RADIUS) * (180 / Math.PI);
+    const clampedAngle = Math.max(-MAX_ANGLE, Math.min(MAX_ANGLE, angle));
+
+    // t = 0 at center, 1 at edge
+    const t = Math.abs(clampedAngle) / MAX_ANGLE;
+    const scale = SCALE_CENTER - t * (SCALE_CENTER - SCALE_EDGE);  // 1.15 → 0.8
+    const opacity = 1 - t * 0.65;                                  // 1.0 → 0.35
+
+    item.style.transform = `rotateX(${-clampedAngle}deg) scale(${scale})`;
+    item.style.opacity = String(Math.max(0.2, opacity));
+  }
+}
+
+/** Hook: attach wheel-physics scroll listener to a scroller ref */
+function useWheelPhysics(scrollerRef: React.RefObject<HTMLElement | null>) {
+  const rafId = useRef(0);
+
+  const onScroll = useCallback(() => {
+    cancelAnimationFrame(rafId.current);
+    rafId.current = requestAnimationFrame(() => {
+      if (scrollerRef.current) applyWheelTransforms(scrollerRef.current);
+    });
+  }, [scrollerRef]);
+
+  useEffect(() => {
+    const el = scrollerRef.current;
+    if (!el) return;
+    // Apply immediately for initial state
+    applyWheelTransforms(el);
+    el.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      el.removeEventListener("scroll", onScroll);
+      cancelAnimationFrame(rafId.current);
+    };
+  }, [scrollerRef, onScroll]);
+
+  // Re-apply when list changes
+  const refresh = useCallback(() => {
+    requestAnimationFrame(() => {
+      if (scrollerRef.current) applyWheelTransforms(scrollerRef.current);
+    });
+  }, [scrollerRef]);
+
+  return refresh;
+}
 
 const { year: thisYear, month: thisMonth, day: thisDay } = todayInEth;
 
@@ -80,6 +153,16 @@ const Dialog = ({ dialogRef, onSelect, value, minDate, maxDate }: { dialogRef: R
   const daysRef = useRef<HTMLUListElement>(null);
   const yearsRef = useRef<HTMLUListElement>(null);
 
+  // Scroller container refs for wheel physics
+  const monthsScrollerRef = useRef<HTMLDivElement>(null);
+  const daysScrollerRef = useRef<HTMLDivElement>(null);
+  const yearsScrollerRef = useRef<HTMLDivElement>(null);
+
+  // Attach 3D wheel physics to each scroller column
+  const refreshMonthsWheel = useWheelPhysics(monthsScrollerRef);
+  const refreshDaysWheel = useWheelPhysics(daysScrollerRef);
+  const refreshYearsWheel = useWheelPhysics(yearsScrollerRef);
+
 
   useEffect(() => {
     // Generate years array once
@@ -129,6 +212,13 @@ const Dialog = ({ dialogRef, onSelect, value, minDate, maxDate }: { dialogRef: R
     setMonthsArray(computedMonths);
     setDaysArray(computedDays);
   }, [currentMonth, currentYear, initialized, minDate, maxDate]);
+
+  // Refresh wheel transforms when arrays change
+  useEffect(() => {
+    refreshMonthsWheel();
+    refreshDaysWheel();
+    refreshYearsWheel();
+  }, [daysArray, monthsArray, yearsArray, refreshMonthsWheel, refreshDaysWheel, refreshYearsWheel]);
 
   useEffect(() => {
     const scrollers = document.querySelectorAll(".scroller");
@@ -183,6 +273,12 @@ const Dialog = ({ dialogRef, onSelect, value, minDate, maxDate }: { dialogRef: R
       daysRef.current?.children[daysArray.indexOf(selectedDate.day)]?.scrollIntoView({ behavior: "smooth", block: "center" });
       monthsRef.current?.children[monthsArray.indexOf(months[selectedDate.month - 1])]?.scrollIntoView({ behavior: "smooth", block: "center" });
       yearsRef.current?.children[yearsArray.indexOf(selectedDate.year)]?.scrollIntoView({ behavior: "smooth", block: "center" });
+      // Refresh 3D transforms after scroll settles
+      setTimeout(() => {
+        refreshMonthsWheel();
+        refreshDaysWheel();
+        refreshYearsWheel();
+      }, 350);
     }, 100);
 
     setInitialized(true);
@@ -216,7 +312,7 @@ const Dialog = ({ dialogRef, onSelect, value, minDate, maxDate }: { dialogRef: R
   return <dialog ref={dialogRef}>
     <h3 className="dialog-title">ቀን ይምረጡ</h3>
     <div className="scroller-wrapper">
-      <div className="scroller">
+      <div className="scroller" ref={monthsScrollerRef}>
         <ul ref={monthsRef} style={{ listStyle: "none" }}>
           {monthsArray?.map((month) => (
             <li key={month} className="months">
@@ -225,7 +321,7 @@ const Dialog = ({ dialogRef, onSelect, value, minDate, maxDate }: { dialogRef: R
           ))}
         </ul>
       </div>
-      <div className="scroller">
+      <div className="scroller" ref={daysScrollerRef}>
         <ul ref={daysRef} style={{ listStyle: "none" }}>
           {daysArray.map(
             (day) => {
@@ -245,7 +341,7 @@ const Dialog = ({ dialogRef, onSelect, value, minDate, maxDate }: { dialogRef: R
           )}
         </ul>
       </div>
-      <div className="scroller">
+      <div className="scroller" ref={yearsScrollerRef}>
         <ul ref={yearsRef} style={{ listStyle: "none" }}>
           {yearsArray.map((year) => (
             <li key={year} className="years">
@@ -261,14 +357,14 @@ const Dialog = ({ dialogRef, onSelect, value, minDate, maxDate }: { dialogRef: R
         type="button"
         onClick={() => handleClose("cancel")}
       >
-        Cancel
+        ሰርዝ
       </button>
       <button
         className="neo-btn primary w-full"
         type="button"
         onClick={() => handleClose("set")}
       >
-        Set
+        አረጋግጥ
       </button>
     </div>
   </dialog>
