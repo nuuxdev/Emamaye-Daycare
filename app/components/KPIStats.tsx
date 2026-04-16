@@ -104,13 +104,14 @@ export default function KPIStats() {
                         <Fragment key={item.label}>
                             <div style={statItemStyle}>
                                 <span style={labelStyle}>{item.label}</span>
-                                <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                                    <div style={{ color: item.color || "var(--color-primary)", opacity: 0.8 }}>{item.icon}</div>
+                                <div style={{ display: "flex", alignItems: "flex-end", gap: "6px" }}>
+                                    <div style={{ color: item.color || "var(--color-primary)", opacity: 0.8, display: "flex" }}>{item.icon}</div>
                                     <span style={{
                                         ...valueStyle,
-                                        fontSize: isNumberValue ? "1.5rem" : "1rem",
+                                        fontSize: isNumberValue ? "1.375rem" : "1.125rem",
                                         fontWeight: isNumberValue ? 800 : 700,
                                         color: item.color || "var(--color-primary)",
+                                        lineHeight: 1,
                                     }}>{stats ? item.value : "—"}</span>
                                 </div>
                             </div>
@@ -166,7 +167,6 @@ export default function KPIStats() {
 
                 {/* Slide 3: Payments */}
                 {renderStatGroup(t("kpi.categoryPayments"), [
-                    { label: t("kpi.expected"), value: stats?.payments.expected.toLocaleString(), icon: <InfoIcon /> },
                     { label: t("kpi.paid"), value: stats?.payments.paid.toLocaleString(), icon: <MoneyIcon />, color: "var(--color-success)" },
                     { label: t("kpi.unpaid"), value: stats?.payments.unpaid.toLocaleString(), icon: <LockIcon />, color: "var(--error-color)" },
                 ])}
