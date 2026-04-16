@@ -16,80 +16,33 @@ export default function SignIn() {
     <main className="signin-container">
       <header className="signin-header">
         <div className="signin-header-bg">
-          {/* <svg
-            style={{
-              width: "100%",
-              maxHeight: "300px"
-            }}
-            viewBox="0 0 360 309"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            preserveAspectRatio="xMidYMin slice"
-          >
-            <g filter="url(#filter0_if_97_55)">
-              <path
-                d="M166.5 250.5C70.5 250.5 20.6674 288.004 0 308V0H361V158.029C343.46 217.57 235.915 250.5 166.5 250.5Z"
-                fill="url(#paint0_linear_97_55)"
-              />
-            </g>
+          <svg style={{ flexShrink: 0 }} width="167" height="332" viewBox="0 0 167 332" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M166.5 275C70.5 275 20.6674 312.004 0 332V0H166.5V275Z" fill="url(#paint0_linear_167_19)" />
             <defs>
-              <filter
-                id="filter0_if_97_55"
-                x="-1"
-                y="-15"
-                width="363"
-                height="324"
-                filterUnits="userSpaceOnUse"
-                colorInterpolationFilters="sRGB"
-              >
-                <feFlood floodOpacity="0" result="BackgroundImageFix" />
-                <feBlend
-                  mode="normal"
-                  in="SourceGraphic"
-                  in2="BackgroundImageFix"
-                  result="shape"
-                />
-                <feColorMatrix
-                  in="SourceAlpha"
-                  type="matrix"
-                  values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
-                  result="hardAlpha"
-                />
-                <feOffset dy="-15" />
-                <feGaussianBlur stdDeviation="12.5" />
-                <feComposite
-                  in2="hardAlpha"
-                  operator="arithmetic"
-                  k2="-1"
-                  k3="1"
-                />
-                <feColorMatrix
-                  type="matrix"
-                  values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0"
-                />
-                <feBlend
-                  mode="normal"
-                  in2="shape"
-                  result="effect1_innerShadow_97_55"
-                />
-                <feGaussianBlur
-                  stdDeviation="0.5"
-                  result="effect2_foregroundBlur_97_55"
-                />
-              </filter>
-              <linearGradient
-                id="paint0_linear_97_55"
-                x1="361"
-                y1="0"
-                x2="56.8421"
-                y2="356.497"
-                gradientUnits="userSpaceOnUse"
-              >
-                <stop offset="0.119284" stopColor="#FEA4AB" />
+              <linearGradient id="paint0_linear_167_19" x1="83.25" y1="-4.94719e-06" x2="83.25" y2="332" gradientUnits="userSpaceOnUse">
+                <stop stopColor="#FEA4AB" />
+                <stop offset="0.827875" stopColor="#F6465A" />
+              </linearGradient>
+            </defs>
+          </svg>
+          <svg style={{ flexGrow: 1, minWidth: 0, height: 275, marginInline: "-1px" }} height="275" viewBox="0 0 61 275" preserveAspectRatio="none" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M61 275H0V0H61V275Z" fill="url(#paint0_linear_167_21)" />
+            <defs>
+              <linearGradient id="paint0_linear_167_21" x1="30.5" y1="2.74043e-07" x2="30.5" y2="275" gradientUnits="userSpaceOnUse">
+                <stop stopColor="#FEA4AB" />
                 <stop offset="1" stopColor="#F6465A" />
               </linearGradient>
             </defs>
-          </svg> */}
+          </svg>
+          <svg style={{ flexShrink: 0 }} width="181" height="275" viewBox="0 0 181 275" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M180.5 182.5C164.101 238.166 69 274.971 0 274.971V0H180.5V182.5Z" fill="url(#paint0_linear_167_25)" />
+            <defs>
+              <linearGradient id="paint0_linear_167_25" x1="90.25" y1="2.42102e-06" x2="90.25" y2="274.971" gradientUnits="userSpaceOnUse">
+                <stop stopColor="#FEA4AB" />
+                <stop offset="1" stopColor="#F6465A" />
+              </linearGradient>
+            </defs>
+          </svg>
         </div>
 
         <div className="signin-icon-wrapper">
