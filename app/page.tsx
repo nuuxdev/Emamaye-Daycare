@@ -63,25 +63,25 @@ export default function Home() {
           <ViewTransition name="page-children">
             <Link href="/children" style={cardStyle} className="neo-box">
               <PreschoolerIcon />
-              <span>{t("home.myChildren")}</span>
+              <span style={{ fontWeight: 800 }}>{t("home.myChildren")}</span>
             </Link>
           </ViewTransition>
           <ViewTransition name="page-attendance">
             <Link href="/attendance" style={cardStyle} className="neo-box">
               <AttendanceIcon />
-              <span>{t("home.attendance")}</span>
+              <span style={{ fontWeight: 800 }}>{t("home.attendance")}</span>
             </Link>
           </ViewTransition>
           <ViewTransition name="page-register">
             <Link href="/register" style={cardStyle} className="neo-box">
               <ClipboardIcon />
-              <span>{t("home.registration")}</span>
+              <span style={{ fontWeight: 800 }}>{t("home.registration")}</span>
             </Link>
           </ViewTransition>
           <ViewTransition name="page-payments">
             <Link href="/payments" style={cardStyle} className="neo-box">
               <MoneyIcon />
-              <span>{t("home.payments")}</span>
+              <span style={{ fontWeight: 800 }}>{t("home.payments")}</span>
             </Link>
           </ViewTransition>
         </div>
