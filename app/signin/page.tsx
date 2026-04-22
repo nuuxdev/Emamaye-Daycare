@@ -4,6 +4,8 @@ import { useAuthActions } from "@convex-dev/auth/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Image from "next/image";
+import { useLanguage } from "@/context/LanguageContext";
+import LanguageSwitch from "@/components/LanguageSwitch";
 
 export default function SignIn() {
   const { signIn } = useAuthActions();
@@ -11,9 +13,18 @@ export default function SignIn() {
   const [flow] = useState<"signIn" | "signUp">("signIn");
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const { t, language, setLanguage } = useLanguage();
 
   return (
     <main className="signin-container">
+      <div className="signin-lang-toggle">
+        <LanguageSwitch
+          language={language}
+          onToggle={() => setLanguage(language === "en" ? "am" : "en")}
+          compact
+          noLabels
+        />
+      </div>
       <header className="signin-header">
         <div className="signin-header-bg">
           <svg style={{ flexShrink: 0 }} width="167" height="332" viewBox="0 0 167 332" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -56,9 +67,9 @@ export default function SignIn() {
 
         <div className="signin-title-wrapper">
           <h1 className="signin-title">
-            Emamaye Daycare <span>Pro</span>
+            {t("signin.title")} <span style={{ background: "white", borderRadius: "16px", padding: "0 10px" }}>{t("signin.titleAccent")}</span>
           </h1>
-          <p className="signin-subtitle">The least I can do for Emamaye</p>
+          <p className="signin-subtitle">{t("signin.subtitle")}</p>
         </div>
       </header>
 
@@ -76,17 +87,17 @@ export default function SignIn() {
               router.push("/");
             } catch (error) {
               console.error(error);
-              setError("Oops!😯 Error signing in!");
+              setError(t("signin.error"));
             } finally {
               setIsLoading(false);
             }
           }}
         >
-          <input type="email" name="email" placeholder="Email" required />
-          <input type="password" name="password" placeholder="Password" required />
+          <input type="email" name="email" placeholder={t("signin.emailPlaceholder")} required />
+          <input type="password" name="password" placeholder={t("signin.passwordPlaceholder")} required />
 
           <button type="submit" className="primary">
-            {isLoading ? "Signing In..." : "Sign in"}
+            {isLoading ? t("signin.signingIn") : t("signin.signIn")}
             {!isLoading && (
               <Image
                 src="/references/arrow.png"

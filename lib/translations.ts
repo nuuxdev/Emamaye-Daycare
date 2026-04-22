@@ -2,6 +2,16 @@ export type TranslationKey = keyof typeof translations.en;
 
 export const translations = {
     en: {
+        signin: {
+            title: "Emamaye Daycare",
+            titleAccent: "Pro",
+            subtitle: "The least I can do for Emamaye",
+            emailPlaceholder: "Email",
+            passwordPlaceholder: "Password",
+            signingIn: "Signing In...",
+            signIn: "Sign in",
+            error: "Oops!😯 Error signing in!",
+        },
         home: {
             title: "Emamaye Daycare Pro",
             myChildren: "My Children",
@@ -188,6 +198,16 @@ export const translations = {
         }
     },
     am: {
+        signin: {
+            title: "እማማዬ ዴይኬር",
+            titleAccent: "ፕሮ",
+            subtitle: "ባቅሜ ትንሽዬ፤ ለእማማዬ",
+            emailPlaceholder: "ኢሜይል",
+            passwordPlaceholder: "የይለፍ ቃል",
+            signingIn: "በመግባት ላይ...",
+            signIn: "ግባ",
+            error: "ውይ!😯 ስህተት ተፈጥሯል!",
+        },
         home: {
             title: "እማማዬ ዴይኬር ፕሮ",
             myChildren: "ልጆቼ",

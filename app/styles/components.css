@@ -979,6 +979,13 @@
         gap: 0;
     }
 
+    .signin-lang-toggle {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        z-index: 20;
+    }
+
     .signin-header {
         position: relative;
         width: 100%;
