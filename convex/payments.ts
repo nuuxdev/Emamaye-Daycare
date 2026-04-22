@@ -122,7 +122,14 @@ export const markAsPaid = mutation({
         const payment = await ctx.db.get(args.paymentId);
         if (!payment) throw new Error("Payment not found");
 
-        const paidAmount = args.paidAmount ?? payment.amount;
+        const child = await ctx.db.get(payment.childId);
+        const childDiscount = child?.discount || 0;
+
+        // If the payment record does not have a discount set (legacy), fallback to child.discount
+        const appliedDiscount = payment.discount !== undefined ? payment.discount : childDiscount;
+        const expectedAmount = Math.max(0, payment.amount - appliedDiscount);
+
+        const paidAmount = args.paidAmount ?? expectedAmount;
         const paidDate = args.paidDate ?? new Date().toISOString();
 
         await ctx.db.patch(args.paymentId, {
@@ -130,15 +137,13 @@ export const markAsPaid = mutation({
             paidAt: new Date().toISOString(),
             paidAmount,
             paidDate,
+            discount: appliedDiscount, // Set it explicitly if it was missing
         });
 
-        const shortfall = payment.amount - paidAmount;
-        if (shortfall !== 0) {
-            const child = await ctx.db.get(payment.childId);
-            if (child) {
-                const newCreditBalance = (child.creditBalance || 0) + shortfall;
-                await ctx.db.patch(child._id, { creditBalance: newCreditBalance });
-            }
+        const shortfall = expectedAmount - paidAmount;
+        if (shortfall !== 0 && child) {
+            const newCreditBalance = (child.creditBalance || 0) + shortfall;
+            await ctx.db.patch(child._id, { creditBalance: newCreditBalance });
         }
     },
 });
@@ -193,13 +198,13 @@ async function performPaymentGeneration(ctx: any, dueDate: string, dayEth: numbe
         if (!alreadyExists) {
             const baseAmount = settingsMap.get(child.ageGroup) || child.paymentAmount || 0;
             const discount = child.discount || 0;
-            const adjustedBaseAmount = Math.max(0, baseAmount - discount);
             const creditBalance = child.creditBalance || 0;
-            const totalAmount = adjustedBaseAmount + creditBalance;
+            const totalAmount = baseAmount + creditBalance;
 
             await ctx.db.insert("payments", {
                 childId: child._id,
                 amount: totalAmount,
+                discount: discount,
                 dueDate: dueDate,
                 status: "pending",
             });

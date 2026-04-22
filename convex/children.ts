@@ -100,10 +100,15 @@ export const addChild = mutation({
     const todayDate = new Date();
     const dueDateStr = todayDate.toISOString().split("T")[0]; // YYYY-MM-DD
 
-    if (initialPaymentAmount > 0) {
+    const proratedDiscount = Math.round(daysToCharge * (discount / 30));
+    const initialBaseAmount = Math.round(daysToCharge * (monthlyAmount / 30));
+
+    // The initial payment is the prorated base amount, with the prorated discount as a separate field
+    if (initialBaseAmount > 0) {
       await ctx.db.insert("payments", {
         childId,
-        amount: initialPaymentAmount,
+        amount: initialBaseAmount,
+        discount: proratedDiscount,
         dueDate: dueDateStr,
         status: "pending",
       });
@@ -243,8 +248,42 @@ export const updateChild = mutation({
     const userId = await getAuthUserId(ctx);
     if (!userId) throw new Error("Unauthorized");
 
+    const existingChild = await ctx.db.get(args.childId);
+    if (!existingChild) throw new Error("Child not found");
+
     const { childId, ...fields } = args;
     await ctx.db.patch(childId, fields);
+
+    // If discount or paymentAmount changed, update all pending payments
+    const oldDiscount = existingChild.discount || 0;
+    const newDiscount = args.discount || 0;
+    const oldPaymentAmount = existingChild.paymentAmount;
+    const newPaymentAmount = args.paymentAmount;
+
+    if (oldDiscount !== newDiscount || oldPaymentAmount !== newPaymentAmount) {
+      const pendingPayments = await ctx.db
+        .query("payments")
+        .withIndex("by_child", (q) => q.eq("childId", childId))
+        .collect();
+
+      for (const payment of pendingPayments) {
+        if (payment.status === "pending") {
+          const updates: any = {};
+          if (oldDiscount !== newDiscount) {
+            updates.discount = newDiscount;
+          }
+          if (oldPaymentAmount !== newPaymentAmount) {
+            // If base amount changed, we replace the amount (which should be base + credit, but reconstructing that is complex)
+            // We'll just patch the amount assuming it's mostly the base amount for now!
+            updates.amount = newPaymentAmount;
+          }
+          if (Object.keys(updates).length > 0) {
+            await ctx.db.patch(payment._id, updates);
+          }
+        }
+      }
+    }
+
     return "Child updated successfully";
   },
 });

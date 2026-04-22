@@ -92,8 +92,10 @@ export default function PaymentsList() {
 
     const openPayDialog = (payment: any) => {
         setSelectedPayment(payment);
+        const appliedDiscount = payment.discount !== undefined ? payment.discount : (payment.childDiscount || 0);
+        const expectedAmount = Math.max(0, payment.amount - appliedDiscount);
         reset({
-            paidAmount: payment.amount,
+            paidAmount: expectedAmount,
             paidDate: todayInGreg.toString()
         });
         payDialogRef.current?.showModal();
@@ -186,6 +188,9 @@ export default function PaymentsList() {
                             const isUnpaidColor = filter === "unpaid";
                             const isPaidColor = filter === "paid";
 
+                            const appliedDiscount = payment.discount !== undefined ? payment.discount : (payment.childDiscount || 0);
+                            const expectedAmount = Math.max(0, payment.amount - appliedDiscount);
+
                             return (
                                 <Fragment key={payment._id}>
                                     <details style={{ width: "100%", cursor: "pointer" }} name="payments-list-item">
@@ -210,18 +215,23 @@ export default function PaymentsList() {
                                                     <p style={{ margin: "0.25rem 0 0 0", color: "var(--foreground-light)", fontSize: "0.9rem" }}>{payment.ethDateStr}</p>
                                                 </div>
                                                 <div style={{ display: "flex", flexDirection: "column", alignItems: "end" }}>
-                                                    <p style={{ margin: "0", fontSize: "1.1rem", fontWeight: 700, color: "var(--color-primary)" }}>
-                                                        {payment.amount.toLocaleString()} <span style={{ fontSize: "0.8rem", fontWeight: "normal" }}>ETB</span>
+                                                    <p style={{ margin: "0", fontSize: "1.2rem", fontWeight: 700, color: "var(--color-primary)" }}>
+                                                        {expectedAmount.toLocaleString()} <span style={{ fontSize: "0.8rem", fontWeight: "normal" }}>ETB</span>
                                                     </p>
+                                                    {appliedDiscount > 0 ? (
+                                                        <p style={{ margin: "0", fontSize: "0.9rem", color: "var(--color-danger)", textDecoration: "line-through", opacity: 0.7 }}>
+                                                            {payment.amount.toLocaleString()} ETB
+                                                        </p>
+                                                    ) : null}
                                                 </div>
                                             </div>
                                         </summary>
                                         <div style={{ display: "flex", flexDirection: "column", gap: "1rem", padding: "1.25rem 0 2rem 0" }}>
                                             <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                                                {payment.childDiscount ? (
+                                                {appliedDiscount > 0 ? (
                                                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0 0.5rem" }}>
-                                                        <span className="label-text" style={{ fontSize: "0.9rem" }}>{language === "am" ? "ቅናሽ" : "Discount"}</span>
-                                                        <span style={{ fontWeight: 600, color: "var(--color-danger)" }}>-{payment.childDiscount.toLocaleString()} ETB</span>
+                                                        <span className="label-text" style={{ fontSize: "0.9rem" }}>{language === "am" ? "የተደረገ ቅናሽ" : "Applied Discount"}</span>
+                                                        <span style={{ fontWeight: 600, color: "var(--color-danger)" }}>-{appliedDiscount.toLocaleString()} ETB</span>
                                                     </div>
                                                 ) : null}
                                                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0 0.5rem" }}>

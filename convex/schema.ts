@@ -51,6 +51,7 @@ export default defineSchema({
   payments: defineTable({
     childId: v.id("children"),
     amount: v.number(),
+    discount: v.optional(v.number()),
     dueDate: v.string(), // ISO date string
     status: v.string(), // "pending", "paid"
     paidAt: v.optional(v.string()),
