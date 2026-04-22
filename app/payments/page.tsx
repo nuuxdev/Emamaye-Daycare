@@ -67,15 +67,17 @@ export default function PaymentsList() {
         const diffTime = jsDue.getTime() - jsToday.getTime();
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-        let category: PaymentCategory = "upcoming";
+        let category: PaymentCategory | "future" = "upcoming";
         if (p.status === "paid") {
             category = "paid";
         } else if (diffDays < 0) {
             category = "unpaid";
-        } else if (diffDays >= 0 && diffDays <= 5) {
+        } else if (diffDays === 0) {
             category = "due_date";
-        } else {
+        } else if (diffDays > 0 && diffDays <= 3) {
             category = "upcoming";
+        } else {
+            category = "future"; // Keeps payments > 3 days away hidden from tabs
         }
 
         // Add formatted Ethiopic date for display

@@ -1,7 +1,7 @@
 import { v } from "convex/values";
 import { internalMutation, mutation, query } from "./_generated/server";
 import { getAuthUserId } from "@convex-dev/auth/server";
-import { today, getLocalTimeZone, EthiopicCalendar, toCalendar } from "@internationalized/date";
+import { today, getLocalTimeZone, EthiopicCalendar, toCalendar, GregorianCalendar } from "@internationalized/date";
 
 // --- Payment Settings ---
 
@@ -177,15 +177,36 @@ export const payCreditBalance = mutation({
 
 // This mutation checks all children and creates payments if they are due.
 // Logic: Children pay on their specific paymentDate (1-30).
-async function performPaymentGeneration(ctx: any, dueDate: string, dayEth: number) {
+async function performPaymentGeneration(ctx: any) {
     const children = await ctx.db.query("children").collect();
     const paymentSettings = await ctx.db.query("paymentSettings").collect();
     const settingsMap = new Map(paymentSettings.map((s: any) => [s.ageGroup, s.amount]));
 
+    const todayGreg = today(getLocalTimeZone());
+    const ethCalendar = new EthiopicCalendar();
+    const todayEth = toCalendar(todayGreg, ethCalendar);
+
     let createdCount = 0;
 
     for (const child of children) {
-        if (child.paymentDate !== dayEth) continue;
+        if (!child.isActive) continue;
+
+        let payDay = child.paymentDate || 1;
+        if (todayEth.month === 13 && payDay > 5) payDay = 5;
+
+        // Construct the Ethiopic due date for this specific child for the current month
+        let childDueEth;
+        try {
+            // Re-importing CalendarDate here inside the file context is tricky if wasn't imported.
+            // But we already have `toCalendar` and `today`. However, `@internationalized/date` exports `CalendarDate`.
+            // Wait, an easier way is to just use `todayEth.set({ day: payDay })`.
+            childDueEth = todayEth.set({ day: payDay });
+        } catch (e) {
+            childDueEth = todayEth.set({ day: 1 });
+        }
+
+        const childDueGreg = toCalendar(childDueEth, new GregorianCalendar());
+        const dueDate = childDueGreg.toString(); // YYYY-MM-DD
 
         // Check if payment already exists for this child and due date
         const existingPayments = await ctx.db
@@ -221,32 +242,22 @@ async function performPaymentGeneration(ctx: any, dueDate: string, dayEth: numbe
 
 export const generateMonthlyPaymentsInternal = internalMutation({
     args: {
-        dueDate: v.string(), // YYYY-MM-DD
+        dueDate: v.optional(v.string()), // Ignored now, kept for API compatibility if needed
     },
-    handler: async (ctx, { dueDate }) => {
-        const [year, month, day] = dueDate.split("-").map(Number);
-        const ethCalendar = new EthiopicCalendar();
-        // Since we don't have parseDate readily available here without importing it
-        // We will just assume the dayEth is the eth day of today, but dueDate could be arbitrary.
-        // If dueDate represents the Ethiopian date already? No, it's YYYY-MM-DD of Gregorian usually.
-        // Actually, let's just use the current day for dayEth if they use internalMutation
-        const todayGreg = today(getLocalTimeZone());
-        const todayEth = toCalendar(todayGreg, ethCalendar);
-        return await performPaymentGeneration(ctx, dueDate, todayEth.day);
+    handler: async (ctx) => {
+        return await performPaymentGeneration(ctx);
     }
 });
 
 export const generateMonthlyPayments = mutation({
     args: {
-        dueDate: v.string(),
+        dueDate: v.optional(v.string()),
     },
-    handler: async (ctx, { dueDate }) => {
+    handler: async (ctx) => {
         const userId = await getAuthUserId(ctx);
         if (!userId) throw new Error("Unauthorized");
 
-        const todayGreg = today(getLocalTimeZone());
-        const todayEth = toCalendar(todayGreg, new EthiopicCalendar());
-        return await performPaymentGeneration(ctx, dueDate, todayEth.day);
+        return await performPaymentGeneration(ctx);
     }
 });
 
@@ -254,11 +265,6 @@ export const generateMonthlyPayments = mutation({
 export const autoGeneratePayments = internalMutation({
     args: {},
     handler: async (ctx) => {
-        const todayGreg = today(getLocalTimeZone());
-        const todayEth = toCalendar(todayGreg, new EthiopicCalendar());
-        const dayEth = todayEth.day;
-
-        const dueDateStr = todayGreg.toString(); // YYYY-MM-DD
-        return await performPaymentGeneration(ctx, dueDateStr, dayEth);
+        return await performPaymentGeneration(ctx);
     }
 });
