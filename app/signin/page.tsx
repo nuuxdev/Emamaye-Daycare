@@ -58,7 +58,7 @@ export default function SignIn() {
 
         <div className="signin-icon-wrapper">
           <Image
-            src="/references/family.png"
+            src="/emamaye-192.png"
             alt="Family"
             fill
             className="object-contain"
